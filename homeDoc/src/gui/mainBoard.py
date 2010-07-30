@@ -66,6 +66,7 @@ class MainFrame(wx.Frame):
         self.label2 = wx.StaticText(self.panel, -1, 'filter :', size= (32, 17))
         self.tbFilter = wx.TextCtrl(self.panel, -1, '', size=(342, 20),style=wx.TE_PROCESS_ENTER)
         self.btBuildFilter = wx.Button(self.panel, -1, 'advanced', size= (75, 23))
+        self.btBuildFilter.Hide()
         
 
         # sizers
