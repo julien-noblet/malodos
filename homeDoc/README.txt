@@ -21,5 +21,5 @@ The libraries onto which it is built are essentially:
 - pypdf (for pdf creation)
 
 This project is hosted on google code at the following address and can be downloaded from there:
-
+http://code.google.com/p/malodos/downloads/detail?name=homeDoc-0.1.zip&can=2&q=
 
