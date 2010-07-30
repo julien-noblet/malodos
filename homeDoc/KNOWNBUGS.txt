@@ -1,0 +1,9 @@
+THIS FILE IS LISTING THE CURRENTLY KNOWN BUGS FOR THIS VERSION OF MALODOS
+
+28/07/2010
+----------
+
+* The file signature (MD5 checksum) is made at the creation time and recorded to the database. If, during a subsequent
+  access the checksum, the user have the possibility to update this signature (if it is relevant). The update is actually made but
+  not well taken into account until the program is restarted. Probably a problem of cache... It's quite ennoying but file checksums
+  should not be changed very often, so I postponed the debug of this problem and sent it to a pre-release...   
