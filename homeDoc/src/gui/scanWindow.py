@@ -18,7 +18,6 @@ else:
 import gui.docWindow as docWindow
 import data
 import addFileWindow
-import database
 
 class ScanWindow(wx.Dialog):
 	scanner = None
@@ -76,15 +75,14 @@ class ScanWindow(wx.Dialog):
 	def actionSaveRecord(self,event):
 		fname = self.recordPart.lbFileName.GetPath()
 		if fname == '' :
-			wx.MessageBox('Unable to add the file to the database')
+			wx.MessageBox('You must give a valid filename to record the document')
 			return
-		data.theData.save_file(fname)
-		title = self.recordPart.lbTitle.Value
-		description = self.recordPart.lbDescription.Value
-		documentDate = self.recordPart.lbDate.Value
-		keywords = database.theBase.get_keywords_from(title, description, fname)
-		# add the document to the database
-		if not database.theBase.add_document(fname, title, description, None, documentDate, keywords):
+		try:
+			if not data.theData.save_file(fname) : raise Exception
+		except:
+			wx.MessageBox('Unable to add the file to the disk')
+			return
+		if not self.recordPart.do_save_record():
 			wx.MessageBox('Unable to add the file to the database')
 		else:
 			# close the dialog

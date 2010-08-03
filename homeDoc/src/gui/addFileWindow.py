@@ -10,7 +10,7 @@ GUI dialog for addition of a file into the database
 import wx
 import os
 import database
-
+import datetime
 
 class RecordWidget(wx.Window):
     def __init__(self,parent,filename='',file_style = wx.FLP_OPEN | wx.FLP_FILE_MUST_EXIST | wx.FLP_USE_TEXTCTRL):
@@ -54,6 +54,18 @@ class RecordWidget(wx.Window):
         #if date : self.lbDate.SetValue(wx.Date)
     def onResize(self,event):
         self.panel.Size = self.Size
+    def do_save_record(self):
+        filename = self.lbFileName.GetPath()
+        if len(filename) == 0:
+            return
+        title = self.lbTitle.Value
+        description = self.lbDescription.Value
+        documentDate = self.lbDate.Value
+        documentDate=datetime.datetime(documentDate.GetYear(),documentDate.GetMonth(),documentDate.GetDay())
+        keywords = database.theBase.get_keywords_from(title, description, filename)
+        # add the document to the database
+        return database.theBase.add_document(filename, title, description, None, documentDate, keywords)
+         
 
 
         
@@ -106,15 +118,7 @@ class AddFileWindow(wx.Dialog):
     # Click on Add document button
     #===========================================================================
     def actionDoAdd(self,event):
-        filename = self.recordPart.lbFileName.GetPath()
-        if len(filename) == 0:
-            return
-        title = self.recordPart.lbTitle.Value
-        description = self.recordPart.lbDescription.Value
-        documentDate = self.recordPart.lbDate.Value
-        keywords = database.theBase.get_keywords_from(title, description, filename)
-        # add the document to the database
-        if not database.theBase.add_document(filename, title, description, None, documentDate, keywords):
+        if not self.recordPart.do_save_record():
             wx.MessageBox('Unable to add the file to the database')
         else:
             # close the dialog
