@@ -26,7 +26,7 @@ class MainFrame(wx.Frame):
     # constructor (GUI building)
     #===========================================================================
     def __init__(self, parent, title):
-        wx.Frame.__init__(self, parent, -1, 'HomeDocs Main panel', wx.DefaultPosition, (576, 721), style=wx.CLOSE_BOX | wx.SYSTEM_MENU | wx.CAPTION | wx.RESIZE_BORDER | 0 | 0 | wx.MAXIMIZE_BOX | wx.MINIMIZE_BOX)
+        wx.Frame.__init__(self, parent, -1, 'MALODOS Main panel', wx.DefaultPosition, (576, 721), style=wx.CLOSE_BOX | wx.SYSTEM_MENU | wx.CAPTION | wx.RESIZE_BORDER | 0 | 0 | wx.MAXIMIZE_BOX | wx.MINIMIZE_BOX)
         self.panel = wx.Panel(self, -1)
         
 
@@ -103,6 +103,7 @@ class MainFrame(wx.Frame):
         # layout assignment
         self.panel.SetSizerAndFit(self.totalWin)
         self.totalWin.Fit(self)
+        self.SetSizeWH(800,600)
         self.actionSearch(None)
         
     #===========================================================================
