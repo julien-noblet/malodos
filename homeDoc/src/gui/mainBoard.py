@@ -54,18 +54,20 @@ class MainFrame(wx.Frame):
         self.recordSizer.Add(self.recordButtonSizer)
         self.docViewPanel.SetSizerAndFit(self.docViewSizer)
 
-        self.label1 = wx.StaticText(self.panel, -1, 'DOCUMENTS', size=(224, 36))
+        self.label1 = wx.StaticText(self.panel, -1, 'MALODOS', size=(224, 36))
         self.label1.SetForegroundColour(wx.Colour(230, 105, 30))
         self.label1.SetFont(wx.Font(24, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, 'Microsoft Sans Serif'))
         #self.label1.SetFont(wx.Font(24))
 
         self.lbDocuments = wx.ListBox(self.docPart, -1,size= (387, 124),style=wx.LB_SORT | wx.LB_EXTENDED )
-        self.btAddFile = wx.Button(self.panel, -1, 'add file', size= (106, 21))
-        self.btAddScan = wx.Button(self.panel, -1, 'add scan', size= (105, 21))
-        self.btRemove = wx.Button(self.panel, -1, 'remove selection', size= (105, 22))
-        self.label2 = wx.StaticText(self.panel, -1, 'filter :', size= (32, 17))
-        self.tbFilter = wx.TextCtrl(self.panel, -1, '', size=(342, 20),style=wx.TE_PROCESS_ENTER)
-        self.btBuildFilter = wx.Button(self.panel, -1, 'advanced', size= (75, 23))
+        self.btPrefsWin = wx.Button(self.panel, -1, 'prefs.')
+        self.btAddFile = wx.Button(self.panel, -1, 'add file')
+        self.btAddScan = wx.Button(self.panel, -1, 'add scan')
+        self.btRemove = wx.Button(self.panel, -1, 'remove sel.')
+        self.btDirSurvey = wx.Button(self.panel, -1, 'survey win.')
+        self.label2 = wx.StaticText(self.panel, -1, 'filter :')
+        self.tbFilter = wx.TextCtrl(self.panel, -1, '',style=wx.TE_PROCESS_ENTER)
+        self.btBuildFilter = wx.Button(self.panel, -1, 'advanced')
         self.btBuildFilter.Hide()
         
 
@@ -73,25 +75,31 @@ class MainFrame(wx.Frame):
         self.totalWin = wx.BoxSizer(wx.VERTICAL)
         self.upPart = wx.BoxSizer(wx.HORIZONTAL)
         self.searchPart = wx.BoxSizer(wx.HORIZONTAL)
-        self.buttonPart = wx.BoxSizer(wx.VERTICAL)
+        self.buttonPart = wx.GridSizer(cols=2)
         self.docPart.SplitVertically(self.lbDocuments,self.docViewPanel)
 
         # adding widgets into sizers (--> creating layout)
-        self.totalWin.Add(self.label1,0,wx.ALIGN_CENTRE_HORIZONTAL | wx.ALIGN_TOP)
-        self.totalWin.Add(self.upPart,0,wx.EXPAND)
-        self.totalWin.Add(self.docPart,1,wx.EXPAND)
-
-        self.upPart.Add(self.searchPart,4)
-        self.upPart.Add(self.buttonPart,1)
-
-        self.searchPart.Add(self.label2,0,wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL)
-        self.searchPart.Add(self.tbFilter,1,wx.EXPAND)
+        self.searchPart.Add(self.label2,0,wx.ALIGN_LEFT)
+        self.searchPart.Add(self.tbFilter,1,wx.EXPAND |wx.ALIGN_CENTER_VERTICAL)
         self.searchPart.Add(self.btBuildFilter,0,wx.EXPAND)
-
-        self.buttonPart.Add(self.btAddFile,0,wx.ALIGN_TOP | wx.EXPAND)
+        self.searchPart.Layout()
+        
+        self.buttonPart.Add(self.btPrefsWin,0,wx.EXPAND)
+        self.buttonPart.Add(self.btAddFile,0,wx.EXPAND)
         self.buttonPart.Add(self.btAddScan,0,wx.EXPAND)
         self.buttonPart.Add(self.btRemove,0,wx.EXPAND)
+        self.buttonPart.Add(self.btDirSurvey,0,wx.EXPAND)
+        self.buttonPart.Layout()
         
+        self.upPart.Add(self.searchPart,3,wx.ALIGN_LEFT)
+        self.upPart.Add(self.buttonPart,1,wx.EXPAND |wx.ALIGN_RIGHT)
+        self.upPart.Layout()
+        
+        self.totalWin.Add(self.label1,0,wx.EXPAND | wx.ALIGN_CENTRE_HORIZONTAL | wx.ALIGN_TOP)
+        self.totalWin.Add(self.upPart,0,wx.EXPAND)
+        self.totalWin.Add(self.docPart,1,wx.EXPAND |wx.ALIGN_BOTTOM)
+        self.totalWin.Layout()
+
         self.Bind(wx.EVT_BUTTON, self.actionAddFile, self.btAddFile)
         self.Bind(wx.EVT_BUTTON, self.actionAddScan, self.btAddScan)
         self.Bind(wx.EVT_TEXT_ENTER, self.actionSearch, self.tbFilter)
@@ -103,7 +111,7 @@ class MainFrame(wx.Frame):
         # layout assignment
         self.panel.SetSizerAndFit(self.totalWin)
         self.totalWin.Fit(self)
-        self.SetSizeWH(800,600)
+        self.Maximize()
         self.actionSearch(None)
         
     #===========================================================================
