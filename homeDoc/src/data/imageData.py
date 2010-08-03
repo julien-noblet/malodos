@@ -16,6 +16,7 @@ import gfx
 import wx
 from fpdf import FPDF
 import os
+import tempfile
 
 class imageData(object):
     val = None
@@ -52,14 +53,15 @@ class imageData(object):
             doc = FPDF()
             list_files=[]
             for i in range(len(self.pil_images)):
-                fle_tmp = os.tmpnam() + '.png'
+                fle_tmp_tuple = tempfile.mkstemp(suffix='.png')
+                fle_tmp = fle_tmp_tuple[1];
                 list_files.append(fle_tmp)
                 self.pil_images[i].save(fle_tmp)
                 doc.AddPage()
                 doc.Image(fle_tmp, 0, 0)
             doc.Output(filename)
             for f in list_files : os.remove(f)
-        
+            return True
         except:
             return False
     def load_file(self,filename):
