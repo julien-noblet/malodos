@@ -17,8 +17,10 @@ import subprocess
 from data import theData
 
 import scanWindow
+import survey
 from gui import utilities
 import hashlib
+from gui.survey import SurveyWindow
 
 
 class MainFrame(wx.Frame):
@@ -107,6 +109,7 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_BUTTON,self.actionStartExternalApp,self.btShowExternal)
         self.Bind(wx.EVT_BUTTON,self.actionRemoveRecord,self.btRemoveRecord)
         self.Bind(wx.EVT_BUTTON,self.actionUpdateRecord,self.btUpdateRecord)
+        self.Bind(wx.EVT_BUTTON,self.actionStartSurvey,self.btDirSurvey)
 
         # layout assignment
         self.panel.SetSizerAndFit(self.totalWin)
@@ -230,3 +233,7 @@ class MainFrame(wx.Frame):
         #print 'must remove ' + str(docID) + ' because x is ' + str(x)
         database.theBase.remove_documents(docID)
         self.actionSearch(None)
+        
+    def actionStartSurvey(self,event):
+        Frame = survey.SurveyWindow(self)
+        Frame.ShowModal()
