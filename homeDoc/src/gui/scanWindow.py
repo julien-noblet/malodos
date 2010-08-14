@@ -25,7 +25,7 @@ class ScanWindow(wx.Dialog):
 	# constructor (gui building)
 	#==============================================================================
 	def __init__(self, parent, title):
-		wx.Dialog.__init__(self, parent, -1, 'Scanning a new document', wx.DefaultPosition, (372, 700), style=wx.CLOSE_BOX | wx.SYSTEM_MENU | wx.CAPTION | wx.RESIZE_BORDER | 0 | 0 | wx.MAXIMIZE_BOX | wx.MINIMIZE_BOX)
+		wx.Dialog.__init__(self, parent, -1, 'Scanning a new document', wx.DefaultPosition, (372, 700), style=wx.CLOSE_BOX | wx.SYSTEM_MENU | wx.CAPTION | wx.RESIZE_BORDER  | wx.MAXIMIZE_BOX | wx.MINIMIZE_BOX)
 		self.panel = wx.Panel(self, -1)
 
 		self.totalWin = wx.BoxSizer(wx.VERTICAL)
