@@ -13,6 +13,9 @@ import datetime
 import hashlib
 import string
 import gui.utilities
+import os.path
+
+
 class Base(object):
     '''(
     this class is the interface between the application and the database engine
@@ -81,7 +84,7 @@ class Base(object):
         self.create_table(self.docWords_tableName, 'keyID INTEGER  ,docID INTEGER ')
         self.create_table(self.persons_tableName, 'name TEXT')
         self.create_table(self.params_tableName, 'name TEXT , value TEXT')
-        
+        self.connexion.create_function("IS_IN_DIR", 2, lambda fname,dirname : os.path.samefile(os.path.dirname(fname), dirname))
         
         db_version = self.get_parameter(self.param_DB_VERSION)
         if not db_version:
@@ -361,5 +364,17 @@ class Base(object):
         keywords = set(keywords_title+keywords_descr)
         keywords =  map(lambda s:s.lower() , keywords)
         return keywords
+    #===========================================================================
+    # get_files_under : retrieve all the documents of the database whose filename
+    # are on the directory <directory> (directly and not under subdir)
+    #===========================================================================
+    def get_files_under(self,directory):
+        Q = "SELECT filename FROM " + self.documents_tableName + " WHERE IS_IN_DIR(filename,?)"
+        try:
+            cur = self.connexion.execute(Q,(directory,))
+            return cur
+        except:
+            return ()
+        
         
         
