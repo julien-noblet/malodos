@@ -20,7 +20,7 @@ import scanWindow
 import survey
 from gui import utilities
 import hashlib
-from gui.survey import SurveyWindow
+from gui import Preferences
 
 
 class MainFrame(wx.Frame):
@@ -67,6 +67,7 @@ class MainFrame(wx.Frame):
         self.btAddScan = wx.Button(self.panel, -1, 'add scan')
         self.btRemove = wx.Button(self.panel, -1, 'remove sel.')
         self.btDirSurvey = wx.Button(self.panel, -1, 'survey win.')
+        self.btDocToGo = wx.Button(self.panel, -1, 'DocToGo')
         self.label2 = wx.StaticText(self.panel, -1, 'filter :')
         self.tbFilter = wx.TextCtrl(self.panel, -1, '',style=wx.TE_PROCESS_ENTER)
         self.btBuildFilter = wx.Button(self.panel, -1, 'advanced')
@@ -91,6 +92,7 @@ class MainFrame(wx.Frame):
         self.buttonPart.Add(self.btAddScan,0,wx.EXPAND)
         self.buttonPart.Add(self.btRemove,0,wx.EXPAND)
         self.buttonPart.Add(self.btDirSurvey,0,wx.EXPAND)
+        self.buttonPart.Add(self.btDocToGo,0,wx.EXPAND)
         self.buttonPart.Layout()
         
         self.upPart.Add(self.searchPart,3,wx.ALIGN_LEFT)
@@ -110,6 +112,7 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_BUTTON,self.actionRemoveRecord,self.btRemoveRecord)
         self.Bind(wx.EVT_BUTTON,self.actionUpdateRecord,self.btUpdateRecord)
         self.Bind(wx.EVT_BUTTON,self.actionStartSurvey,self.btDirSurvey)
+        self.Bind(wx.EVT_BUTTON,self.actionShowPrefs,self.btPrefsWin)
 
         # layout assignment
         self.panel.SetSizerAndFit(self.totalWin)
@@ -122,7 +125,9 @@ class MainFrame(wx.Frame):
     #===========================================================================
     def actionAddScan(self,event):
         Frame = scanWindow.ScanWindow(self,"Scan a new document")
+        theData.clear_all()
         Frame.ShowModal()
+        theData.clear_all()
         self.actionSearch(None)
 
     #===========================================================================
@@ -234,6 +239,18 @@ class MainFrame(wx.Frame):
         database.theBase.remove_documents(docID)
         self.actionSearch(None)
         
+    #===========================================================================
+    # actionStartSurvey : show the document survey window
+    #===========================================================================
     def actionStartSurvey(self,event):
+        theData.clear_all()
         Frame = survey.SurveyWindow(self)
+        Frame.ShowModal()
+        theData.clear_all()
+        self.actionSearch(None)
+    #===========================================================================
+    # actionShowPrefs : show the preferences window
+    #===========================================================================
+    def actionShowPrefs(self,event):
+        Frame = Preferences.PrefGui(self)
         Frame.ShowModal()
