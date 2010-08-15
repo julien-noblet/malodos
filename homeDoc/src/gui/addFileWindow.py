@@ -46,7 +46,11 @@ class RecordWidget(wx.Window):
         
         self.panel.SetSizerAndFit(self.totSizer)
         self.Bind(wx.EVT_SIZE,self.onResize)
-        
+    
+    def clear_all(self):
+        self.lbFileName.SetPath('')
+        self.lbTitle.SetValue('')
+        self.lbDescription.SetValue('')
     def SetFields(self,filename=None,title=None,description=None,date=None):
         if filename : self.lbFileName.SetPath(filename) 
         if title : self.lbTitle.SetValue(title)
@@ -61,7 +65,7 @@ class RecordWidget(wx.Window):
         title = self.lbTitle.Value
         description = self.lbDescription.Value
         documentDate = self.lbDate.Value
-        documentDate=datetime.datetime(documentDate.GetYear(),documentDate.GetMonth(),documentDate.GetDay())
+        documentDate=datetime.datetime(year=documentDate.GetYear(),month=documentDate.GetMonth(),day=documentDate.GetDay())
         keywords = database.theBase.get_keywords_from(title, description, filename)
         # add the document to the database
         return database.theBase.add_document(filename, title, description, None, documentDate, keywords)
