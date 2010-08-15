@@ -13,6 +13,7 @@ import docWindow
 import addFileWindow
 import database
 import os.path
+import data
 
 class SurveyWindow(wx.Dialog):
     '''
@@ -45,10 +46,47 @@ class SurveyWindow(wx.Dialog):
         self.recordButtonSizer.Add(self.btAddRecord,1,wx.EXPAND)
         self.recordSizer.Add(self.recordButtonSizer)
         self.panel.SetSizerAndFit(self.docViewSizer)
+
+        self.Bind(wx.EVT_LISTBOX,self.actionDocSelect,self.docList)
+        self.Bind(wx.EVT_BUTTON, self.actionDoAdd, self.btAddRecord)
         
-        cur = database.theBase.get_files_under('/mnt/ntfs3/scans');
-        for row in cur:
-            self.docList.Append(os.path.basename(row[0]),row)
-        
+        self.populate_list()
         self.SetSizeWH(800,600)
-    
+        
+    def populate_list(self):
+        def append_dir(param,dr,file_list):
+            accepted_ext = ('.png','.tif','.tiff','.pdf','.jpg','.jpeg','.gif','.bmp','.doc','.txt','.odt')
+            cur = database.theBase.get_files_under(dr)
+            presents = set( (os.path.basename(row[0]) for row in cur ) )
+            file_list = set(f for f in file_list if not os.path.isdir(os.path.join(dr,f)) and os.path.splitext(f)[1] in accepted_ext)
+            file_list = file_list - presents
+            if len(file_list)<1 : return
+            self.docList.Append("           UNDER DIRECTORY " + dr,None)
+            self.docList.Append('*'*60,None)
+            for f in file_list:
+                fname = os.path.join(dr,f)
+#                if os.path.isdir(fname) :  continue
+                self.docList.Append(f,fname)
+        self.docList.Clear()
+        os.path.walk(os.path.expanduser('~'),append_dir, None )
+
+    def actionDocSelect(self,event):
+        sel = self.docList.GetSelection()
+        fname = self.docList.GetClientData(sel)
+        if not fname : return
+        self.recordPart.SetFields(filename = fname)
+        try:
+            data.theData.load_file(fname)
+            self.docWin.showCurrentImage()
+        except:
+            data.theData.clear_all()
+    #===========================================================================
+    # Click on Add document button
+    #===========================================================================
+    def actionDoAdd(self,event):
+        if not self.recordPart.do_save_record():
+            wx.MessageBox('Unable to add the file to the database')
+        else:
+            data.theData.clear_all()
+            self.recordPart.clear_all()
+            self.populate_list()
