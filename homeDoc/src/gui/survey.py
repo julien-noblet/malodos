@@ -65,7 +65,6 @@ class SurveyWindow(wx.Dialog):
             self.docList.Append('*'*60,None)
             for f in file_list:
                 fname = os.path.join(dr,f)
-#                if os.path.isdir(fname) :  continue
                 self.docList.Append(f,fname)
         self.docList.Clear()
         os.path.walk(os.path.expanduser('~'),append_dir, None )
