@@ -1,3 +1,5 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 '''
 Created on 21 juin 2010. Copyright 2010, David GUEZ
 @author: david guez (guezdav@gmail.com)
@@ -14,8 +16,106 @@ import hashlib
 import string
 import gui.utilities
 import os.path
+import ConfigParser
 
+class Configuration(object):
+    def __init__(self):
+        self.config = None
+        if os.name=='nt':
+            self.conf_dir = os.path.join(os.path.expanduser('~'),'malodos')
+        else:
+            self.conf_dir = os.path.join(os.path.expanduser('~'),'.malodos')
+        if not os.path.isdir(self.conf_dir) :
+            try:
+                os.mkdir(self.conf_dir)
+            except:
+                return
+        if not os.path.exists(self.conf_dir) : return
+        self.conf_file = os.path.join(self.conf_dir,'malodos.ini')
+        if not os.path.exists(self.conf_file) :
+            try:
+                theFile = open(self.conf_file,'w')
+            except:
+                return
+            self.config = ConfigParser.SafeConfigParser()
+            self.config.add_section('database')
+            self.set_database_name( os.path.join(self.conf_dir,'malodos.db'))
+            self.config.add_section('language')
+            #self.set_installed_languages(u'english,français,עברית')
+            self.set_installed_languages(u'english')
+            self.set_current_language('english')
+            self.config.add_section('survey')
+            self.set_survey_directory_list( (os.path.join(self.conf_dir,'documents'),) , (0,))
+            self.set_survey_extension_list( 'png tif tiff pdf jpg jpeg gif bmp doc txt odt' )
+            self.commit_config()
+            theFile.close()
+        self.read_config()
 
+    def get_survey_extension_list(self):
+        if not self.config : raise "Configuration not found"
+        return self.config.get('survey','extension_list')
+    def set_survey_extension_list(self,S):
+        if not self.config : raise "Configuration not found"
+        self.config.set('survey','extension_list',S)
+    def get_survey_directory_list(self):
+        if not self.config : raise "Configuration not found"
+        S = self.config.get('survey','directory_list')
+        return self.decode_dir_list(S)
+    def set_survey_directory_list(self,dir_list,recursiveIndex):
+        if not self.config : raise "Configuration not found"
+        S = self.encode_dir_list(dir_list, recursiveIndex)
+        self.config.set('survey','directory_list',S)
+    def get_installed_languages(self):
+        if not self.config : raise "Configuration not found"
+        return self.config.get('language','installed').split(',')
+    def set_installed_languages(self,S):
+        if not self.config : raise "Configuration not found"
+        if hasattr(S, '__iter__') : S = ','.join(S)
+        self.config.set('language','installed',S)
+    def get_current_language(self):
+        if not self.config : raise "Configuration not found"
+        return self.config.get('language','current')
+    def set_current_language(self,S):
+        if not self.config : raise "Configuration not found"
+        self.config.set('language','current',S)
+    def get_database_name(self):
+        if not self.config : raise "Configuration not found"
+        return self.config.get('database', 'filename')
+    def set_database_name(self,S):
+        if not self.config : raise "Configuration not found"
+        return self.config.set('database', 'filename',S)
+    def read_config(self):
+        if os.path.exists(self.conf_file) :
+            self.config = ConfigParser.SafeConfigParser()
+            self.config.read(self.conf_file)
+    def commit_config(self):
+            try:
+                theFile = open(self.conf_file,'w')
+                self.config.write(theFile)
+                theFile.close()
+                return True
+            except:
+                return False
+    def encode_dir_list(self , dir_list , checked):
+        answer = ""
+        for i in range(len(dir_list)) :
+            if i in checked : answer = answer + '*'
+            answer = answer + dir_list[i] + '|'
+        return answer
+    def decode_dir_list(self,S):
+        items_list = S.split('|')
+        checked = []
+        dir_list = []
+        
+        for item in items_list :
+            item = item.strip()
+            if len(item)<1 : continue
+            if item[0] == '*' :
+                checked.append(len(dir_list))
+                item=item[1:]
+            dir_list.append(item)
+        return (dir_list , checked)
+    
 class Base(object):
     '''(
     this class is the interface between the application and the database engine
@@ -29,16 +129,16 @@ class Base(object):
     persons_tableName = 'persons'
     params_tableName = 'parameters'
     param_DB_VERSION='DB_VERSION'
-    DB_VERSION=1.0
-
+    DB_VERSION=1.0    
+        
     #===========================================================================
     # constructor
     #===========================================================================
-    def __init__(self):
+    def __init__(self,base_name):
         '''
         Constructor
         '''
-        self.base_name = 'docBase.db'
+        self.base_name = base_name
         try:
             self.connexion = sqlite3.connect(self.base_name)
             #Q = 'PRAGMA foreign_keys = ON'
@@ -71,6 +171,8 @@ class Base(object):
             return True
         except:
             return False
+    def win32_samefile(self,p1,p2):
+        return os.path.abspath(p1).lower() == os.path.abspath(p2).lower()
     #===========================================================================
     # build the database
     #===========================================================================
@@ -84,8 +186,11 @@ class Base(object):
         self.create_table(self.docWords_tableName, 'keyID INTEGER  ,docID INTEGER ')
         self.create_table(self.persons_tableName, 'name TEXT')
         self.create_table(self.params_tableName, 'name TEXT , value TEXT')
-        self.connexion.create_function("IS_IN_DIR", 2, lambda fname,dirname : os.path.samefile(os.path.dirname(fname), dirname))
-        
+        if os.name == 'nt' or os.name == 'win32' :
+            self.connexion.create_function("IS_IN_DIR", 2, lambda fname,dirname : self.win32_samefile(os.path.dirname(fname), dirname))
+        else:
+            self.connexion.create_function("IS_IN_DIR", 2, lambda fname,dirname : os.path.samefile(os.path.dirname(fname), dirname))
+        self.connexion.create_function("EXTENSION", 1, lambda fname : os.path.splitext(fname)[1])
         db_version = self.get_parameter(self.param_DB_VERSION)
         if not db_version:
             self.set_parameter(self.param_DB_VERSION, self.DB_VERSION)
@@ -368,10 +473,18 @@ class Base(object):
     # get_files_under : retrieve all the documents of the database whose filename
     # are on the directory <directory> (directly and not under subdir)
     #===========================================================================
-    def get_files_under(self,directory):
-        Q = "SELECT filename FROM " + self.documents_tableName + " WHERE IS_IN_DIR(filename,?)"
+    def get_files_under(self,directory,acceptedExt=None):
+        if acceptedExt:
+            Q = "SELECT filename FROM " + self.documents_tableName + " WHERE IS_IN_DIR(filename,?) AND EXTENSION(filename) IN " + self.make_placeholder_list(len(acceptedExt))
+        else:
+            Q = "SELECT filename FROM " + self.documents_tableName + " WHERE IS_IN_DIR(filename,?) "
         try:
-            cur = self.connexion.execute(Q,(directory,))
+            if acceptedExt:
+                acceptedExt = [ i for i in acceptedExt];
+                acceptedExt.insert(0, directory)
+                cur = self.connexion.execute(Q,acceptedExt)
+            else:
+                cur = self.connexion.execute(Q,(directory,))
             return cur
         except:
             return ()

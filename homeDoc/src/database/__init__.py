@@ -7,4 +7,5 @@ attached to this project (LICENSE.txt file)
 =====================================================================
 '''
 import db
-theBase = db.Base()
+theConfig = db.Configuration()
+theBase = db.Base(theConfig.get_database_name())
