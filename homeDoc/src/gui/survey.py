@@ -54,8 +54,10 @@ class SurveyWindow(wx.Dialog):
         self.SetSizeWH(800,600)
         
     def populate_list(self):
+        accepted_ext = database.theConfig.get_survey_extension_list()
+        accepted_ext = [ '.' + i for i in accepted_ext.split(' ') ]
+
         def append_dir(param,dr,file_list):
-            accepted_ext = ('.png','.tif','.tiff','.pdf','.jpg','.jpeg','.gif','.bmp','.doc','.txt','.odt')
             cur = database.theBase.get_files_under(dr)
             presents = set( (os.path.basename(row[0]) for row in cur ) )
             file_list = set(f for f in file_list if not os.path.isdir(os.path.join(dr,f)) and os.path.splitext(f)[1] in accepted_ext)
@@ -66,8 +68,18 @@ class SurveyWindow(wx.Dialog):
             for f in file_list:
                 fname = os.path.join(dr,f)
                 self.docList.Append(f,fname)
+        
+        
         self.docList.Clear()
-        os.path.walk(os.path.expanduser('~'),append_dir, None )
+        (dir_list,recursiveIdx) = database.theConfig.get_survey_directory_list()
+        for i in range(len(dir_list)):
+            if i in recursiveIdx:
+                os.path.walk(dir_list[i],append_dir, None )
+            else:
+                append_dir(None, dir_list[i], os.listdir(dir_list[i]))
+
+
+        
 
     def actionDocSelect(self,event):
         sel = self.docList.GetSelection()
