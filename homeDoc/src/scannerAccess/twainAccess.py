@@ -10,7 +10,7 @@ almost copy/paste of the source from twain module website (http://twainmodule.so
 import twain
 import tempfile
 import PIL
-import gui.utilities
+#import gui.utilities
 #import FreeImagePy as FIPY
 import data
 
