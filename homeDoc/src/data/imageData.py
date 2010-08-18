@@ -15,8 +15,9 @@ from PIL import Image , ImageSequence
 import gfx
 import wx
 from fpdf import FPDF
-import os
 import tempfile
+import sys
+import os.path
 
 class imageData(object):
     val = None
@@ -24,7 +25,8 @@ class imageData(object):
     current_image = 0
     image_changed = True
     def __init__(self):
-        self.image_void = Image.open('no_preview.png')
+        void_file = os.path.join(os.path.dirname(sys.argv[0]),'gui','no_preview.png')
+        self.image_void = Image.open(void_file)
     def change_image(self,delta):
         self.current_image += delta
         if self.current_image<0 or self.current_image>len(self.pil_images):
