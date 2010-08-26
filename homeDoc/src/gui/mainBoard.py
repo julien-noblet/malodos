@@ -7,6 +7,7 @@ attached to this project (LICENSE.txt file)
 =====================================================================
 GUI frame of the main application board
 '''
+import datetime
 import wx
 import addFileWindow
 import docWindow
@@ -21,9 +22,17 @@ import survey
 from gui import utilities
 import hashlib
 from gui import Preferences
-
+import Resources
 
 class MainFrame(wx.Frame):
+    ID_ADD_FILE=1
+    ID_ADD_SCAN=2
+    ID_REMOVE_SEL=3
+    ID_PRINT_DOC=4
+    ID_DOCTOGO=5
+    ID_SURVEY=6
+    ID_PREFS=7
+    ID_CREDITS=8
     #===========================================================================
     # constructor (GUI building)
     #===========================================================================
@@ -42,6 +51,17 @@ class MainFrame(wx.Frame):
         self.docWin = docWindow.docWindow(self.docViewPanel,-1)
         self.docViewSizer.Add(self.docWin,1,wx.EXPAND)
         
+        self.tbMainBar = self.CreateToolBar()
+        self.tbMainBar.AddLabelTool(self.ID_ADD_FILE,'',wx.Bitmap(Resources.get_icon_filename('ADD_FILE')))
+        self.tbMainBar.AddLabelTool(self.ID_ADD_SCAN,'',wx.Bitmap(Resources.get_icon_filename('ADD_SCAN')))
+        self.tbMainBar.AddLabelTool(self.ID_REMOVE_SEL,'',wx.Bitmap(Resources.get_icon_filename('REMOVE_SELECTION')))
+        self.tbMainBar.AddLabelTool(self.ID_PRINT_DOC,'',wx.Bitmap(Resources.get_icon_filename('DOC_PRINT')))
+        self.tbMainBar.AddLabelTool(self.ID_DOCTOGO,'',wx.Bitmap(Resources.get_icon_filename('DOC_ZIP')))
+        self.tbMainBar.AddLabelTool(self.ID_SURVEY,'',wx.Bitmap(Resources.get_icon_filename('SURVEY_WIN')))
+        self.tbMainBar.AddLabelTool(self.ID_PREFS,'',wx.Bitmap(Resources.get_icon_filename('PREFS')))
+        self.tbMainBar.AddLabelTool(self.ID_CREDITS,'',wx.Bitmap(Resources.get_icon_filename('CREDITS')))
+        self.tbMainBar.Realize()
+        
         self.recordPart = addFileWindow.RecordWidget(self.docViewPanel)
         self.recordPart.lbFileName.Disable()
         self.recordSizer.Add(self.recordPart,1,wx.EXPAND)
@@ -56,18 +76,7 @@ class MainFrame(wx.Frame):
         self.recordSizer.Add(self.recordButtonSizer)
         self.docViewPanel.SetSizerAndFit(self.docViewSizer)
 
-        self.label1 = wx.StaticText(self.panel, -1, 'MALODOS', size=(224, 36))
-        self.label1.SetForegroundColour(wx.Colour(230, 105, 30))
-        self.label1.SetFont(wx.Font(24, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, 'Microsoft Sans Serif'))
-        #self.label1.SetFont(wx.Font(24))
-
         self.lbDocuments = wx.ListBox(self.docPart, -1,size= (387, 124),style=wx.LB_SORT | wx.LB_EXTENDED )
-        self.btPrefsWin = wx.Button(self.panel, -1, 'prefs.')
-        self.btAddFile = wx.Button(self.panel, -1, 'add file')
-        self.btAddScan = wx.Button(self.panel, -1, 'add scan')
-        self.btRemove = wx.Button(self.panel, -1, 'remove sel.')
-        self.btDirSurvey = wx.Button(self.panel, -1, 'survey win.')
-        self.btDocToGo = wx.Button(self.panel, -1, 'DocToGo')
         self.label2 = wx.StaticText(self.panel, -1, 'filter :')
         self.tbFilter = wx.TextCtrl(self.panel, -1, '',style=wx.TE_PROCESS_ENTER)
         self.btBuildFilter = wx.Button(self.panel, -1, 'advanced')
@@ -78,7 +87,6 @@ class MainFrame(wx.Frame):
         self.totalWin = wx.BoxSizer(wx.VERTICAL)
         self.upPart = wx.BoxSizer(wx.HORIZONTAL)
         self.searchPart = wx.BoxSizer(wx.HORIZONTAL)
-        self.buttonPart = wx.GridSizer(cols=2)
         self.docPart.SplitVertically(self.lbDocuments,self.docViewPanel)
 
         # adding widgets into sizers (--> creating layout)
@@ -87,32 +95,22 @@ class MainFrame(wx.Frame):
         self.searchPart.Add(self.btBuildFilter,0,wx.EXPAND)
         self.searchPart.Layout()
         
-        self.buttonPart.Add(self.btPrefsWin,0,wx.EXPAND)
-        self.buttonPart.Add(self.btAddFile,0,wx.EXPAND)
-        self.buttonPart.Add(self.btAddScan,0,wx.EXPAND)
-        self.buttonPart.Add(self.btRemove,0,wx.EXPAND)
-        self.buttonPart.Add(self.btDirSurvey,0,wx.EXPAND)
-        self.buttonPart.Add(self.btDocToGo,0,wx.EXPAND)
-        self.buttonPart.Layout()
-        
         self.upPart.Add(self.searchPart,3,wx.ALIGN_LEFT)
-        self.upPart.Add(self.buttonPart,1,wx.EXPAND |wx.ALIGN_RIGHT)
         self.upPart.Layout()
         
-        self.totalWin.Add(self.label1,0,wx.EXPAND | wx.ALIGN_CENTRE_HORIZONTAL | wx.ALIGN_TOP)
         self.totalWin.Add(self.upPart,0,wx.EXPAND)
         self.totalWin.Add(self.docPart,1,wx.EXPAND |wx.ALIGN_BOTTOM)
         self.totalWin.Layout()
 
-        self.Bind(wx.EVT_BUTTON, self.actionAddFile, self.btAddFile)
-        self.Bind(wx.EVT_BUTTON, self.actionAddScan, self.btAddScan)
         self.Bind(wx.EVT_TEXT_ENTER, self.actionSearch, self.tbFilter)
         self.Bind(wx.EVT_LISTBOX,self.actionDocSelect,self.lbDocuments)
+        self.Bind(wx.EVT_TOOL, self.actionAddFile, id=self.ID_ADD_FILE)
+        self.Bind(wx.EVT_TOOL, self.actionAddScan, id=self.ID_ADD_SCAN)
+        self.Bind(wx.EVT_TOOL,self.actionStartSurvey,id=self.ID_SURVEY)
+        self.Bind(wx.EVT_TOOL,self.actionShowPrefs,id=self.ID_PREFS)
         self.Bind(wx.EVT_BUTTON,self.actionStartExternalApp,self.btShowExternal)
         self.Bind(wx.EVT_BUTTON,self.actionRemoveRecord,self.btRemoveRecord)
         self.Bind(wx.EVT_BUTTON,self.actionUpdateRecord,self.btUpdateRecord)
-        self.Bind(wx.EVT_BUTTON,self.actionStartSurvey,self.btDirSurvey)
-        self.Bind(wx.EVT_BUTTON,self.actionShowPrefs,self.btPrefsWin)
 
         # layout assignment
         self.panel.SetSizerAndFit(self.totalWin)
@@ -214,8 +212,11 @@ class MainFrame(wx.Frame):
         title = self.recordPart.lbTitle.Value
         description = self.recordPart.lbDescription.GetValue()
         documentDate = self.recordPart.lbDate.GetValue()
-        if not database.theBase.update_doc(docID, title, description, documentDate, filename):
+        documentDate=datetime.date(year=documentDate.GetYear(),month=documentDate.GetMonth()+1,day=documentDate.GetDay())
+        if not database.theBase.update_doc(docID, title, description, format(documentDate,'%d-%m-%Y'), filename):
             wx.MessageBox('Unable to update the database')
+        else:
+            self.actionSearch(None)
         
     #===========================================================================
     # actionRemoveRecord : remove the selected items
