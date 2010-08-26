@@ -20,6 +20,9 @@ The libraries onto which it is built are essentially:
 - swftools (for pdf reading)
 - pypdf (for pdf creation)
 
+The icons are taken from this website : http://icones.pro
+
 This project is hosted on google code at the following address and can be downloaded from there:
 http://code.google.com/p/malodos/downloads/detail?name=homeDoc-0.1.zip&can=2&q=
+
 

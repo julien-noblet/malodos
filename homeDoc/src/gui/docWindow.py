@@ -14,6 +14,8 @@ import wx
 #import PIL
 #import FreeImagePy as FIPY
 import data
+import Resources
+
 class docWindow(wx.Window) :
     #===========================================================================
     # constructor (gui building)
@@ -24,8 +26,10 @@ class docWindow(wx.Window) :
         self.img = None
         self.totalWin = wx.BoxSizer(wx.VERTICAL)
         self.buttonPart = wx.BoxSizer(wx.HORIZONTAL)
-        self.btLeft = wx.Button(self.panel,-1,'<')
-        self.btRight = wx.Button(self.panel,-1,'>')
+        self.btLeft = wx.BitmapButton(self.panel,-1,wx.Bitmap(Resources.get_icon_filename('PREVIOUS_PAGE')))
+        self.btRight = wx.BitmapButton(self.panel,-1,wx.Bitmap(Resources.get_icon_filename('NEXT_PAGE')))
+        self.btZoom = wx.BitmapButton(self.panel,-1,wx.Bitmap(Resources.get_icon_filename('ZOOM_PAGE')))
+        self.btPan = wx.BitmapButton(self.panel,-1,wx.Bitmap(Resources.get_icon_filename('PAN_PAGE')))
         self.lbImage = wx.StaticText(self.panel,-1,'No image')
 
         self.canvas = wx.StaticBitmap(self.panel, -1)
@@ -33,6 +37,8 @@ class docWindow(wx.Window) :
         self.totalWin.Add(self.canvas,1,wx.GROW|wx.EXPAND|wx.ALIGN_CENTER)
         self.buttonPart.Add(self.btLeft ,0)
         self.buttonPart.Add(self.btRight,0)
+        self.buttonPart.Add(self.btZoom,0)
+        self.buttonPart.Add(self.btPan,0)
         self.buttonPart.Add(self.lbImage,1,wx.EXPAND)
 
         self.Bind(wx.EVT_BUTTON, self.actionPreviousImage, self.btLeft)

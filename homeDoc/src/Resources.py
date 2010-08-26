@@ -35,9 +35,15 @@ def get_icon_filename(icon_id):
         return fname
     except:
         return ''
-def get_message(message_id):
+def get_message(message_id,language=None):
     if not resourceContent : read_resource_file()
+    if not language :
+        language=database.theConfig.get_current_language()
+    if not resourceContent.has_section(language) :
+        language='english'
+    if not resourceContent.has_section(language) :
+        return '' 
     try:
-        return resourceContent.get('message',message_id) 
+        return unicode(resourceContent.get('english',message_id)) 
     except:
-        return None
+        return ''
