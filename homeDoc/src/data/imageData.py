@@ -25,7 +25,7 @@ class imageData(object):
     current_image = 0
     image_changed = True
     def __init__(self):
-        void_file = os.path.join(os.path.dirname(sys.argv[0]),'gui','no_preview.png')
+        void_file = os.path.join(os.path.dirname(sys.argv[0]),'../resources','no_preview.png')
         self.image_void = Image.open(void_file)
     def change_image(self,delta):
         self.current_image += delta
