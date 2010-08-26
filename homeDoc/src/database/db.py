@@ -84,6 +84,9 @@ class Configuration(object):
     def set_database_name(self,S):
         if not self.config : raise "Configuration not found"
         return self.config.set('database', 'filename',S)
+    def get_resource_filename(self):
+        if not self.config : raise "Configuration not found"
+        return self.config.get('general', 'resourceFile')
     def read_config(self):
         if os.path.exists(self.conf_file) :
             self.config = ConfigParser.SafeConfigParser()
@@ -242,7 +245,7 @@ class Base(object):
         the registering date is automatically taken from the system
         )'''
         docID = None
-        registeringDate = datetime.date.today()
+        registeringDate = format(datetime.date.today(),'%d-%m-%y')
         cur = self.connexion.cursor()
         if not documentDate : documentDate = registeringDate
         personID = 0
@@ -267,7 +270,7 @@ class Base(object):
             # add the document entry in the database
             #sql_statement = 'INSERT INTO ' + self.documents_tableName + " VALUES ('" + title + "','" + description + "','" + fileName + "','" + str(registeringDate) + "'," + str(personID) + ",'" + str(documentDate) + "','" + str(file_md5) + "')"
             sql_statement = 'INSERT INTO ' + self.documents_tableName + " VALUES (?,?,?,?,?,?,?)"
-            cur = self.connexion.execute(sql_statement,(title,description,fileName,str(registeringDate),personID,str(documentDate),str(file_md5)))
+            cur = self.connexion.execute(sql_statement,(title,description,fileName,registeringDate,personID,documentDate,str(file_md5)))
             docID = cur.lastrowid
         except:
             return False
@@ -439,7 +442,7 @@ class Base(object):
     def update_doc(self,docID,title,description,documentDate,filename):
         Q = 'UPDATE ' + self.documents_tableName + ' SET title=? , description=?, documentDate=? WHERE ROWID=?'
         try:
-            self.connexion.execute(Q,(title,description,str(documentDate),docID))
+            self.connexion.execute(Q,(title,description,documentDate,docID))
             self.connexion.commit()
         except:
             return False
