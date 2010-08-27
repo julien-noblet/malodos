@@ -15,8 +15,11 @@ import wx
 #import FreeImagePy as FIPY
 import data
 import Resources
+import wx.lib.mixins.rubberband
 
 class docWindow(wx.Window) :
+    center=[0.5,0.5]
+    window=[1.0,1.0]
     #===========================================================================
     # constructor (gui building)
     #===========================================================================
@@ -28,8 +31,8 @@ class docWindow(wx.Window) :
         self.buttonPart = wx.BoxSizer(wx.HORIZONTAL)
         self.btLeft = wx.BitmapButton(self.panel,-1,wx.Bitmap(Resources.get_icon_filename('PREVIOUS_PAGE')))
         self.btRight = wx.BitmapButton(self.panel,-1,wx.Bitmap(Resources.get_icon_filename('NEXT_PAGE')))
-        self.btZoom = wx.BitmapButton(self.panel,-1,wx.Bitmap(Resources.get_icon_filename('ZOOM_PAGE')))
-        self.btPan = wx.BitmapButton(self.panel,-1,wx.Bitmap(Resources.get_icon_filename('PAN_PAGE')))
+        #self.btZoom = wx.BitmapButton(self.panel,-1,wx.Bitmap(Resources.get_icon_filename('ZOOM_PAGE')))
+        #self.btPan = wx.BitmapButton(self.panel,-1,wx.Bitmap(Resources.get_icon_filename('PAN_PAGE')))
         self.lbImage = wx.StaticText(self.panel,-1,'No image')
 
         self.canvas = wx.StaticBitmap(self.panel, -1)
@@ -37,17 +40,21 @@ class docWindow(wx.Window) :
         self.totalWin.Add(self.canvas,1,wx.GROW|wx.EXPAND|wx.ALIGN_CENTER)
         self.buttonPart.Add(self.btLeft ,0)
         self.buttonPart.Add(self.btRight,0)
-        self.buttonPart.Add(self.btZoom,0)
-        self.buttonPart.Add(self.btPan,0)
+        #self.buttonPart.Add(self.btZoom,0)
+        #self.buttonPart.Add(self.btPan,0)
         self.buttonPart.Add(self.lbImage,1,wx.EXPAND)
 
         self.Bind(wx.EVT_BUTTON, self.actionPreviousImage, self.btLeft)
         self.Bind(wx.EVT_BUTTON, self.actionNextImage, self.btRight)
+        #self.Bind(wx.EVT_BUTTON, self.actionGetZoom, self.btZoom)
         self.Bind(wx.EVT_SIZE,self.onResize)
         
         self.canvas.SetSize(wx.Size(200,300))
         self.panel.SetSizerAndFit(self.totalWin)
 
+    def actionGetZoom(self,event):
+        pass
+        #R = wx.lib.mixins.rubberband.RubberBand(self.canvas)
         
     #===========================================================================
     # show the current image in the canvas
