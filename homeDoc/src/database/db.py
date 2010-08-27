@@ -17,6 +17,7 @@ import string
 import gui.utilities
 import os.path
 import ConfigParser
+import algorithms.words
 
 class Configuration(object):
     def __init__(self):
@@ -184,7 +185,12 @@ class Base(object):
         create the database (all the tables)
         )'''
         self.create_table(self.documents_tableName, 'title TEXT(64), description TEXT(256), filename TEXT(256), registerDate INTEGER, registeringPersonID INTEGER, documentDate INTEGER,checksum TEXT')
-        self.create_table(self.keywords_tableName, 'keyword TEXT PRIMARY KEY')
+        self.create_table(self.keywords_tableName, 'keyword TEXT PRIMARY KEY , soundex_word TEXT ')
+        sql_statement = "CREATE INDEX IF NOT EXISTS SOUNDEX ON " + self.keywords_tableName + "(soundex_word)"
+        try:
+            self.connexion.execute(sql_statement)
+        except:
+            pass
         #self.create_table(self.docWords_tableName, 'keyID INTEGER references ' + self.keywords_tableName + '(ROWID) ,docID INTEGER references ' + self.documents_tableName + '(ROWID)')
         self.create_table(self.docWords_tableName, 'keyID INTEGER  ,docID INTEGER ')
         self.create_table(self.persons_tableName, 'name TEXT')
@@ -194,6 +200,7 @@ class Base(object):
         else:
             self.connexion.create_function("IS_IN_DIR", 2, lambda fname,dirname : os.path.samefile(os.path.dirname(fname), dirname))
         self.connexion.create_function("EXTENSION", 1, lambda fname : os.path.splitext(fname)[1])
+        self.connexion.create_function("PHONEX", 1, lambda word : algorithms.words.phonex(word))
         db_version = self.get_parameter(self.param_DB_VERSION)
         if not db_version:
             self.set_parameter(self.param_DB_VERSION, self.DB_VERSION)
@@ -295,12 +302,12 @@ class Base(object):
         )'''
         cur = None
         if not keywords : return None
-        keywords =  map(lambda s:s.lower() , keywords)
+        keywords =  map(lambda s:algorithms.words.phonex(s) , keywords)
         # first : find the keyword in the keywords table
         if isinstance(keywords,list):
-            Q = "SELECT ROWID FROM " + self.keywords_tableName + " WHERE keyword IN " + self.make_placeholder_list(len(keywords))
+            Q = "SELECT ROWID FROM " + self.keywords_tableName + " WHERE soundex_word IN " + self.make_placeholder_list(len(keywords))
         else:
-            Q = "SELECT ROWID FROM " + self.keywords_tableName + " WHERE keyword = ?"
+            Q = "SELECT ROWID FROM " + self.keywords_tableName + " WHERE soundex_word = ?"
                 
         try:
             #print "finding keys via " + Q
@@ -408,8 +415,8 @@ class Base(object):
             return False
         # add all absent keywords to the keywords table
         absents = self.find_absent_keywords(keywords)
-        absents = map(lambda x:(x,) , absents)
-        Q = 'INSERT INTO ' + self.keywords_tableName + ' VALUES (?)'
+        absents = map(lambda x:(x,algorithms.words.phonex(x)) , absents)
+        Q = 'INSERT INTO ' + self.keywords_tableName + ' VALUES (?,?)'
         try:
             self.connexion.executemany(Q,absents )
         except:
@@ -491,6 +498,4 @@ class Base(object):
             return cur
         except:
             return ()
-        
-        
         
