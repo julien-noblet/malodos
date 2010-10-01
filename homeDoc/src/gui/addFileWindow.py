@@ -39,6 +39,12 @@ class RecordWidget(wx.Window):
         self.lbDescription = wx.TextCtrl(self.panel , -1 , '')
         self.totSizer.Add(self.txtDescription,0)
         self.totSizer.Add(self.lbDescription,1,wx.EXPAND)
+
+        self.txtTags = wx.StaticText(self.panel , -1 , 'Tags')
+        self.lbTags = wx.TextCtrl(self.panel , -1 , '')
+        self.totSizer.Add(self.txtTags,0)
+        self.totSizer.Add(self.lbTags,1,wx.EXPAND)
+        
         self.txtDate = wx.StaticText(self.panel , -1 , 'document date')
         self.lbDate = wx.DatePickerCtrl(self.panel , -1,style=wx.DP_DROPDOWN)
         self.totSizer.Add(self.txtDate,0)
@@ -51,10 +57,11 @@ class RecordWidget(wx.Window):
         self.lbFileName.SetPath('')
         self.lbTitle.SetValue('')
         self.lbDescription.SetValue('')
-    def SetFields(self,filename=None,title=None,description=None,date=None):
+    def SetFields(self,filename=None,title=None,description=None,date=None,tags=None):
         if filename : self.lbFileName.SetPath(filename) 
         if title : self.lbTitle.SetValue(title)
         if description : self.lbDescription.SetValue(description)
+        if tags : self.lbDescription.SetValue(tags)
         if date :
             t = datetime.datetime.strptime(date,'%d-%m-%Y')
             dt = wx.DateTime()
