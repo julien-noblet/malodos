@@ -100,14 +100,14 @@ class docWindow(wx.Window) :
         if viewRect.y<0 : viewRect.y=0;
         if viewRect.x>= self.img.GetWidth() : viewRect.x = self.img.GetWidth() -1
         if viewRect.y>= self.img.GetHeight() : viewRect.y = self.img.GetWidth() -1
-        if viewRect.width<1 : viewRect.width = 1 
+        if viewRect.width<1 : viewRect.width = 1
         if viewRect.height<1 : viewRect.height = 1
         if viewRect.width > self.img.GetWidth() : viewRect.width = self.img.GetWidth()
         if viewRect.height > self.img.GetHeight() : viewRect.height = self.img.GetHeight()
         if viewRect.x + viewRect.width > self.img.GetWidth() : viewRect.x = self.img.GetWidth() - viewRect.width
         if viewRect.y + viewRect.height > self.img.GetHeight() : viewRect.y = self.img.GetHeight() - viewRect.height
         
-        theImage = self.img.ConvertToBitmap();
+        theImage = self.img.ConvertToBitmap()
         theImage = theImage.GetSubBitmap(viewRect)
         theImage = theImage.ConvertToImage()
 
