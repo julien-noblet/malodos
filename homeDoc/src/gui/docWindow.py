@@ -94,7 +94,7 @@ class docWindow(wx.Window) :
     # show the current image in the canvas
     #===========================================================================
     def showCurrentImage(self,quality=wx.IMAGE_QUALITY_HIGH):
-        MAX_RESOLUTION = 800.0
+        MAX_RESOLUTION = 1024.0
         self.panel.SetSize(self.GetSizeTuple())
         self.totalWin.Layout()
         if len(data.theData.pil_images)==0:
@@ -110,7 +110,7 @@ class docWindow(wx.Window) :
                 qmin = min(q)
                 if qmin <1 :
                     res_final = [ int(self.img.GetWidth() * qmin) , int(self.img.GetHeight() * qmin) ]
-                    self.img.Rescale(res_final[0],res_final[1])
+                    self.img.Rescale(res_final[0],res_final[1],wx.IMAGE_QUALITY_HIGH)
             self.img = self.img.ConvertToBitmap()
         if not self.img : return
         viewRect = self.getViewRect()
