@@ -10,6 +10,7 @@ GUI frame of the main application board
 import datetime
 import wx
 import addFileWindow
+import RecordWidget
 import docWindow
 import database
 import string
@@ -62,7 +63,7 @@ class MainFrame(wx.Frame):
         self.tbMainBar.AddLabelTool(self.ID_CREDITS,'',wx.Bitmap(Resources.get_icon_filename('CREDITS')),shortHelp=Resources.get_message('CREDITS'))
         self.tbMainBar.Realize()
         
-        self.recordPart = addFileWindow.RecordWidget(self.docViewPanel)
+        self.recordPart = RecordWidget.RecordWidget(self.docViewPanel)
         self.recordPart.lbFileName.Disable()
         self.recordSizer.Add(self.recordPart,1,wx.EXPAND)
         self.btUpdateRecord = wx.Button(self.docViewPanel,-1,'Update')

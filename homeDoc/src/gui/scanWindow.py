@@ -17,7 +17,7 @@ else:
 	from scannerAccess import twainAccess
 import gui.docWindow as docWindow
 import data
-import addFileWindow
+import RecordWidget
 
 class ScanWindow(wx.Dialog):
 	scanner = None
@@ -37,7 +37,7 @@ class ScanWindow(wx.Dialog):
 
 		self.btSave = wx.Button(self.panel, -1, 'Record')
 		self.docWin = docWindow.docWindow(self.panel,-1)
-		self.recordPart = addFileWindow.RecordWidget(self.panel,file_style=wx.FLP_SAVE | wx.FLP_OVERWRITE_PROMPT | wx.FLP_USE_TEXTCTRL)
+		self.recordPart = RecordWidget.RecordWidget(self.panel,file_style=wx.FLP_SAVE | wx.FLP_OVERWRITE_PROMPT | wx.FLP_USE_TEXTCTRL)
 		self.upPart.Add(self.btSource,0,wx.EXPAND | wx.CENTER)
 		self.upPart.Add(self.btScan,0,wx.EXPAND | wx.CENTER)
 		self.upPart.Add(self.btSave,0,wx.EXPAND | wx.CENTER)

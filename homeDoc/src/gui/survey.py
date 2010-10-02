@@ -10,7 +10,7 @@ GUI dialog for documents survey
 
 import wx
 import docWindow
-import addFileWindow
+import RecordWidget
 import database
 import os.path
 import data
@@ -37,7 +37,7 @@ class SurveyWindow(wx.Dialog):
         self.upPart.Add(self.docList,1,wx.EXPAND)
         self.upPart.Add(self.docWin,1,wx.EXPAND)
         
-        self.recordPart = addFileWindow.RecordWidget(self.panel)
+        self.recordPart = RecordWidget.RecordWidget(self.panel)
         self.recordPart.lbFileName.Disable()
         self.recordSizer.Add(self.recordPart,1,wx.EXPAND)
         self.btAddRecord = wx.Button(self.panel,-1,'Add')
