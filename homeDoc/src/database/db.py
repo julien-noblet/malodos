@@ -133,8 +133,17 @@ class Base(object):
     persons_tableName = 'persons'
     params_tableName = 'parameters'
     param_DB_VERSION='DB_VERSION'
-    DB_VERSION=1.0    
-        
+    DB_VERSION=1.0
+    
+    IDX_TITLE=0
+    IDX_DESCRIPTION=1
+    IDX_FILENAME=2
+    IDX_REGISTER_DATE=3
+    IDX_REGISTER_PERSON_ID=4
+    IDX_DOCUMENT_DATE=5
+    IDX_TAGS=6
+    IDX_CHECKSUM=7
+    IDX_ROWID=8
     #===========================================================================
     # constructor
     #===========================================================================
@@ -145,6 +154,7 @@ class Base(object):
         self.base_name = base_name
         try:
             self.connexion = sqlite3.connect(self.base_name)
+            #self.connexion.row_factory = sqlite3.Row
             #Q = 'PRAGMA foreign_keys = ON'
             #self.connexion.execute(Q)
         except:
@@ -184,7 +194,7 @@ class Base(object):
         '''( 
         create the database (all the tables)
         )'''
-        self.create_table(self.documents_tableName, 'title TEXT(64), description TEXT(256), filename TEXT(256), registerDate INTEGER, registeringPersonID INTEGER, documentDate INTEGER,checksum TEXT')
+        self.create_table(self.documents_tableName, 'title TEXT(64), description TEXT(256), filename TEXT(256), registerDate INTEGER, registeringPersonID INTEGER, documentDate INTEGER,tags TEXT,checksum TEXT')
         self.create_table(self.keywords_tableName, 'keyword TEXT PRIMARY KEY , soundex_word TEXT ')
         sql_statement = "CREATE INDEX IF NOT EXISTS SOUNDEX ON " + self.keywords_tableName + "(soundex_word)"
         try:
@@ -210,6 +220,7 @@ class Base(object):
             gui.utilities.show_message('Unstable state: Your database version is newer than the program itself...')
             return False
         return True
+    
     #===========================================================================
     # set a parameter
     #===========================================================================
@@ -245,7 +256,7 @@ class Base(object):
     #===============================================================================
     # add a new document to the database
     #===============================================================================
-    def add_document(self, fileName, title = 'untitled', description = '', registeringPerson = None, documentDate = None, keywords = None):
+    def add_document(self, fileName, title = 'untitled', description = '', registeringPerson = None, documentDate = None, keywords = None , tags = ''):
         '''(
         Add a new document to the database
         only the filename is mandatory
@@ -276,8 +287,8 @@ class Base(object):
         try:
             # add the document entry in the database
             #sql_statement = 'INSERT INTO ' + self.documents_tableName + " VALUES ('" + title + "','" + description + "','" + fileName + "','" + str(registeringDate) + "'," + str(personID) + ",'" + str(documentDate) + "','" + str(file_md5) + "')"
-            sql_statement = 'INSERT INTO ' + self.documents_tableName + " VALUES (?,?,?,?,?,?,?)"
-            cur = self.connexion.execute(sql_statement,(title,description,fileName,registeringDate,personID,documentDate,str(file_md5)))
+            sql_statement = 'INSERT INTO ' + self.documents_tableName + " VALUES (?,?,?,?,?,?,?,?)"
+            cur = self.connexion.execute(sql_statement,(title,description,fileName,registeringDate,personID,documentDate,tags,str(file_md5)))
             docID = cur.lastrowid
         except:
             return False
@@ -446,14 +457,14 @@ class Base(object):
     #===========================================================================
     # update_doc : replace the values for a given doc
     #===========================================================================
-    def update_doc(self,docID,title,description,documentDate,filename):
-        Q = 'UPDATE ' + self.documents_tableName + ' SET title=? , description=?, documentDate=? WHERE ROWID=?'
+    def update_doc(self,docID,title,description,documentDate,filename,tags):
+        Q = 'UPDATE ' + self.documents_tableName + ' SET title=? , description=?, documentDate=? ,tags=? WHERE ROWID=?'
         try:
-            self.connexion.execute(Q,(title,description,documentDate,docID))
+            self.connexion.execute(Q,(title,description,documentDate,tags,docID))
             self.connexion.commit()
         except:
             return False
-        keywords = self.get_keywords_from(title, description, filename)
+        keywords = self.get_keywords_from(title, description, filename,tags)
         return self.update_keywords_for(docID,keywords)
     #===========================================================================
     # update_doc : replace the values for a given doc
@@ -469,14 +480,16 @@ class Base(object):
     #===========================================================================
     # get_keywords_from : find the keywords from a document
     #===========================================================================
-    def get_keywords_from(self,title,description,filename):  
+    def get_keywords_from(self,title,description,filename,tags):  
         keywords_title = string.split(title, ' ')
         keywords_title = [i for i in keywords_title if len(i)>3]
         
         keywords_descr = string.split(description, ' ')
         keywords_descr = [i for i in keywords_descr if len(i)>3]
         
-        keywords = set(keywords_title+keywords_descr)
+        keywords_tag = string.split(tags , ',')
+        
+        keywords = set(keywords_title+keywords_descr + keywords_tag)
         keywords =  map(lambda s:s.lower() , keywords)
         return keywords
     #===========================================================================

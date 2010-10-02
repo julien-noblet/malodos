@@ -155,7 +155,7 @@ class MainFrame(wx.Frame):
         if not docList: return
         # otherwise show them in the listbox
         for row in docList:
-            self.lbDocuments.Append(row[0] , row)
+            self.lbDocuments.Append(row[database.theBase.IDX_TITLE] , row)
     #===========================================================================
     # actionDocSelect : show the selected item on the doc part
     #===========================================================================
@@ -164,14 +164,16 @@ class MainFrame(wx.Frame):
         if sel == wx.NOT_FOUND or len(sel)!=1: return
         sel = sel[0]
         row = self.lbDocuments.GetClientData(sel)
-        docID = row[-1]
-        filename = row[2] 
-        title = row[0]
-        description = row[1]
-        documentDate = row[5]
+        
+        docID = row[database.theBase.IDX_ROWID]
+        filename = row[database.theBase.IDX_FILENAME] 
+        title = row[database.theBase.IDX_TITLE]
+        description = row[database.theBase.IDX_DESCRIPTION]
+        documentDate = row[database.theBase.IDX_DOCUMENT_DATE]
+        tags = row[database.theBase.IDX_TAGS]
         try:
-            file_md5 = hashlib.md5(open(row[2], "rb").read()).hexdigest()
-            if row[6] !=  file_md5:
+            file_md5 = hashlib.md5(open(row[database.theBase.IDX_FILENAME], "rb").read()).hexdigest()
+            if row[database.theBase.IDX_CHECKSUM] !=  file_md5:
                 Q = utilities.ask('The file content has changed! Do you wish to update its signature?')
                 if Q==wx.ID_YES:
                     if not database.theBase.update_doc_signature(docID, file_md5):
@@ -179,7 +181,7 @@ class MainFrame(wx.Frame):
         except:
             utilities.show_message('Unable to check the file signature...')
         
-        self.recordPart.SetFields(filename, title, description, documentDate)
+        self.recordPart.SetFields(filename, title, description, documentDate,tags)
         #print row
         try:
             theData.load_file(filename)
@@ -195,7 +197,7 @@ class MainFrame(wx.Frame):
         if sel == wx.NOT_FOUND or len(sel)!=1: return
         sel = sel[0]
         row = self.lbDocuments.GetClientData(sel)
-        filename = row[2]
+        filename = row[database.theBase.IDX_FILENAME]
         if os.name == 'posix' :
             subprocess.Popen(['xdg-open', filename])
         else:
@@ -208,13 +210,14 @@ class MainFrame(wx.Frame):
         if sel == wx.NOT_FOUND or len(sel)!=1: return
         sel = sel[0]
         row = self.lbDocuments.GetClientData(sel)
-        docID = row[-1]
+        docID = row[database.theBase.IDX_ROWID]
         filename = self.recordPart.lbFileName.GetPath() 
         title = self.recordPart.lbTitle.Value
+        tags = self.recordPart.lbTags.Value
         description = self.recordPart.lbDescription.GetValue()
         documentDate = self.recordPart.lbDate.GetValue()
         documentDate=datetime.date(year=documentDate.GetYear(),month=documentDate.GetMonth()+1,day=documentDate.GetDay())
-        if not database.theBase.update_doc(docID, title, description, format(documentDate,'%d-%m-%Y'), filename):
+        if not database.theBase.update_doc(docID, title, description, format(documentDate,'%d-%m-%Y'), filename,tags):
             wx.MessageBox('Unable to update the database')
         else:
             self.actionSearch(None)
@@ -228,9 +231,9 @@ class MainFrame(wx.Frame):
         docID = []
         for i in sel:
             row = self.lbDocuments.GetClientData(i)
-            docID.append(row[-1])
+            docID.append(row[database.theBase.IDX_ROWID])
         if len(docID)==1:
-            msg = 'do you really want to delete this record (' + row[0] + ')'        
+            msg = 'do you really want to delete this record (' + row[database.theBase.IDX_TITLE] + ')'        
         else:
             msg = 'do you really want to delete these ' + str(len(docID)) + ' records'
         confirmation = wx.MessageDialog(self,msg,style=wx.OK|wx.CANCEL | wx.CENTRE)

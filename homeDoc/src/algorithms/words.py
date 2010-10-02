@@ -20,13 +20,13 @@ import re
 def phonex(word):
     word = word.lower()
     # remove eventual trailing ent, t, s  
-    word = re.sub(r'$ents', '',word)
-    word = re.sub(r'$ent', '',word)
-    word = re.sub(r'$s', '',word)
-    word = re.sub(r'$t', '',word)
-    word = re.sub(r'$x', '',word)
-    word = re.sub(r'$es', '',word)
-    word = re.sub(r'$e', '',word)
+    word = re.sub(r'ents$', '',word)
+    word = re.sub(r'ent$', '',word)
+    word = re.sub(r's$', '',word)
+    word = re.sub(r't$', '',word)
+    word = re.sub(r'x$', '',word)
+    word = re.sub(r'es$', '',word)
+    word = re.sub(r'e$', '',word)
     # replace eu eux by 1
     word = word.replace(r'eux', '1')
     word = word.replace(r'eu', '1')

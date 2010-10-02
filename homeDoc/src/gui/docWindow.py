@@ -32,6 +32,8 @@ class docWindow(wx.Window) :
         self.buttonPart = wx.BoxSizer(wx.HORIZONTAL)
         self.btLeft = wx.BitmapButton(self.panel,-1,wx.Bitmap(Resources.get_icon_filename('PREVIOUS_PAGE')))
         self.btRight = wx.BitmapButton(self.panel,-1,wx.Bitmap(Resources.get_icon_filename('NEXT_PAGE')))
+        self.btZoomPlus = wx.BitmapButton(self.panel,-1,wx.Bitmap(Resources.get_icon_filename('ZOOM_PLUS')))
+        self.btZoomMinus = wx.BitmapButton(self.panel,-1,wx.Bitmap(Resources.get_icon_filename('ZOOM_MINUS')))
         self.lbImage = wx.StaticText(self.panel,-1,'No image')
 
         self.canvas = wx.StaticBitmap(self.panel, -1)
@@ -39,10 +41,14 @@ class docWindow(wx.Window) :
         self.totalWin.Add(self.canvas,1,wx.GROW|wx.EXPAND|wx.ALIGN_CENTER)
         self.buttonPart.Add(self.btLeft ,0)
         self.buttonPart.Add(self.btRight,0)
+        self.buttonPart.Add(self.btZoomPlus ,0)
+        self.buttonPart.Add(self.btZoomMinus,0)
         self.buttonPart.Add(self.lbImage,1,wx.EXPAND)
 
         self.Bind(wx.EVT_BUTTON, self.actionPreviousImage, self.btLeft)
         self.Bind(wx.EVT_BUTTON, self.actionNextImage, self.btRight)
+        self.Bind(wx.EVT_BUTTON, self.actionZoomPlus, self.btZoomPlus)
+        self.Bind(wx.EVT_BUTTON, self.actionZoomMinus, self.btZoomMinus)
         self.Bind(wx.EVT_SIZE,self.onResize)
         self.Bind(wx.EVT_MOUSEWHEEL,self.onMouseWheelEvent)
         self.canvas.Bind(wx.EVT_MOTION,self.onMouseMotion)
@@ -55,14 +61,8 @@ class docWindow(wx.Window) :
         self.dragFirstPos = None
         self.showCurrentImage(wx.IMAGE_QUALITY_HIGH)
     def onMouseWheelEvent(self,event):
-        rot = -float(event.GetWheelRotation()) / event.GetWheelDelta() * 0.05
-        self.window[0] += rot;
-        self.window[1] += rot;
-        if self.window[0]<0 : self.window[0]=0;
-        if self.window[1]<0 : self.window[1]=0;
-        if self.window[0]>1 : self.window[0]=1;
-        if self.window[1]>1 : self.window[1]=1;
-        self.showCurrentImage(wx.IMAGE_QUALITY_HIGH)
+        delta = float(event.GetWheelRotation()) / event.GetWheelDelta() * 0.05
+        self.do_zoom(delta)
     def onMouseMotion(self,event):
         if not event.Dragging() : return
         if not self.dragFirstPos :
@@ -156,6 +156,27 @@ class docWindow(wx.Window) :
         if data.theData.pil_images and data.theData.current_image+1<len(data.theData.pil_images) :
             data.theData.change_image(1)
             self.showCurrentImage()
+    #===========================================================================
+    # zoom
+    #===========================================================================
+    def do_zoom(self,delta):
+        self.window[0] -= delta;
+        self.window[1] -= delta;
+        if self.window[0]<0 : self.window[0]=0;
+        if self.window[1]<0 : self.window[1]=0;
+        if self.window[0]>1 : self.window[0]=1;
+        if self.window[1]>1 : self.window[1]=1;
+        self.showCurrentImage(wx.IMAGE_QUALITY_HIGH)
+    #===========================================================================
+    # zoom+
+    #===========================================================================
+    def actionZoomPlus(self,event):
+        self.do_zoom(0.05)
+    #===========================================================================
+    # zoom-
+    #===========================================================================
+    def actionZoomMinus(self,event):
+        self.do_zoom(-0.05)
     #===========================================================================
     # called when resizing window/pane
     #===========================================================================

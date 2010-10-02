@@ -56,11 +56,12 @@ class RecordWidget(wx.Window):
         self.lbFileName.SetPath('')
         self.lbTitle.SetValue('')
         self.lbDescription.SetValue('')
+        self.lbTags.SetValue('')
     def SetFields(self,filename=None,title=None,description=None,date=None,tags=None):
         if filename : self.lbFileName.SetPath(filename) 
         if title : self.lbTitle.SetValue(title)
         if description : self.lbDescription.SetValue(description)
-        if tags : self.lbDescription.SetValue(tags)
+        if tags : self.lbTags.SetValue(tags)
         if date :
             t = datetime.datetime.strptime(date,'%d-%m-%Y')
             dt = wx.DateTime()
@@ -75,9 +76,10 @@ class RecordWidget(wx.Window):
         if len(filename) == 0:
             return
         title = self.lbTitle.Value
+        tags = self.lbTags.Value
         description = self.lbDescription.Value
         documentDate = self.lbDate.Value
         documentDate=datetime.date(year=documentDate.GetYear(),month=documentDate.GetMonth()+1,day=documentDate.GetDay())
-        keywords = database.theBase.get_keywords_from(title, description, filename)
+        keywords = database.theBase.get_keywords_from(title, description, filename , tags)
         # add the document to the database
-        return database.theBase.add_document(filename, title, description, None, format(documentDate,'%d-%m-%Y'), keywords)
+        return database.theBase.add_document(filename, title, description, None, format(documentDate,'%d-%m-%Y'), keywords,tags)
