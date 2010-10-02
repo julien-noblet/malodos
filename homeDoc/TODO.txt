@@ -19,4 +19,5 @@ DONE * adding a survey option that will help to give an alarm if a document file
 * helps the user to choose relevant tag according to the other fields contents (probably needs a fulltext field to work)
 * add the document to go option
 * add many folder / sub folder for each document (car insurance can be classified in car or insurance...)
-   
+	should be better to automatically create virtual folders...
+* add an encryption capability
