@@ -15,7 +15,7 @@ DONE * adding a survey option that will help to give an alarm if a document file
   wxwidget to read G4 tiff files, and PIL for other raster formats). This induces many dependencies that may be avoided
   by re-encoding some of them or by finding a library that can do it for me (must be portable under windows/linux).
 * package the software in order to facilitate the installation by non technician users...
-* add a tag field
+DONE * add a tag field
 * helps the user to choose relevant tag according to the other fields contents (probably needs a fulltext field to work)
 * add the document to go option
 * add many folder / sub folder for each document (car insurance can be classified in car or insurance...)
