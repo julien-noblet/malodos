@@ -10,6 +10,7 @@ GUI dialog for addition of a file into the database
 import wx
 import os
 import RecordWidget
+from gui import utilities
 
 class AddFileWindow(wx.Dialog):
     '''
@@ -60,6 +61,17 @@ class AddFileWindow(wx.Dialog):
     # Click on Add document button
     #===========================================================================
     def actionDoAdd(self,event):
+        if len(self.recordPart.lbFileName.GetPath()) == 0 :
+            dlg = wx.FileDialog(self,style=wx.FD_OPEN,message=u'filename of the document to add')
+            
+            if dlg.ShowModal():
+                fname = os.path.join(dlg.Directory,dlg.Filename)
+            if fname :
+                self.recordPart.SetFields(filename=fname)
+            else:
+                self.Close()
+                return
+            
         if not self.recordPart.do_save_record():
             wx.MessageBox('Unable to add the file to the database')
         else:
