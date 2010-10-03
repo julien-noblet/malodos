@@ -16,6 +16,7 @@ import database
 import string
 import os
 import subprocess
+import docPrinter
 from data import theData
 
 import scanWindow
@@ -107,6 +108,7 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_LISTBOX,self.actionDocSelect,self.lbDocuments)
         self.Bind(wx.EVT_TOOL, self.actionAddFile, id=self.ID_ADD_FILE)
         self.Bind(wx.EVT_TOOL, self.actionAddScan, id=self.ID_ADD_SCAN)
+        self.Bind(wx.EVT_TOOL, self.actionDoPrint, id=self.ID_PRINT_DOC)
         self.Bind(wx.EVT_TOOL,self.actionStartSurvey,id=self.ID_SURVEY)
         self.Bind(wx.EVT_TOOL,self.actionShowPrefs,id=self.ID_PREFS)
         self.Bind(wx.EVT_BUTTON,self.actionStartExternalApp,self.btShowExternal)
@@ -259,3 +261,11 @@ class MainFrame(wx.Frame):
     def actionShowPrefs(self,event):
         Frame = Preferences.PrefGui(self)
         Frame.ShowModal()
+    #===========================================================================
+    # actionDoPrint : print the current document
+    #===========================================================================
+    def actionDoPrint(self,event):
+        pr = docPrinter.docPrinter()
+        P = wx.Printer()
+        if not P.Print(self , pr) :
+            wx.MessageBox("Unable to print the document")
