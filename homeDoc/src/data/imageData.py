@@ -24,10 +24,13 @@ class imageData(object):
     pil_images = []
     current_image = 0
     image_changed = True
+    current_file=None
+    nb_pages=0
     def __init__(self):
         void_file = os.path.join(os.path.dirname(sys.argv[0]),'../resources','no_preview.png')
         self.image_void = Image.open(void_file)
     def change_image(self,delta):
+        " change the current page by delta"
         self.current_image += delta
         if self.current_image<0 or self.current_image>len(self.pil_images):
             self.current_image -= delta
@@ -35,6 +38,7 @@ class imageData(object):
             self.image_changed = True
             
     def get_image(self,image_num=None):
+        "get a given image (current image if not specified)"
         self.image_changed = False
         if len(self.pil_images)<1 : return self.image_void
         if not image_num : image_num = self.current_image
@@ -44,12 +48,15 @@ class imageData(object):
             return self.image_void
 
     def clear_all(self):
+        "clear the image data"
         self.pil_images=[]
         self.image_changed = True
-            
+        self.current_file=None
     def add_image(self,img):
+        "add an image to the cache"
         if img: self.pil_images.append(img)
     def save_file(self,filename):
+        "save the image data to a PDF file"
         if len(self.pil_images)<1 : return False
         try:
             doc = FPDF()
@@ -66,7 +73,8 @@ class imageData(object):
             return True
         except:
             return False
-    def load_file(self,filename):
+    def load_file(self,filename,page=None):
+        "Load a given file into memory (only the asked page if given, all the pages otherwise)"
         
         self.clear_all()
         
@@ -75,11 +83,18 @@ class imageData(object):
         wx.Log.SetLogLevel(0)
         if wx.Image.CanRead(filename):
             nmax = wx.Image.GetImageCount(filename)
-            for idx in range(nmax):
+            if page:
+                if page>=nmax: return
+                R = [page]
+            else :
+                R = range(nmax)
+            for idx in R:
                 try:
                     wxi = wx.Image(filename,index=idx)
                     img = Image.new('RGB', (wxi.GetWidth(), wxi.GetHeight()))
                     img.fromstring(wxi.GetData())
+                    self.current_file=filename
+                    self.nb_pages = nmax
                     self.add_image(img)
                     try_pdf=False
                 except:
@@ -93,10 +108,18 @@ class imageData(object):
         # This is executed only is try_pdf is TRUE --> loading file was not possible via wx
         try:
             doc = gfx.open("pdf", filename)
-            for pagenr in range(1,doc.pages+1):
-                page = doc.getPage(pagenr)
+            nmax = doc.pages
+            if page:
+                if page>=nmax: return
+                R = [page]
+            else :
+                R = range(nmax)
+            for pagenr in range(nmax):
+                page = doc.getPage(pagenr+1)
                 bm = page.asImage(page.width,page.height)
                 I = Image.fromstring("RGB",(page.width,page.height),bm)
+                self.current_file=filename
+                self.nb_pages = nmax
                 self.add_image(I)
             self.current_image=0
         except:
