@@ -18,7 +18,7 @@ class docPrinter(wx.Printout):
     class for printing the image present in data singleton 
     '''
     def __init__(self):
-        "Prepares the Printing object.  Note: change current_y for 1, 1.5, 2 spacing for lines."
+        "Prepares the Printing object."
         wx.Printout.__init__(self)
         self.printer_config = wx.PrintData()
         self.printer_config.SetPaperId(wx.PAPER_LETTER)

@@ -64,7 +64,7 @@ class RecordWidget(wx.Window):
         if tags : self.lbTags.SetValue(tags)
         if date :
             t = datetime.datetime.strptime(date,'%d-%m-%Y')
-            dt = wx.DateTime()
+            dt = wx.DateTime.Today()
             dt.SetDay(t.day)
             dt.SetMonth(t.month-1)
             dt.SetYear(t.year)
