@@ -21,21 +21,22 @@ class docPrinter(wx.Printout):
         "Prepares the Printing object."
         wx.Printout.__init__(self)
         self.printer_config = wx.PrintData()
-        self.printer_config.SetPaperId(wx.PAPER_LETTER)
+        self.printer_config.SetPaperId(wx.PAPER_A4)
     def HasPage(self, page_num):
         "Does the page exists."
-        return theData.nb_pages>=page_num
+        return page_num<=theData.nb_pages
 
     def OnPrintPage(self, page_num):
-        img = theData.get_image(page_num)
-        if not img : return False
+        "Print the given page"
         dc = self.GetDC()
         if not dc : return False
-        bm = img.ConvertToBitmap()
-        
-        dc.DrawBitmap(bm)
-#        imgDC = wx.MemoryDC()
-#        imgDC.SelectObject(bm)
-#        dc.Blit(0,0,imgDC.GetWidth(),imgDC.GetHeight(),imgDC)
+        dcSize = dc.GetSize()
+        pil_image = theData.get_image(page_num-1)
+        if not pil_image : return False
+        img = wx.EmptyImage(pil_image.size[0],pil_image.size[1])
+        img.SetData(pil_image.convert("RGB").tostring())
+        img.Rescale(dcSize[0],dcSize[1],wx.IMAGE_QUALITY_HIGH)
+        bm = img.ConvertToBitmap()        
+        dc.DrawBitmap(bm,0,0)
         return True
     

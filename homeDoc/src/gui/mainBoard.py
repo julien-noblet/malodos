@@ -58,7 +58,7 @@ class MainFrame(wx.Frame):
         self.tbMainBar.AddLabelTool(self.ID_ADD_SCAN,'',wx.Bitmap(Resources.get_icon_filename('ADD_SCAN')),shortHelp=Resources.get_message('ADD_SCAN'))
         self.tbMainBar.AddLabelTool(self.ID_REMOVE_SEL,'',wx.Bitmap(Resources.get_icon_filename('REMOVE_SELECTION')),shortHelp=Resources.get_message('REMOVE_SELECTION'))
         self.tbMainBar.AddLabelTool(self.ID_PRINT_DOC,'',wx.Bitmap(Resources.get_icon_filename('DOC_PRINT')),shortHelp=Resources.get_message('DOC_PRINT'))
-        self.tbMainBar.AddLabelTool(self.ID_DOCTOGO,'',wx.Bitmap(Resources.get_icon_filename('DOC_ZIP')),shortHelp=Resources.get_message('DOC_ZIP'))
+        #self.tbMainBar.AddLabelTool(self.ID_DOCTOGO,'',wx.Bitmap(Resources.get_icon_filename('DOC_ZIP')),shortHelp=Resources.get_message('DOC_ZIP'))
         self.tbMainBar.AddLabelTool(self.ID_SURVEY,'',wx.Bitmap(Resources.get_icon_filename('SURVEY_WIN')),shortHelp=Resources.get_message('SURVEY_WIN'))
         self.tbMainBar.AddLabelTool(self.ID_PREFS,'',wx.Bitmap(Resources.get_icon_filename('PREFS')),shortHelp=Resources.get_message('PREFS'))
         self.tbMainBar.AddLabelTool(self.ID_CREDITS,'',wx.Bitmap(Resources.get_icon_filename('CREDITS')),shortHelp=Resources.get_message('CREDITS'))
@@ -69,12 +69,10 @@ class MainFrame(wx.Frame):
         self.recordSizer.Add(self.recordPart,1,wx.EXPAND)
         self.btUpdateRecord = wx.Button(self.docViewPanel,-1,'Update')
         self.btShowExternal = wx.Button(self.docViewPanel,-1,'System show')
-        self.btRemoveRecord = wx.Button(self.docViewPanel,-1,'Remove')
         self.docViewSizer.Add(self.recordSizer,0,wx.EXPAND)
         self.recordButtonSizer = wx.BoxSizer(wx.VERTICAL)
         self.recordButtonSizer.Add(self.btUpdateRecord,1,wx.EXPAND)
         self.recordButtonSizer.Add(self.btShowExternal,1,wx.EXPAND)
-        self.recordButtonSizer.Add(self.btRemoveRecord,1,wx.EXPAND)
         self.recordSizer.Add(self.recordButtonSizer)
         self.docViewPanel.SetSizerAndFit(self.docViewSizer)
 
@@ -111,8 +109,9 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_TOOL, self.actionDoPrint, id=self.ID_PRINT_DOC)
         self.Bind(wx.EVT_TOOL,self.actionStartSurvey,id=self.ID_SURVEY)
         self.Bind(wx.EVT_TOOL,self.actionShowPrefs,id=self.ID_PREFS)
+        self.Bind(wx.EVT_TOOL,self.actionRemoveRecord,id=self.ID_REMOVE_SEL)
+        self.Bind(wx.EVT_TOOL,self.actionAbout,id=self.ID_CREDITS)
         self.Bind(wx.EVT_BUTTON,self.actionStartExternalApp,self.btShowExternal)
-        self.Bind(wx.EVT_BUTTON,self.actionRemoveRecord,self.btRemoveRecord)
         self.Bind(wx.EVT_BUTTON,self.actionUpdateRecord,self.btUpdateRecord)
 
         # layout assignment
@@ -265,7 +264,48 @@ class MainFrame(wx.Frame):
     # actionDoPrint : print the current document
     #===========================================================================
     def actionDoPrint(self,event):
+        printData = wx.PrintData()
+        printData.SetPaperId(wx.PAPER_A4)
+        printData.SetPrintMode(wx.PRINT_MODE_PRINTER)
+        pdd = wx.PrintDialogData(printData)
+        pdd.SetToPage(theData.nb_pages)
+        P = wx.Printer(pdd)
         pr = docPrinter.docPrinter()
-        P = wx.Printer()
         if not P.Print(self , pr) :
             wx.MessageBox("Unable to print the document")
+    #===========================================================================
+    # actionAbout : show the about dialog box
+    #===========================================================================
+    def actionAbout(self,event):
+        description = """MALODOS (for MAnagement of LOcal DOcument System) is a simple but usefull \
+software aimed to help the process of archiving and navigate between the documents presents \
+in your harddrive.
+It is written in python and mainly merges numereous external libraries to \
+give a fast and simple way to scan and numerically record your personal documents (such \
+as invoices, taxe declaration, etc...).
+Being written in python, it is portable (works on windows and linux at least, not tested \
+on other systems)."""
+
+        licence = """MALODOS is free software; you can redistribute it and/or modify it 
+under the terms of the GNU General Public License as published by the Free Software Foundation; 
+either version 3 of the License, or (at your option) any later version.
+
+File Hunter is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+See the GNU General Public License for more details. You should have received a copy of 
+the GNU General Public License along with File Hunter; if not, write to 
+the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA"""
+
+
+        info = wx.AboutDialogInfo()
+
+        info.SetIcon(wx.Icon(Resources.get_icon_filename('APPLICATION'), wx.BITMAP_TYPE_PNG))
+        info.SetName('MALODOS')
+        info.SetVersion('1.0')
+        info.SetDescription(description)
+        info.SetCopyright('(C) 2010 David GUEZ')
+        info.SetWebSite('http://code.google.com/p/malodos/')
+        info.AddArtist('http://icones.pro')
+        info.SetLicence(licence)
+        wx.AboutBox(info)
+        

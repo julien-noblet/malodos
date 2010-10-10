@@ -144,6 +144,11 @@ class Base(object):
     IDX_TAGS=6
     IDX_CHECKSUM=7
     IDX_ROWID=8
+    
+    ID_TAG=0
+    ID_TITLE=1
+    ID_DESCRIPTION=2
+    ID_FULL_TEXT=3
     #===========================================================================
     # constructor
     #===========================================================================
@@ -202,7 +207,7 @@ class Base(object):
         except:
             pass
         #self.create_table(self.docWords_tableName, 'keyID INTEGER references ' + self.keywords_tableName + '(ROWID) ,docID INTEGER references ' + self.documents_tableName + '(ROWID)')
-        self.create_table(self.docWords_tableName, 'keyID INTEGER  ,docID INTEGER ')
+        self.create_table(self.docWords_tableName, 'keyID INTEGER  ,docID INTEGER, field INT')
         self.create_table(self.persons_tableName, 'name TEXT')
         self.create_table(self.params_tableName, 'name TEXT , value TEXT')
         if os.name == 'nt' or os.name == 'win32' :
@@ -256,7 +261,8 @@ class Base(object):
     #===============================================================================
     # add a new document to the database
     #===============================================================================
-    def add_document(self, fileName, title = 'untitled', description = '', registeringPerson = None, documentDate = None, keywords = None , tags = ''):
+    def add_document(self, fileName, title = 'untitled', description = '', registeringPerson = None\
+                     , documentDate = None, keywordsGroups = None , tags = ''):
         '''(
         Add a new document to the database
         only the filename is mandatory
@@ -293,13 +299,12 @@ class Base(object):
         except:
             return False
         self.connexion.commit()
-        if not keywords :
+        if not keywordsGroups :
             return True # finishes if no keyword to register
 
         
         # find the list of keyword not yet registered
-        keywords =  map(lambda s:s.lower() , keywords)
-        self.update_keywords_for(docID,keywords)
+        self.update_keywords_for(docID,keywordsGroups)
         return True
     #===============================================================================
     # finding keywords rows
@@ -319,7 +324,6 @@ class Base(object):
             Q = "SELECT ROWID FROM " + self.keywords_tableName + " WHERE soundex_word IN " + self.make_placeholder_list(len(keywords))
         else:
             Q = "SELECT ROWID FROM " + self.keywords_tableName + " WHERE soundex_word = ?"
-                
         try:
             #print "finding keys via " + Q
             cur = self.connexion.execute(Q , keywords)
@@ -330,7 +334,7 @@ class Base(object):
     #===============================================================================
     # find documents corresponding to keywords
     #===============================================================================
-    def find_documents(self, keywords = None):
+    def find_documents(self, keywords = None,fields=None):
         '''(
         find all the document of the database that contain any of the given keywords
         keyword is a list of list of words
@@ -347,9 +351,14 @@ class Base(object):
             # if some keywords are found, find the corresponding doc lines
             lst = self.rows_to_str(cur)
             Q = "SELECT docID FROM " + self.docWords_tableName + " WHERE keyID IN " + lst
+            if fields :
+                Q += ' AND FIELD IN ' + self.make_placeholder_list(len(fields))
             #print Q
             try:
-                cur = self.connexion.execute(Q)
+                if fields :
+                    cur = self.connexion.execute(Q , fields)
+                else:  
+                    cur = self.connexion.execute(Q)
             except:
                 return None
             # cur now contain the docID to take
@@ -365,6 +374,7 @@ class Base(object):
     # create a list with n placeholder (?,?,...?) 
     #===========================================================================
     def make_placeholder_list(self,n):
+        ''' create a string (?,?,...,?) with n < ? > chars inside '''
         if n<1 : return '()'
         if n<2 : return '(?)'
         return '(' + '?,' * (n-1) + '?)'
@@ -372,6 +382,7 @@ class Base(object):
     # utility function transform the content of a python list into an (e1,e2,...) string format
     #===========================================================================
     def iterable_to_sqlStrList(self,iterable,stringChar='"'):
+        ''' transform an iterable into a (E1,E2,...En) string, where Ei is the ith element of <iterable> '''
         if len(iterable)<1: return '()'
         sql_list = [ stringChar + str(i) + stringChar for i in iterable]
         sql_list = '(' + ','.join(sql_list) + ')'
@@ -380,11 +391,13 @@ class Base(object):
     # utility function transform the content of a column from cur into a (e1,e2,...) string format
     #===========================================================================
     def rows_to_str(self,cur,idx=0):
+        ''' utility function transform the content of a column from cur into a (e1,e2,...) string format '''
         return self.iterable_to_sqlStrList([x[idx] for x in cur])
     #===========================================================================
     # return the list of keywords absent from the database
     #===========================================================================
     def find_absent_keywords(self,keywords):
+        ''' return the list of keywords absent from the database '''
 #        keywords_str = [ '"' + i + '"' for i in keywords]
 #        keywords_str = '(' + ','.join(keywords_str) + ')'
         
@@ -414,40 +427,41 @@ class Base(object):
     # update_keywords_for : remove all the keyword reference to docID
     # and  replace by a new list
     #===========================================================================
-    def update_keywords_for(self,docID,keywords):
+    def update_keywords_for(self,docID,keywordsGroups):
         # first : delete all the keyword references to docID
         if not hasattr(docID,'__iter__') : docID = (docID,)
 
         Q = 'DELETE FROM ' + self.docWords_tableName + ' WHERE docID IN ' + self.make_placeholder_list(len(docID))
         try:
             self.connexion.execute(Q,docID)
-        except Exception as E:
-            print E.message
+        except:
             return False
         # add all absent keywords to the keywords table
-        absents = self.find_absent_keywords(keywords)
+        all_keywords = [ item.lower() for group in keywordsGroups for item in group[1] ]
+        absents = self.find_absent_keywords(all_keywords)
         absents = map(lambda x:(x,algorithms.words.phonex(x)) , absents)
         Q = 'INSERT INTO ' + self.keywords_tableName + ' VALUES (?,?)'
         try:
-            self.connexion.executemany(Q,absents )
+            self.connexion.executemany(Q,absents)
         except:
             return False
-        # get back all the keyword IDs
-        Q = 'SELECT ROWID FROM ' + self.keywords_tableName + ' WHERE keyword IN ' + self.make_placeholder_list(len(keywords))
+        # get back all the keyword IDs for the current field
+        Q = 'SELECT ROWID FROM ' + self.keywords_tableName + ' WHERE keyword IN ' + self.make_placeholder_list(len(all_keywords))
         addedKeys = []
         try:
-            cur = self.connexion.execute(Q,keywords)
+            cur = self.connexion.execute(Q,all_keywords)
             addedKeys = [ (row[0],) for row in cur]
         except:
             return False
-        
-        # add the new keyID to the table
-        for adoc_i in docID:
-            Q = 'INSERT INTO ' + self.docWords_tableName + ' VALUES (?,' +  str(adoc_i) + ')'
-            try:
-                self.connexion.executemany(Q , addedKeys)
-            except:
-                return False
+        for iField in range(len(keywordsGroups)) :
+            field = keywordsGroups[iField][0]            
+            # add the new keyID to the table
+            for adoc_i in docID:
+                Q = 'INSERT INTO ' + self.docWords_tableName + ' VALUES (?,' +  str(adoc_i) + ',' + str(field) + ')'
+                try:
+                    self.connexion.executemany(Q , addedKeys)
+                except:
+                    return False
         try:
             self.connexion.commit()
         except:
@@ -464,8 +478,8 @@ class Base(object):
             self.connexion.commit()
         except:
             return False
-        keywords = self.get_keywords_from(title, description, filename,tags)
-        return self.update_keywords_for(docID,keywords)
+        keywordsGroups = self.get_keywordsGroups_from(title, description, filename,tags)
+        return self.update_keywords_for(docID,keywordsGroups)
     #===========================================================================
     # update_doc : replace the values for a given doc
     #===========================================================================
@@ -480,18 +494,17 @@ class Base(object):
     #===========================================================================
     # get_keywords_from : find the keywords from a document
     #===========================================================================
-    def get_keywords_from(self,title,description,filename,tags):  
+    def get_keywordsGroups_from(self,title,description,filename,tags):  
         keywords_title = string.split(title, ' ')
-        keywords_title = [i for i in keywords_title if len(i)>3]
+        keywords_title = [i.lower() for i in keywords_title if len(i)>3]
         
         keywords_descr = string.split(description, ' ')
-        keywords_descr = [i for i in keywords_descr if len(i)>3]
+        keywords_descr = [i.lower() for i in keywords_descr if len(i)>3]
         
         keywords_tag = string.split(tags , ',')
+        keywords_tag =  map(lambda s:s.lower() , keywords_tag)
         
-        keywords = set(keywords_title+keywords_descr + keywords_tag)
-        keywords =  map(lambda s:s.lower() , keywords)
-        return keywords
+        return ( ( self.ID_TITLE, keywords_title) , (self.ID_DESCRIPTION , keywords_descr) , (self.ID_TAG ,keywords_tag ) )
     #===========================================================================
     # get_files_under : retrieve all the documents of the database whose filename
     # are on the directory <directory> (directly and not under subdir)

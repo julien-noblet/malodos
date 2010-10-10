@@ -80,6 +80,6 @@ class RecordWidget(wx.Window):
         description = self.lbDescription.Value
         documentDate = self.lbDate.Value
         documentDate=datetime.date(year=documentDate.GetYear(),month=documentDate.GetMonth()+1,day=documentDate.GetDay())
-        keywords = database.theBase.get_keywords_from(title, description, filename , tags)
+        keywordsGroups = database.theBase.get_keywordsGroups_from(title, description, filename , tags)
         # add the document to the database
-        return database.theBase.add_document(filename, title, description, None, format(documentDate,'%d-%m-%Y'), keywords,tags)
+        return database.theBase.add_document(filename, title, description, None, format(documentDate,'%d-%m-%Y'), keywordsGroups,tags)
