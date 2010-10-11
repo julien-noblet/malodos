@@ -26,7 +26,7 @@ So the MALODOS project born, and you're now visiting its helper page. And actual
 
 == The main panel ==
 
-[http://code.google.com/p/malodos/source/browse/wiki/MALODOS_mainBoard.png]
+https://docs.google.com/leaf?id=0B-oL6CZd6PkjMDI0MGI4MmMtZDQxMy00NTI3LWE3ZDctNThjYzY3OWQ1NmU1&sort=name&layout=list&num=50
 The main board of MALODOS is basically divided into 4 parts.
   # The toolbar
   # The search field
@@ -40,5 +40,3 @@ The search field allows you to find any document containing the requested terms.
 The document list is presenting the complete list of documents corresponding to the terms defined in the search field (or all documents if the search field is empty).
 
 The document details allows you to preview the document itself, to open it via your standard OS program, to print it directly or to update the meta-information attached to it (see below for details).
-
-
