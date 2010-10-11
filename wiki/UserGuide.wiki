@@ -25,6 +25,7 @@ So the MALODOS project born, and you're now visiting its helper page. And actual
 = Quick overview of the Graphical Interface =
 
 == The main panel ==
+http://malodos.googlecode.com/svn/wiki/MALODOS_mainBoard.png
 
 The main board of MALODOS is basically divided into 4 parts.
   # The toolbar
