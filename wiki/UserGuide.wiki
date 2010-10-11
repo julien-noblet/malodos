@@ -26,7 +26,6 @@ So the MALODOS project born, and you're now visiting its helper page. And actual
 
 == The main panel ==
 
-https://docs.google.com/leaf?id=0B-oL6CZd6PkjMDI0MGI4MmMtZDQxMy00NTI3LWE3ZDctNThjYzY3OWQ1NmU1&sort=name&layout=list&num=50
 The main board of MALODOS is basically divided into 4 parts.
   # The toolbar
   # The search field
