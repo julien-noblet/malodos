@@ -88,6 +88,7 @@ class SurveyWindow(wx.Dialog):
         self.recordPart.SetFields(filename = fname)
         try:
             data.theData.load_file(fname)
+            self.docWin.resetView()
             self.docWin.showCurrentImage()
         except:
             data.theData.clear_all()

@@ -10,7 +10,6 @@ GUI dialog for addition of a file into the database
 import wx
 import os
 import RecordWidget
-from gui import utilities
 
 class AddFileWindow(wx.Dialog):
     '''

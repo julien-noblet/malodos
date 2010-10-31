@@ -56,7 +56,9 @@ class docWindow(wx.Window) :
         
         self.canvas.SetSize(wx.Size(200,300))
         self.panel.SetSizerAndFit(self.totalWin)
-
+    def resetView(self):
+        self.center = [0.5,0.5]
+        self.window = [1.0,1.0]
     def onMouseLeftUp(self,event):
         self.dragFirstPos = None
         self.showCurrentImage(wx.IMAGE_QUALITY_HIGH)
