@@ -198,6 +198,12 @@ class Base(object):
     def buildDB(self):
         '''( 
         create the database (all the tables)
+        database structures:
+        documents = title,description,filename,registerDate,registerPersonId,documentDate,tags,checksum
+        keywords = keyword(primary_key) , soundex_word (indexed)
+        docWords = keyID,docID,field
+        persons = name
+        params = name , value
         )'''
         self.create_table(self.documents_tableName, 'title TEXT(64), description TEXT(256), filename TEXT(256), registerDate INTEGER, registeringPersonID INTEGER, documentDate INTEGER,tags TEXT,checksum TEXT')
         self.create_table(self.keywords_tableName, 'keyword TEXT PRIMARY KEY , soundex_word TEXT ')
@@ -210,6 +216,16 @@ class Base(object):
         self.create_table(self.docWords_tableName, 'keyID INTEGER  ,docID INTEGER, field INT')
         self.create_table(self.persons_tableName, 'name TEXT')
         self.create_table(self.params_tableName, 'name TEXT , value TEXT')
+        sql_statement = 'create view if not exists fullDoc as select D.title,D.description,D.filename,D.registerDate,D.registeringPersonID,D.documentDate,D.tags,D.checksum, D.RowID docID,K.keyword,K.soundex_word,DW.field '
+        sql_statement += 'FROM ' + self.keywords_tableName + ' K,' + self.documents_tableName + ' D,'
+        sql_statement += self.docWords_tableName + ' DW'
+        sql_statement += ' WHERE DW.keyID = K.rowID AND DW.docID = D.RowID'
+        try:
+            self.connexion.execute(sql_statement)
+        except:
+            gui.utilities.show_message('Error during database creation')
+            return False
+        
         if os.name == 'nt' or os.name == 'win32' :
             self.connexion.create_function("IS_IN_DIR", 2, lambda fname,dirname : self.win32_samefile(os.path.dirname(fname), dirname))
         else:
@@ -327,6 +343,19 @@ class Base(object):
         try:
             #print "finding keys via " + Q
             cur = self.connexion.execute(Q , keywords)
+            return cur
+        except:
+            return None
+
+
+    #===============================================================================
+    # find documents corresponding to the sql request
+    #===============================================================================
+    def find_sql(self,request):
+        sql_command = "SELECT * FROM fullDoc WHERE " + request + " GROUP BY docID"
+        #sql_command = "SELECT * FROM fullDoc"
+        try:
+            cur = self.connexion.execute(sql_command)
             return cur
         except:
             return None

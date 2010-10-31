@@ -143,15 +143,22 @@ class MainFrame(wx.Frame):
     def actionSearch(self,event):
         # clear the listbox
         self.lbDocuments.Clear()
-        # retrieve the keywords from the different fields
-        keywords = string.strip(self.tbFilter.Value, ' ')
-        keywords = string.split(keywords, ' ')
-        # remove short words
-        keywords = [i for i in keywords if len(i)>3]
-        # treat the case where no keyword are found
-        if len(keywords)<1: keywords = None
-        # find the list corresponding to the selected keywords
-        docList = database.theBase.find_documents(keywords)
+        sFilter = self.tbFilter.Value
+        if len(sFilter)==0:
+            docList = database.theBase.find_documents(None)
+        elif sFilter[0]=='!':
+            request = self.tbFilter.Value[1:]
+            docList = database.theBase.find_sql(request)
+        else:        
+            # retrieve the keywords from the different fields
+            keywords = string.strip(self.tbFilter.Value, ' ')
+            keywords = string.split(keywords, ' ')
+            # remove short words
+            keywords = [i for i in keywords if len(i)>3]
+            # treat the case where no keyword are found
+            if len(keywords)<1: keywords = None
+            # find the list corresponding to the selected keywords
+            docList = database.theBase.find_documents(keywords)
         # return if no doc found
         if not docList: return
         # otherwise show them in the listbox
@@ -186,6 +193,7 @@ class MainFrame(wx.Frame):
         #print row
         try:
             theData.load_file(filename)
+            self.docWin.resetView()
             self.docWin.showCurrentImage()
         except:
             theData.clear_all()
@@ -290,7 +298,7 @@ on other systems)."""
 under the terms of the GNU General Public License as published by the Free Software Foundation; 
 either version 3 of the License, or (at your option) any later version.
 
-File Hunter is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+MALODOS is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
 without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
 See the GNU General Public License for more details. You should have received a copy of 
 the GNU General Public License along with File Hunter; if not, write to 
