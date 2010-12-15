@@ -351,15 +351,17 @@ class Base(object):
     #===============================================================================
     # find documents corresponding to the sql request
     #===============================================================================
-    def find_sql(self,request):
-        sql_command = "SELECT * FROM fullDoc WHERE " + request + " GROUP BY docID"
-        #sql_command = "SELECT * FROM fullDoc"
+    def find_sql(self,request,pars):
         try:
+            sql_command = "SELECT DISTINCT docID FROM fullDoc WHERE " + request 
+            cur = self.connexion.execute(sql_command,pars)
+            rowIDList = self.rows_to_str(cur)
+            sql_command = "SELECT *,ROWID FROM "+ self.documents_tableName + ' WHERE ROWID IN ' + str(rowIDList)
             cur = self.connexion.execute(sql_command)
             return cur
         except:
             return None
-
+    
     #===============================================================================
     # find documents corresponding to keywords
     #===============================================================================

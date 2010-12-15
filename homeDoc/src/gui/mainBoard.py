@@ -25,6 +25,7 @@ from gui import utilities
 import hashlib
 from gui import Preferences
 import Resources
+import algorithms.stringFunctions
 
 class MainFrame(wx.Frame):
     ID_ADD_FILE=1
@@ -146,19 +147,20 @@ class MainFrame(wx.Frame):
         sFilter = self.tbFilter.Value
         if len(sFilter)==0:
             docList = database.theBase.find_documents(None)
-        elif sFilter[0]=='!':
-            request = self.tbFilter.Value[1:]
-            docList = database.theBase.find_sql(request)
-        else:        
-            # retrieve the keywords from the different fields
-            keywords = string.strip(self.tbFilter.Value, ' ')
-            keywords = string.split(keywords, ' ')
-            # remove short words
-            keywords = [i for i in keywords if len(i)>3]
-            # treat the case where no keyword are found
-            if len(keywords)<1: keywords = None
-            # find the list corresponding to the selected keywords
-            docList = database.theBase.find_documents(keywords)
+        else:
+            [request,pars] = algorithms.stringFunctions.req_to_sql(self.tbFilter.Value)
+            #print request
+            docList = database.theBase.find_sql(request,pars)
+        # else:        
+        #    # retrieve the keywords from the different fields
+        #    keywords = string.strip(self.tbFilter.Value, ' ')
+        #    keywords = string.split(keywords, ' ')
+        #    # remove short words
+        #    keywords = [i for i in keywords if len(i)>3]
+        #    # treat the case where no keyword are found
+        #    if len(keywords)<1: keywords = None
+        #    # find the list corresponding to the selected keywords
+        #    docList = database.theBase.find_documents(keywords)
         # return if no doc found
         if not docList: return
         # otherwise show them in the listbox
