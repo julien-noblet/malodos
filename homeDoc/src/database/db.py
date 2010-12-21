@@ -305,6 +305,7 @@ class Base(object):
                 else:
                     personID = row[0]
             except:
+                gui.utilities.show_message('Unable to assign the registering person')
                 pass
         try:
             # add the document entry in the database
@@ -313,15 +314,13 @@ class Base(object):
             cur = self.connexion.execute(sql_statement,(title,description,fileName,registeringDate,personID,documentDate,tags,str(file_md5)))
             docID = cur.lastrowid
         except:
+            gui.utilities.show_message('Unable to add the document')
             return False
         self.connexion.commit()
-        if not keywordsGroups :
-            return True # finishes if no keyword to register
-
-        
-        # find the list of keyword not yet registered
-        self.update_keywords_for(docID,keywordsGroups)
-        return True
+        if keywordsGroups :
+            # find the list of keyword not yet registered
+            if not self.update_keywords_for(docID,keywordsGroups) : return False
+        return True # finishes if no keyword to register
     #===============================================================================
     # finding keywords rows
     #===============================================================================
@@ -345,6 +344,7 @@ class Base(object):
             cur = self.connexion.execute(Q , keywords)
             return cur
         except:
+            gui.utilities.show_message('Unable to search keywords')
             return None
 
 
@@ -360,6 +360,7 @@ class Base(object):
             cur = self.connexion.execute(sql_command)
             return cur
         except:
+            gui.utilities.show_message('SQL search failed')
             return None
     
     #===============================================================================
@@ -391,6 +392,7 @@ class Base(object):
                 else:  
                     cur = self.connexion.execute(Q)
             except:
+                gui.utilities.show_message('Keyword search failed')
                 return None
             # cur now contain the docID to take
             if cur:
@@ -399,6 +401,7 @@ class Base(object):
         try:
             cur = self.connexion.execute(sql_statement)
         except:
+            gui.utilities.show_message('Document search failed')
             return None
         return cur
     #===========================================================================
@@ -435,7 +438,8 @@ class Base(object):
         Q = 'SELECT keyword FROM ' + self.keywords_tableName + ' WHERE keyword IN ' + self.make_placeholder_list(len(keywords))
         cur = self.connexion.execute(Q,keywords)
         already_present = [ i[0] for i in cur]
-        return [ s for s in keywords if s not in already_present]
+        absents = [ s for s in keywords if s not in already_present]
+        return list(set(absents))
     #===========================================================================
     # remove_document : remove the selected documents (docID must be a list of ids)
     # and all the keys referencing it
@@ -446,6 +450,7 @@ class Base(object):
         try:
             self.connexion.execute(Q,docID)
         except:
+            gui.utilities.show_message('Unable to remove documents/word associations')
             return
         # then delete the documents entries themselves
         Q = 'DELETE FROM ' + self.documents_tableName + ' WHERE ROWID IN ' + self.make_placeholder_list(len(docID))
@@ -453,6 +458,7 @@ class Base(object):
             self.connexion.execute(Q,docID)
             self.connexion.commit()
         except:
+            gui.utilities.show_message('Unable to remove documents entries')
             return
     #===========================================================================
     # update_keywords_for : remove all the keyword reference to docID
@@ -466,37 +472,42 @@ class Base(object):
         try:
             self.connexion.execute(Q,docID)
         except:
-            return False
-        # add all absent keywords to the keywords table
-        all_keywords = [ item.lower() for group in keywordsGroups for item in group[1] ]
-        absents = self.find_absent_keywords(all_keywords)
-        absents = map(lambda x:(x,algorithms.words.phonex(x)) , absents)
-        Q = 'INSERT INTO ' + self.keywords_tableName + ' VALUES (?,?)'
-        try:
-            self.connexion.executemany(Q,absents)
-        except:
-            return False
-        # get back all the keyword IDs for the current field
-        Q = 'SELECT ROWID FROM ' + self.keywords_tableName + ' WHERE keyword IN ' + self.make_placeholder_list(len(all_keywords))
-        addedKeys = []
-        try:
-            cur = self.connexion.execute(Q,all_keywords)
-            addedKeys = [ (row[0],) for row in cur]
-        except:
+            gui.utilities.show_message('Unable to remove doc/word association')
             return False
         for iField in range(len(keywordsGroups)) :
-            field = keywordsGroups[iField][0]            
+            keyGroup = keywordsGroups[iField]
+            field = keyGroup[0]            
+            # add all absent keywords to the keywords table
+            all_keywords = [ item.lower() for item in keyGroup[1] ]
+            absents = self.find_absent_keywords(all_keywords)
+            absents = map(lambda x:(x,algorithms.words.phonex(x)) , absents)
+            Q = 'INSERT INTO ' + self.keywords_tableName + ' VALUES (?,?)'
+            try:
+                self.connexion.executemany(Q,absents)
+            except  Exception,E:
+                gui.utilities.show_message('Unable to insert new keywords : ' + str(E))
+                return False
+            # get back all the keyword IDs for the current field
+            Q = 'SELECT ROWID FROM ' + self.keywords_tableName + ' WHERE keyword IN ' + self.make_placeholder_list(len(all_keywords))
+            addedKeys = []
+            try:
+                cur = self.connexion.execute(Q,all_keywords)
+                addedKeys = [ (row[0],) for row in cur]
+            except:
+                gui.utilities.show_message('Unable to search for keywords')
+                return False
             # add the new keyID to the table
             for adoc_i in docID:
                 Q = 'INSERT INTO ' + self.docWords_tableName + ' VALUES (?,' +  str(adoc_i) + ',' + str(field) + ')'
                 try:
                     self.connexion.executemany(Q , addedKeys)
                 except:
+                    gui.utilities.show_message('Unable to insert new document/word association')
                     return False
-        try:
-            self.connexion.commit()
-        except:
-            return False
+            try:
+                self.connexion.commit()
+            except:
+                return False
         return True
     
     #===========================================================================
@@ -508,7 +519,8 @@ class Base(object):
             self.connexion.execute(Q,(title,description,documentDate,tags,docID))
             self.connexion.commit()
         except:
-            return False
+            gui.utilities.show_message('Unable to update document into database')
+            return
         keywordsGroups = self.get_keywordsGroups_from(title, description, filename,tags)
         return self.update_keywords_for(docID,keywordsGroups)
     #===========================================================================
@@ -520,6 +532,7 @@ class Base(object):
             self.connexion.execute(Q,(file_md5,docID))
             self.connexion.commit()
         except:
+            gui.utilities.show_message('Unable to reassign checksum into database entry')
             return False
         return True
     #===========================================================================
@@ -554,5 +567,6 @@ class Base(object):
                 cur = self.connexion.execute(Q,(directory,))
             return cur
         except:
+            #gui.utilities.show_message('Unable to get file list from database')
             return ()
         
