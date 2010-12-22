@@ -38,5 +38,24 @@ All these elements will be described in details in the end of this page, but let
 == Scanning a new document ==
 
 The most basic operation you will do with MALODOS is to scan a document and add it to the database.
-So let start with it. First, press the scanner button in the toolbar (2nd button from the left).
-.... to be continued ...   
+So let start with it.
+
+First, open the scanner dialog (2nd button from the left). In this dialog, you will have first to choose you scanner (select scanner button). Note that, for the time being, your choice is not recorded, but this will be added later.
+If you have a muliple-page document and do not use an automatic charging trail, check the 'manual muliscan' button.
+Now you can start the scan by pressing the 'start scan' button. Once the scanning process accomplished, fill in the meta-data fields : title, description, document date (day of scan by default), and tag list. The tag list must be a comma separated list of terms allowing to easily search and classify yous documents database.
+Once finished, just press the 'done' button and that's it!
+
+== Adding an existing document to your database ==
+
+The second most common operation consists of adding existing scanned file in order to index them (more useful if you already have scanned other documents, indeed).
+There's actually two ways to perform this operation.
+The first one, just consists to press the add file button (1st button from the left), and then select the file to add.
+After that, you just have to fill the meta-data fields (like for the new scanned document described before). And press the done button.
+This method work perfectly well if you just have a few documents to add.
+However, if you have more than a few tens of files, selecting them individually (and thus navigating through your system's folder multiple times) may be somewhat harassing.
+In such a case, you can just use the folder survey method, by using the corresponding button (5th button from the left).
+This will open a new dialog with the list of all the document files (pdf, tif,...) in the folders you have selected (from the preference window, see below) and not already present in your database.
+You can then, select each of them successively, and fill their corresponding meta-data. Don't forget to press the 'add' button before selecting anew document, in order to record the current edited file.
+When you have finish this process, just press the 'done' button to return to the main board.
+
+As mentioned above, the list of folder which have to be surveyed can be specified within the preference dialog, accessible via the corresponding button.
