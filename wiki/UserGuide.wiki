@@ -58,4 +58,5 @@ This will open a new dialog with the list of all the document files (pdf, tif,..
 You can then, select each of them successively, and fill their corresponding meta-data. Don't forget to press the 'add' button before selecting anew document, in order to record the current edited file.
 When you have finish this process, just press the 'done' button to return to the main board.
 
-As mentioned above, the list of folder which have to be surveyed can be specified within the preference dialog, accessible via the corresponding button.
+== Setting preferences ==
+As mentioned above, the list of folder which have to be surveyed can be specified within the preference dialog, accessible via the corresponding button (6th button from the left).
