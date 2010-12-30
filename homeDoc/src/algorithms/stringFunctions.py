@@ -9,6 +9,7 @@ attached to this project (LICENSE.txt file)
 '''
 import database.db
 import algorithms.words
+import datetime
 
 def char_type(c):
     if c.isspace() : return 0
@@ -58,7 +59,7 @@ def cut_str(the_str):
                 elems.append(dateStr)
                 elems.append(E)
             else: # else go wait the next field of the date
-                dateStr += '/'
+                dateStr += '-'
                 dateStep+=1
             continue
         elif dateStep==2 : # in case the month field of date is expected  
@@ -77,9 +78,11 @@ def cut_str(the_str):
                 elems.append(E)
             else:
                 E=int(E,10)
+                if E<100 and E>60 : E+=1900 # treat the case where only the decade is given
                 if E<100 : E+=2000 # treat the case where only the decade is given
                 dateStr += str(E)
                 dateStep=0
+                dateStr = datetime.datetime.strptime(dateStr,"%d-%m-%Y").strftime("%Y-%m-%d")
                 elems.append(dateStr)
             continue
         if dateStep==0 and E[0].isdigit() and int(E)>0 and int(E)<=31: # could be the beginning of a date
@@ -109,6 +112,12 @@ def str_field_constraint(field_name,req_value):
     lst=[]
     
     field_name = field_name.upper()
+    if field_name[-1]=='*':
+        field_name=field_name[0:-1]
+        strict_comp=True
+    else:
+        strict_comp=False
+    
     req_value = req_value.upper()
     if req_value[0]=="'" or req_value[0]=='"' :
         req_value_search = req_value[1:-1]
@@ -132,22 +141,34 @@ def str_field_constraint(field_name,req_value):
         S= "( "+searchField +"= ?"+ " AND FIELD=" +  str(database.db.Base.ID_FULL_TEXT) +  ")"
         lst=[req_value_search]
     elif field_name=="DATE":
-        S= "( documentDate = date(?))"
+        S= "( documentDate = ?)"
         lst=[req_value]
     elif field_name=="DATEMIN":
-        S= "( documentDate >= date(?))"
+        if strict_comp :
+            S= "( documentDate > ?)"
+        else:
+            S= "( documentDate >= ?)"
         lst=[req_value]
     elif field_name=="DATEMAX":
-        S= "( documentDate <= date(?))"
+        if strict_comp :
+            S= "( documentDate < ?)"
+        else:
+            S= "( documentDate <= ?)"
         lst=[req_value]
     elif field_name=="REGISTERDATE":
-        S= "( registerDate = date(?))"
+        S= "( registerDate = ?)"
         lst=[req_value]
-    elif field_name=="REGISTERDATE":
-        S= "( registerDate >= date(?))"
+    elif field_name=="REGISTERDATEMIN":
+        if strict_comp :
+            S= "( REGISTERDATE > ?)"
+        else:
+            S= "( REGISTERDATE >= ?)"
         lst=[req_value]
-    elif field_name=="REGISTERDATE":
-        S= "( registerDate <= date(?))"
+    elif field_name=="REGISTERDATEMAX":
+        if strict_comp :
+            S= "( REGISTERDATE < ?)"
+        else:
+            S= "( REGISTERDATE <= ?)"
         lst=[req_value]
     return (S , lst)
 
@@ -177,7 +198,25 @@ def req_to_sql(req):
                     S+=ss
                     L+=ll
                     i+=3
-                else:
+                elif i+2<len(elems) and (elems[i].upper()=='DATE' or elems[i].upper()=='REGISTERDATE') \
+                      and (elems[i+1]=='<' or elems[i+1]=='<=') \
+                      and is_world(elems[i+2]):
+                    e=e+'MAX'
+                    if elems[i+1][-1]!='=': e=e+'*'
+                    [ss,ll]=str_field_constraint(e,elems[i+2])
+                    S+=ss
+                    L+=ll
+                    i+=3
+                elif i+2<len(elems) and (elems[i].upper()=='DATE' or elems[i].upper()=='REGISTERDATE') \
+                      and (elems[i+1]=='>' or elems[i+1]=='>=') \
+                      and is_world(elems[i+2]):
+                    e=e+'MIN'
+                    if elems[i+1][-1]!='=': e=e+'*'
+                    [ss,ll]=str_field_constraint(e,elems[i+2])
+                    S+=ss
+                    L+=ll
+                    i+=3
+                else :
                     [ss,ll]=str_field_constraint('any',e)
                     S+=ss
                     L+=ll
@@ -186,6 +225,6 @@ def req_to_sql(req):
         else:
             S += e
             i+=1
-    print S
-    print L
+    #print S
+    #print L
     return (S,L)

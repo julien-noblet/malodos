@@ -63,11 +63,10 @@ class RecordWidget(wx.Window):
         if description : self.lbDescription.SetValue(description)
         if tags : self.lbTags.SetValue(tags)
         if date :
-            t = datetime.datetime.strptime(date,'%d-%m-%Y')
             dt = wx.DateTime.Today()
-            dt.SetDay(t.day)
-            dt.SetMonth(t.month-1)
-            dt.SetYear(t.year)
+            dt.SetDay(date.day)
+            dt.SetMonth(date.month-1)
+            dt.SetYear(date.year)
             self.lbDate.SetValue(dt)
     def onResize(self,event):
         self.panel.Size = self.Size
@@ -82,4 +81,4 @@ class RecordWidget(wx.Window):
         documentDate=datetime.date(year=documentDate.GetYear(),month=documentDate.GetMonth()+1,day=documentDate.GetDay())
         keywordsGroups = database.theBase.get_keywordsGroups_from(title, description, filename , tags)
         # add the document to the database
-        return database.theBase.add_document(filename, title, description, None, format(documentDate,'%d-%m-%Y'), keywordsGroups,tags)
+        return database.theBase.add_document(filename, title, description, None, documentDate, keywordsGroups,tags)

@@ -13,7 +13,6 @@ import addFileWindow
 import RecordWidget
 import docWindow
 import database
-import string
 import os
 import subprocess
 import docPrinter
@@ -228,7 +227,7 @@ class MainFrame(wx.Frame):
         description = self.recordPart.lbDescription.GetValue()
         documentDate = self.recordPart.lbDate.GetValue()
         documentDate=datetime.date(year=documentDate.GetYear(),month=documentDate.GetMonth()+1,day=documentDate.GetDay())
-        if not database.theBase.update_doc(docID, title, description, format(documentDate,'%d-%m-%Y'), filename,tags):
+        if not database.theBase.update_doc(docID, title, description, documentDate, filename,tags):
             wx.MessageBox('Unable to update the database')
         else:
             self.actionSearch(None)

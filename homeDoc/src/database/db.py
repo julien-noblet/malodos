@@ -158,7 +158,7 @@ class Base(object):
         '''
         self.base_name = base_name
         try:
-            self.connexion = sqlite3.connect(self.base_name)
+            self.connexion = sqlite3.connect(self.base_name, detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
             #self.connexion.row_factory = sqlite3.Row
             #Q = 'PRAGMA foreign_keys = ON'
             #self.connexion.execute(Q)
@@ -205,13 +205,14 @@ class Base(object):
         persons = name
         params = name , value
         )'''
-        self.create_table(self.documents_tableName, 'title TEXT(64), description TEXT(256), filename TEXT(256), registerDate INTEGER, registeringPersonID INTEGER, documentDate INTEGER,tags TEXT,checksum TEXT')
+        self.create_table(self.documents_tableName, 'title TEXT(64), description TEXT(256), filename TEXT(256), registerDate DATE, registeringPersonID INTEGER, documentDate DATE,tags TEXT,checksum TEXT')
         self.create_table(self.keywords_tableName, 'keyword TEXT PRIMARY KEY , soundex_word TEXT ')
         sql_statement = "CREATE INDEX IF NOT EXISTS SOUNDEX ON " + self.keywords_tableName + "(soundex_word)"
         try:
             self.connexion.execute(sql_statement)
         except:
-            pass
+            gui.utilities.show_message('Error during database index creation')
+            
         #self.create_table(self.docWords_tableName, 'keyID INTEGER references ' + self.keywords_tableName + '(ROWID) ,docID INTEGER references ' + self.documents_tableName + '(ROWID)')
         self.create_table(self.docWords_tableName, 'keyID INTEGER  ,docID INTEGER, field INT')
         self.create_table(self.persons_tableName, 'name TEXT')
@@ -223,7 +224,7 @@ class Base(object):
         try:
             self.connexion.execute(sql_statement)
         except:
-            gui.utilities.show_message('Error during database creation')
+            gui.utilities.show_message('Error during database view creation')
             return False
         
         if os.name == 'nt' or os.name == 'win32' :
@@ -285,7 +286,7 @@ class Base(object):
         the registering date is automatically taken from the system
         )'''
         docID = None
-        registeringDate = format(datetime.date.today(),'%d-%m-%y')
+        registeringDate = datetime.date.today()
         cur = self.connexion.cursor()
         if not documentDate : documentDate = registeringDate
         personID = 0
@@ -355,7 +356,7 @@ class Base(object):
         try:
             sql_command = "SELECT DISTINCT docID FROM fullDoc WHERE " + request 
             cur = self.connexion.execute(sql_command,pars)
-            rowIDList = self.rows_to_str(cur)
+            rowIDList = self.rows_to_str(cur,0,'')
             sql_command = "SELECT *,ROWID FROM "+ self.documents_tableName + ' WHERE ROWID IN ' + str(rowIDList)
             cur = self.connexion.execute(sql_command)
             return cur
@@ -424,9 +425,9 @@ class Base(object):
     #===========================================================================
     # utility function transform the content of a column from cur into a (e1,e2,...) string format
     #===========================================================================
-    def rows_to_str(self,cur,idx=0):
+    def rows_to_str(self,cur,idx=0,stringChar='"'):
         ''' utility function transform the content of a column from cur into a (e1,e2,...) string format '''
-        return self.iterable_to_sqlStrList([x[idx] for x in cur])
+        return self.iterable_to_sqlStrList([x[idx] for x in cur],stringChar)
     #===========================================================================
     # return the list of keywords absent from the database
     #===========================================================================
