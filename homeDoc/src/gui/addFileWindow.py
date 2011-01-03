@@ -70,7 +70,6 @@ class AddFileWindow(wx.Dialog):
             else:
                 self.Close()
                 return
-            
         if not self.recordPart.do_save_record():
             wx.MessageBox('Unable to add the file to the database')
         else:

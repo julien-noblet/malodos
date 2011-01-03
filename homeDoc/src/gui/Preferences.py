@@ -11,7 +11,77 @@ GUI dialog to define general user preferences
 
 import wx
 import database
+import os
+if os.name == 'posix' :
+    from scannerAccess import saneAccess
+else:
+    from scannerAccess import twainAccess
 
+
+class PrefScanner(wx.NotebookPage):
+    def __init__(self,parent,id,name):
+        wx.NotebookPage.__init__(self,parent,id,name=name)
+        self.panel = wx.Panel(self, -1)
+        self.sizer = wx.BoxSizer(wx.VERTICAL)
+        
+        self.stScanner = wx.StaticText(self.panel,-1,"None")
+        self.btChangeScanner = wx.Button(self.panel,-1,"Change")
+
+        self.sizer.Add(wx.StaticText(self.panel,-1,"Scanner source : "),flag=wx.ALL)
+        self.sizer.Add(self.stScanner,flag=wx.ALL|wx.EXPAND)
+        self.sizer.Add(self.btChangeScanner,flag=wx.ALL)
+        
+        self.panel.SetSizerAndFit(self.sizer)
+        
+        # OTHER INITIALISATIIONS
+        if os.name == 'posix' :
+            self.scanner = saneAccess.SaneAccess(self.GetHandle())
+        else:
+            self.scanner = twainAccess.TwainAccess(self.GetHandle())
+        # BINDING
+        self.Bind(wx.EVT_BUTTON, self.actionChangeScanner, self.btChangeScanner)
+    def actionChangeScanner(self,event):
+        self.stScanner.Label = self.scanner.chooseSource()
+
+class PrefSurveyDir(wx.NotebookPage):
+    def __init__(self,parent,id,name):
+        wx.NotebookPage.__init__(self,parent,id,name=name)
+        self.panel = wx.Panel(self, -1)
+        self.dirSurveySizer = wx.GridBagSizer(1,1)
+        self.lstSurveyDirs = wx.CheckListBox(self.panel,-1,style=wx.LB_EXTENDED)
+        self.txtSurveyExt = wx.TextCtrl(self.panel,-1)
+        self.btAddDir = wx.Button(self.panel,-1,"Add")
+        self.btRemDir = wx.Button(self.panel,-1,"Remove")
+
+        self.dirSurveySizer.Add(wx.StaticText(self.panel,-1,"Survey directories") , (0,0),flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL )
+        self.dirSurveySizer.Add(self.btAddDir,(0,1),flag=wx.ALL)
+        self.dirSurveySizer.Add(self.btRemDir,(0,2),flag=wx.ALL)
+        self.dirSurveySizer.Add(wx.StaticText(self.panel,-1,"(check directories which have to be recursively surveyed)") , (1,0),span=(1,3),flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL )
+        self.dirSurveySizer.Add(self.lstSurveyDirs,(2,0),span=(1,4),flag=wx.ALL | wx.EXPAND | wx.ALIGN_BOTTOM)
+        self.dirSurveySizer.Add(wx.StaticText(self.panel,-1,"Survey extensions" ),(3,0),flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL)
+        self.dirSurveySizer.Add(self.txtSurveyExt,(3,1),span=(1,3),flag=wx.EXPAND|wx.ALL)
+
+        self.dirSurveySizer.AddGrowableCol(3)
+        self.dirSurveySizer.AddGrowableRow(2)
+        
+        
+        (item_list,checked) = database.theConfig.get_survey_directory_list()
+        self.lstSurveyDirs.SetItems(item_list)
+        self.lstSurveyDirs.SetChecked(checked)
+        S = database.theConfig.get_survey_extension_list()
+        self.txtSurveyExt.SetValue(S)
+        self.panel.SetSizerAndFit(self.dirSurveySizer)
+        # BINDING
+        self.Bind(wx.EVT_BUTTON, self.actionAddDir, self.btAddDir)
+        self.Bind(wx.EVT_BUTTON, self.actionRemDir, self.btRemDir)
+    def actionAddDir(self,event):
+        dir_name = wx.DirSelector()
+        if len(dir_name)>0 :  self.lstSurveyDirs.Append(dir_name)
+    def actionRemDir(self,event):
+        elems = list(self.lstSurveyDirs.GetSelections())
+        elems.sort(reverse=True)
+        for e in elems : self.lstSurveyDirs.Delete(e)
+        
 class PrefGui(wx.Dialog):
     '''
     classdocs
@@ -29,32 +99,30 @@ class PrefGui(wx.Dialog):
         self.btChangeBase = wx.Button(self.panel,-1,"Change")
         self.cbLanguage = wx.Choice(self.panel,-1)
         self.cbLanguage.SetSelection(0)
-        self.lstSurveyDirs = wx.CheckListBox(self.panel,-1,style=wx.LB_EXTENDED)
-        self.txtSurveyExt = wx.TextCtrl(self.panel,-1)
-        self.btAddDir = wx.Button(self.panel,-1,"Add")
-        self.btRemDir = wx.Button(self.panel,-1,"Remove")
         self.btOk = wx.Button(self.panel,-1,"Ok")
         self.btCancel = wx.Button(self.panel,-1,"Cancel")
 
         self.prefSizer = wx.GridBagSizer(1,1)
 
         self.prefSizer.Add(wx.StaticText(self.panel,-1,"Database name :" ),(0,0),flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL)
-        self.prefSizer.Add(self.btChangeBase,(0,1),flag=wx.EXPAND|wx.ALIGN_CENTER_VERTICAL|wx.ALL,span=(1,2))
-        self.prefSizer.Add(self.txtDatabaseName,(0,3),flag=wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL)
-        self.prefSizer.Add(wx.StaticText(self.panel,-1,"Language"),(1,0),flag=wx.EXPAND|wx.ALL|wx.ALIGN_CENTER_VERTICAL)
-        self.prefSizer.Add(self.cbLanguage,(1,1),span=(1,2),flag=wx.EXPAND|wx.ALL)
-        self.prefSizer.Add(wx.StaticText(self.panel,-1,"Survey directories") , (2,0),flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL )
-        self.prefSizer.Add(self.btAddDir,(2,1),flag=wx.EXPAND|wx.ALL)
-        self.prefSizer.Add(self.btRemDir,(2,2),flag=wx.EXPAND|wx.ALL)
-        self.prefSizer.Add(wx.StaticText(self.panel,-1,"(check directories that have to be recursively surveyed)") , (2,3),flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL )
-        self.prefSizer.Add(self.lstSurveyDirs,(3,0),span=(1,4),flag=wx.ALL | wx.EXPAND | wx.ALIGN_BOTTOM)
-        self.prefSizer.Add(wx.StaticText(self.panel,-1,"Survey extensions" ),(4,0),flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL)
-        self.prefSizer.Add(self.txtSurveyExt,(4,1),flag=wx.EXPAND|wx.ALL,span=(1,3))
-        self.prefSizer.Add(self.btOk,(5,0),flag=wx.EXPAND|wx.ALL)
-        self.prefSizer.Add(self.btCancel,(5,1),flag=wx.EXPAND|wx.ALL)
+        self.prefSizer.Add(self.btChangeBase,(0,1),flag=wx.ALIGN_CENTER_VERTICAL|wx.ALL)
+        self.prefSizer.Add(self.txtDatabaseName,(0,2),flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL)
+        self.prefSizer.Add(wx.StaticText(self.panel,-1,"Language"),(1,0),flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL)
+        self.prefSizer.Add(self.cbLanguage,(1,1),flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL)
+
+        self.tabFrame = wx.Notebook(self.panel,-1)
+        self.dirSurveyFrame = PrefSurveyDir(self.tabFrame,-1,name="Dir. survey")
+        self.scannerFrame = PrefScanner(self.tabFrame,-1,name="Scanner")
         
-        self.prefSizer.AddGrowableCol(3)
-        self.prefSizer.AddGrowableRow(3)
+        self.tabFrame.AddPage(self.dirSurveyFrame,self.dirSurveyFrame.GetName())
+        self.tabFrame.AddPage(self.scannerFrame,self.scannerFrame.GetName())
+        
+        self.prefSizer.Add(self.tabFrame,(2,0),span=(1,3),flag=wx.EXPAND|wx.ALL)
+        self.prefSizer.Add(self.btOk,(3,0),flag=wx.EXPAND|wx.ALL)
+        self.prefSizer.Add(self.btCancel,(3,1),flag=wx.EXPAND|wx.ALL)
+        
+        self.prefSizer.AddGrowableCol(2)
+        self.prefSizer.AddGrowableRow(2)
 
         database.theConfig.read_config()
         
@@ -65,30 +133,16 @@ class PrefGui(wx.Dialog):
             self.cbLanguage.SetStringSelection(current)
         else:
             self.cbLanguage.SetSelection(0)
-        (item_list,checked) = database.theConfig.get_survey_directory_list()
-        self.lstSurveyDirs.SetItems(item_list)
-        self.lstSurveyDirs.SetChecked(checked)
-        S = database.theConfig.get_survey_extension_list()
-        self.txtSurveyExt.SetValue(S)
         
         self.panel.SetSizerAndFit(self.prefSizer)
         self.SetClientSize((600,300))
         
         # binding
         self.Bind(wx.EVT_BUTTON, self.actionChangeDataBase, self.btChangeBase)
-        self.Bind(wx.EVT_BUTTON, self.actionAddDir, self.btAddDir)
-        self.Bind(wx.EVT_BUTTON, self.actionRemDir, self.btRemDir)
         self.Bind(wx.EVT_BUTTON, self.actionSavePrefs, self.btOk)
         self.Bind(wx.EVT_BUTTON, lambda x : self.Close(), self.btCancel)
     def actionChangeDataBase(self,event):
         pass
-    def actionAddDir(self,event):
-        dir_name = wx.DirSelector()
-        if len(dir_name)>0 :  self.lstSurveyDirs.Append(dir_name)
-    def actionRemDir(self,event):
-        elems = list(self.lstSurveyDirs.GetSelections())
-        elems.sort(reverse=True)
-        for e in elems : self.lstSurveyDirs.Delete(e)
     def actionSavePrefs(self,event):
         dir_list = self.lstSurveyDirs.GetItems()
         recursiveIndex = self.lstSurveyDirs.GetChecked()

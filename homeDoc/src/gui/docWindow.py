@@ -34,7 +34,7 @@ class docWindow(wx.Window) :
         self.btRight = wx.BitmapButton(self.panel,-1,wx.Bitmap(Resources.get_icon_filename('NEXT_PAGE')))
         self.btZoomPlus = wx.BitmapButton(self.panel,-1,wx.Bitmap(Resources.get_icon_filename('ZOOM_PLUS')))
         self.btZoomMinus = wx.BitmapButton(self.panel,-1,wx.Bitmap(Resources.get_icon_filename('ZOOM_MINUS')))
-        self.lbImage = wx.StaticText(self.panel,-1,'No image')
+        self.lbImage = wx.StaticText(self.panel,-1,'No page')
 
         self.canvas = wx.StaticBitmap(self.panel, -1)
         self.totalWin.Add(self.buttonPart,0,wx.ALIGN_TOP|wx.EXPAND)
@@ -43,7 +43,7 @@ class docWindow(wx.Window) :
         self.buttonPart.Add(self.btRight,0)
         self.buttonPart.Add(self.btZoomPlus ,0)
         self.buttonPart.Add(self.btZoomMinus,0)
-        self.buttonPart.Add(self.lbImage,1,wx.EXPAND)
+        self.buttonPart.Add(self.lbImage,1,wx.ALIGN_CENTER_VERTICAL|wx.ALL)
 
         self.Bind(wx.EVT_BUTTON, self.actionPreviousImage, self.btLeft)
         self.Bind(wx.EVT_BUTTON, self.actionNextImage, self.btRight)
@@ -100,9 +100,9 @@ class docWindow(wx.Window) :
         self.panel.SetSize(self.GetSizeTuple())
         self.totalWin.Layout()
         if len(data.theData.pil_images)==0:
-            self.lbImage.SetLabel('no image')
+            self.lbImage.SetLabel('no page')
         else:
-            self.lbImage.SetLabel('image ' + str(data.theData.current_image+1) + '/' + str(len(data.theData.pil_images)))
+            self.lbImage.SetLabel('page ' + str(data.theData.current_image+1) + '/' + str(len(data.theData.pil_images)))
         if data.theData.image_changed or not self.img:
             pil_image = data.theData.get_image()
             self.img = wx.EmptyImage(pil_image.size[0],pil_image.size[1])

@@ -10,6 +10,7 @@ GUI part to show/modify a record data
 import wx
 import database
 import datetime
+#import pyPdf
 
 class RecordWidget(wx.Window):
     def __init__(self,parent,filename='',file_style = wx.FLP_OPEN | wx.FLP_FILE_MUST_EXIST | wx.FLP_USE_TEXTCTRL):
@@ -74,6 +75,17 @@ class RecordWidget(wx.Window):
         filename = self.lbFileName.GetPath()
         if len(filename) == 0:
             return
+#        if filename[-4:].lower()=='.pdf':
+#            content=""
+#            pdf = pyPdf.PdfFileReader(file(filename, "rb"))
+#            # Iterate pages
+#            for i in range(0, pdf.getNumPages()):
+#                # Extract text from page and add to content
+#                content += pdf.getPage(i).extractText() + "\n"
+#                # Collapse whitespace
+#                #content = " ".join(content.replace("\xa0", " ").strip().split())
+#            print "file content:"
+#            print content
         title = self.lbTitle.Value
         tags = self.lbTags.Value
         description = self.lbDescription.Value

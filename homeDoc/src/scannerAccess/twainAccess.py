@@ -14,9 +14,6 @@ import PIL
 #import FreeImagePy as FIPY
 import data
 
-class NoScannerFoundError(Exception):
-    pass
-
 class TwainAccess(object):
     # DATA MEMBERS
     sourceManager = None
@@ -31,16 +28,17 @@ class TwainAccess(object):
     # METHODS
     def chooseSource(self):
         if not self.sourceManager:
-            self.sourceManager = twain.SourceManager(self.imageContainer, ProductName="homeDocs")
+            self.sourceManager = twain.SourceManager(self.imageContainer, ProductName="MALODOS")
         if not self.sourceManager:
-            raise NoScannerFoundError
+            raise "No scanner found"
             return
         if self.sourceData:
             self.sourceData.destroy()
             self.sourceData=None
         #self.sourceData = self.sourceManager.OpenSource()
+        return self.sourceManager
 
-    def OpenScanner(self):
+    def openScanner(self):
         """Connect to the scanner"""
         if not self.sourceManager:
             try:
@@ -53,13 +51,13 @@ class TwainAccess(object):
             self.sourceData.destroy()
             self.sourceData=None
         self.sourceData = self.sourceManager.OpenSource()
-        self.sourceManager.SetCallback(self.OnTwainEvent)
+        self.sourceManager.SetCallback(self.onTwainEvent)
 
     def startAcquisition(self):
         """Begin the acquisition process. The actual acquisition will be notified by
         a callback function."""
         if not self.sourceData:
-            self.OpenScanner()
+            self.openScanner()
         if not self.sourceData: return
         try:
             self.sourceData.SetCapability(twain.ICAP_YRESOLUTION, twain.TWTY_FIX32, 100.0)
@@ -69,13 +67,13 @@ class TwainAccess(object):
                 
 #-------------------------------------------------------------------------
 #
-    def OnTwainEvent(self, event):
+    def onTwainEvent(self, event):
         """This is an event handler for the twain event. It is called
         by the thread that set up the callback in the first place.
         """
         try:
             if event == twain.MSG_XFERREADY:
-                self.StartTransfer()
+                self.startTransfer()
             elif event == twain.MSG_CLOSEDSREQ:
                 self.sourceData = None
         except:
@@ -84,7 +82,7 @@ class TwainAccess(object):
             ei = sys.exc_info()
             traceback.print_exception(ei[0], ei[1], ei[2])
     
-    def StartTransfer(self):
+    def startTransfer(self):
         """Get the list of images from the scanner"""
         more_to_come = True
         handle = None

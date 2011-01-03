@@ -30,9 +30,12 @@ class SaneAccess(object):
         self.devices = sane.get_devices()
         names = [D[2] for D in self.devices]
         self.selected = GUI.multichoice(names)
-        if self.selected<0 : self.selected=None
-        
-    def OpenScanner(self):
+        if self.selected<0 :
+            self.selected=None
+            return "None"
+        else:
+            return names[self.selected]
+    def openScanner(self):
         """Connect to the scanner"""
         if not self.selected: self.chooseSource()
         if not self.selected : return
@@ -45,7 +48,7 @@ class SaneAccess(object):
     def startAcquisition(self):
         """Begin the acquisition process."""
         if not self.sourceData:
-            self.OpenScanner()
+            self.openScanner()
         if not self.sourceData: return
         
         try:
