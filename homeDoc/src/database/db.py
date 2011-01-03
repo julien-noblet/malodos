@@ -214,10 +214,10 @@ class Base(object):
             gui.utilities.show_message('Error during database index creation')
             
         #self.create_table(self.docWords_tableName, 'keyID INTEGER references ' + self.keywords_tableName + '(ROWID) ,docID INTEGER references ' + self.documents_tableName + '(ROWID)')
-        self.create_table(self.docWords_tableName, 'keyID INTEGER  ,docID INTEGER, field INT')
+        self.create_table(self.docWords_tableName, 'keyID INTEGER  ,docID INTEGER, field INT,count INT')
         self.create_table(self.persons_tableName, 'name TEXT')
         self.create_table(self.params_tableName, 'name TEXT , value TEXT')
-        sql_statement = 'create view if not exists fullDoc as select D.title,D.description,D.filename,D.registerDate,D.registeringPersonID,D.documentDate,D.tags,D.checksum, D.RowID docID,K.keyword,K.soundex_word,DW.field '
+        sql_statement = 'create view if not exists fullDoc as select D.title,D.description,D.filename,D.registerDate,D.registeringPersonID,D.documentDate,D.tags,D.checksum, D.RowID docID,K.keyword,K.soundex_word,DW.field,DW.count '
         sql_statement += 'FROM ' + self.keywords_tableName + ' K,' + self.documents_tableName + ' D,'
         sql_statement += self.docWords_tableName + ' DW'
         sql_statement += ' WHERE DW.keyID = K.rowID AND DW.docID = D.RowID'
@@ -354,7 +354,7 @@ class Base(object):
     #===============================================================================
     def find_sql(self,request,pars):
         try:
-            sql_command = "SELECT DISTINCT docID FROM fullDoc WHERE " + request 
+            sql_command = "SELECT docID,sum(count) FROM fullDoc WHERE " + request + " GROUP BY docID" 
             cur = self.connexion.execute(sql_command,pars)
             rowIDList = self.rows_to_str(cur,0,'')
             sql_command = "SELECT *,ROWID FROM "+ self.documents_tableName + ' WHERE ROWID IN ' + str(rowIDList)
@@ -499,7 +499,8 @@ class Base(object):
                 return False
             # add the new keyID to the table
             for adoc_i in docID:
-                Q = 'INSERT INTO ' + self.docWords_tableName + ' VALUES (?,' +  str(adoc_i) + ',' + str(field) + ')'
+                word_count=1 # TODO UPDATE COUNTERS
+                Q = 'INSERT INTO ' + self.docWords_tableName + ' VALUES (?,' +  str(adoc_i) + ',' + str(field) + ',' + str(word_count) + ')'
                 try:
                     self.connexion.executemany(Q , addedKeys)
                 except:
