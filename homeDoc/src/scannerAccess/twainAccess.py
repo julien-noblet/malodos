@@ -26,12 +26,12 @@ class TwainAccess(object):
         self.dataReadyCallback = dataReadyCallback
         self.tmpFileName=tempfile.NamedTemporaryFile().name
     # METHODS
-    def chooseSource(self):
+    def chooseSource(self,sourceName=None):
         if not self.sourceManager:
             self.sourceManager = twain.SourceManager(self.imageContainer, ProductName="MALODOS")
         if not self.sourceManager:
             raise "No scanner found"
-            return
+            return None
         if self.sourceData:
             self.sourceData.destroy()
             self.sourceData=None

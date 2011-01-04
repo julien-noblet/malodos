@@ -26,10 +26,16 @@ class SaneAccess(object):
         self.sourceData = None
  
     # METHODS
-    def chooseSource(self):
+    def chooseSource(self,sourceName=None):
         self.devices = sane.get_devices()
         names = [D[2] for D in self.devices]
-        self.selected = GUI.multichoice(names)
+        self.selected = None
+        if sourceName:
+            try:
+                self.selected = names.index(sourceName)
+            except:
+                pass
+        if not self.selected : self.selected = GUI.multichoice(names)
         if self.selected<0 :
             self.selected=None
             return "None"

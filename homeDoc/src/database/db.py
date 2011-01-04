@@ -79,6 +79,12 @@ class Configuration(object):
     def set_current_language(self,S):
         if not self.config : raise "Configuration not found"
         self.config.set('language','current',S)
+    def get_current_scanner(self):
+        if not self.config : raise "Configuration not found"
+        return self.config.get('scanner','source')
+    def set_current_scanner(self,S):
+        if not self.config : raise "Configuration not found"
+        self.config.set('scanner','source',S)
     def get_database_name(self):
         if not self.config : raise "Configuration not found"
         return self.config.get('database', 'filename')

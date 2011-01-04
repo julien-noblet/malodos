@@ -38,10 +38,14 @@ class PrefScanner(wx.NotebookPage):
             self.scanner = saneAccess.SaneAccess(self.GetHandle())
         else:
             self.scanner = twainAccess.TwainAccess(self.GetHandle())
+        currentScanner = database.theConfig.get_current_scanner()
+        self.stScanner.Label = currentScanner
         # BINDING
         self.Bind(wx.EVT_BUTTON, self.actionChangeScanner, self.btChangeScanner)
     def actionChangeScanner(self,event):
         self.stScanner.Label = self.scanner.chooseSource()
+    def actionSave(self):
+        database.theConfig.set_current_scanner(self.stScanner.Label)
 
 class PrefSurveyDir(wx.NotebookPage):
     def __init__(self,parent,id,name):
@@ -81,6 +85,11 @@ class PrefSurveyDir(wx.NotebookPage):
         elems = list(self.lstSurveyDirs.GetSelections())
         elems.sort(reverse=True)
         for e in elems : self.lstSurveyDirs.Delete(e)
+    def actionSave(self):
+        dir_list = self.lstSurveyDirs.GetItems()
+        recursiveIndex = self.lstSurveyDirs.GetChecked()
+        database.theConfig.set_survey_directory_list(dir_list, recursiveIndex)
+        database.theConfig.set_survey_extension_list(self.txtSurveyExt.GetValue())
         
 class PrefGui(wx.Dialog):
     '''
@@ -144,11 +153,9 @@ class PrefGui(wx.Dialog):
     def actionChangeDataBase(self,event):
         pass
     def actionSavePrefs(self,event):
-        dir_list = self.lstSurveyDirs.GetItems()
-        recursiveIndex = self.lstSurveyDirs.GetChecked()
-        database.theConfig.set_survey_directory_list(dir_list, recursiveIndex)
         database.theConfig.set_current_language(self.cbLanguage.GetStringSelection())
-        database.theConfig.set_survey_extension_list(self.txtSurveyExt.GetValue())
+        self.dirSurveyFrame.actionSave()
+        self.scannerFrame.actionSave()
         if not database.theConfig.commit_config() :
             wx.MessageBox('Problem : Unable to write the configuration file.')
         else:

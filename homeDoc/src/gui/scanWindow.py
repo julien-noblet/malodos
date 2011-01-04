@@ -18,6 +18,7 @@ else:
 import gui.docWindow as docWindow
 import data
 import RecordWidget
+import database
 
 class ScanWindow(wx.Dialog):
 	scanner = None
@@ -29,15 +30,18 @@ class ScanWindow(wx.Dialog):
 		self.panel = wx.Panel(self, -1)
 
 		self.totalWin = wx.BoxSizer(wx.VERTICAL)
-		self.upPart = wx.GridSizer(2,2)
+		self.upPart = wx.GridSizer(3,2)
 
+		self.stSource = wx.StaticText(self.panel,-1,"Source :")
 		self.btSource = wx.Button(self.panel, -1, 'Select Scanner')
 		self.btScan = wx.Button(self.panel, -1, 'Scan')
 		self.cbMultiplePage = wx.CheckBox(self.panel, -1, 'Manual MultiPage')
-
 		self.btSave = wx.Button(self.panel, -1, 'Record')
+		
 		self.docWin = docWindow.docWindow(self.panel,-1)
 		self.recordPart = RecordWidget.RecordWidget(self.panel,file_style=wx.FLP_SAVE | wx.FLP_OVERWRITE_PROMPT | wx.FLP_USE_TEXTCTRL)
+		self.upPart.Add(wx.StaticText(self.panel,-1,"Source :"),0,wx.ALL | wx.ALIGN_CENTRE_VERTICAL)
+		self.upPart.Add(self.stSource,0,wx.ALL| wx.ALIGN_CENTRE_VERTICAL)
 		self.upPart.Add(self.btSource,0,wx.EXPAND | wx.CENTER)
 		self.upPart.Add(self.btScan,0,wx.EXPAND | wx.CENTER)
 		self.upPart.Add(self.btSave,0,wx.EXPAND | wx.CENTER)
@@ -57,8 +61,10 @@ class ScanWindow(wx.Dialog):
 			self.scanner = twainAccess.TwainAccess(self.GetHandle(),self.onNewScannerData)
 		self.panel.SetSizerAndFit(self.totalWin)
 		self.SetSize(self.GetSize())
+		self.stSource.Label = self.scanner.chooseSource(database.theConfig.get_current_scanner())
+		
 	def actionChooseSource(self,event):
-		self.scanner.chooseSource()
+		self.stSource.Label = self.scanner.chooseSource()
 	def actionPerformScan(self,event):
 		auto_cont=self.cbMultiplePage.GetValue()
 		cont=True
