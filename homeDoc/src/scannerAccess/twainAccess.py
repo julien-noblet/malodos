@@ -25,18 +25,34 @@ class TwainAccess(object):
         self.imageContainer = imageContainer
         self.dataReadyCallback = dataReadyCallback
         self.tmpFileName=tempfile.NamedTemporaryFile().name
+        self.sourceName= None
     # METHODS
     def chooseSource(self,sourceName=None):
         if not self.sourceManager:
             self.sourceManager = twain.SourceManager(self.imageContainer, ProductName="MALODOS")
         if not self.sourceManager:
-            raise "No scanner found"
-            return None
+            self.sourceName= None
+            return "None"
         if self.sourceData:
             self.sourceData.destroy()
             self.sourceData=None
-        #self.sourceData = self.sourceManager.OpenSource()
-        return self.sourceManager
+        if sourceName:
+            deviceList = self.sourceManager.GetSourceList()
+            try:
+                selected = deviceList.index(sourceName)
+                self.sourceData = self.sourceManager.OpenSource(sourceName)
+            except:
+                self.sourceData = None
+            
+        if not self.sourceData : self.sourceData = self.sourceManager.OpenSource()
+        if self.sourceData:
+            self.sourceName = self.sourceData.GetSourceName()
+            self.sourceData.destroy()
+            self.sourceData=None
+        if self.sourceName :
+            return self.sourceName
+        else:
+            return "None"
 
     def openScanner(self):
         """Connect to the scanner"""
@@ -45,12 +61,12 @@ class TwainAccess(object):
                 self.chooseSource()
             except:
                 return
-        if not self.sourceManager:
+        if not self.sourceManager or not self.sourceName:
             return
         if self.sourceData:
             self.sourceData.destroy()
             self.sourceData=None
-        self.sourceData = self.sourceManager.OpenSource()
+        self.sourceData = self.sourceManager.OpenSource(self.sourceName)
         self.sourceManager.SetCallback(self.onTwainEvent)
 
     def startAcquisition(self):
@@ -61,9 +77,11 @@ class TwainAccess(object):
         if not self.sourceData: return
         try:
             self.sourceData.SetCapability(twain.ICAP_YRESOLUTION, twain.TWTY_FIX32, 100.0)
+            self.sourceData.RequestAcquire(1, 1)
         except:
+            self.sourceData.destroy()
+            self.sourceData=None
             pass
-        self.sourceData.RequestAcquire(1, 1)
                 
 #-------------------------------------------------------------------------
 #

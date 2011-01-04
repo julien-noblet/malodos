@@ -41,6 +41,8 @@ class Configuration(object):
             self.config = ConfigParser.SafeConfigParser()
             self.config.add_section('database')
             self.set_database_name( os.path.join(self.conf_dir,'malodos.db'))
+            self.config.add_section('scanner')
+            self.set_current_scanner('None')
             self.config.add_section('language')
             #self.set_installed_languages(u'english,français,עברית')
             self.set_installed_languages(u'english')

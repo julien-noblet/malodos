@@ -24,6 +24,7 @@ class SaneAccess(object):
         sane.init()
         self.selected = None
         self.sourceData = None
+        self.devices=None
  
     # METHODS
     def chooseSource(self,sourceName=None):
