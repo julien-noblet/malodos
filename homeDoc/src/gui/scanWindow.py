@@ -26,21 +26,21 @@ class ScanWindow(wx.Dialog):
 	# constructor (gui building)
 	#==============================================================================
 	def __init__(self, parent, title):
-		wx.Dialog.__init__(self, parent, -1, 'Scanning a new document', wx.DefaultPosition, (372, 700), style=wx.CLOSE_BOX | wx.SYSTEM_MENU | wx.CAPTION | wx.RESIZE_BORDER  | wx.MAXIMIZE_BOX | wx.MINIMIZE_BOX)
+		wx.Dialog.__init__(self, parent, -1, _('Scanning a new document'), wx.DefaultPosition, (372, 700), style=wx.CLOSE_BOX | wx.SYSTEM_MENU | wx.CAPTION | wx.RESIZE_BORDER  | wx.MAXIMIZE_BOX | wx.MINIMIZE_BOX)
 		self.panel = wx.Panel(self, -1)
 
 		self.totalWin = wx.BoxSizer(wx.VERTICAL)
 		self.upPart = wx.GridSizer(3,2)
 
-		self.stSource = wx.StaticText(self.panel,-1,"Source :")
-		self.btSource = wx.Button(self.panel, -1, 'Select Scanner')
-		self.btScan = wx.Button(self.panel, -1, 'Scan')
-		self.cbMultiplePage = wx.CheckBox(self.panel, -1, 'Manual MultiPage')
-		self.btSave = wx.Button(self.panel, -1, 'Record')
+		self.stSource = wx.StaticText(self.panel,-1,_("Source :"))
+		self.btSource = wx.Button(self.panel, -1, _('Select Scanner'))
+		self.btScan = wx.Button(self.panel, -1, _('Scan'))
+		self.cbMultiplePage = wx.CheckBox(self.panel, -1, _('Manual MultiPage'))
+		self.btSave = wx.Button(self.panel, -1, _('Record'))
 		
 		self.docWin = docWindow.docWindow(self.panel,-1)
 		self.recordPart = RecordWidget.RecordWidget(self.panel,file_style=wx.FLP_SAVE | wx.FLP_OVERWRITE_PROMPT | wx.FLP_USE_TEXTCTRL)
-		self.upPart.Add(wx.StaticText(self.panel,-1,"Source :"),0,wx.ALL | wx.ALIGN_CENTRE_VERTICAL)
+		self.upPart.Add(wx.StaticText(self.panel,-1,_("Source :")),0,wx.ALL | wx.ALIGN_CENTRE_VERTICAL)
 		self.upPart.Add(self.stSource,0,wx.ALL| wx.ALIGN_CENTRE_VERTICAL)
 		self.upPart.Add(self.btSource,0,wx.EXPAND | wx.CENTER)
 		self.upPart.Add(self.btScan,0,wx.EXPAND | wx.CENTER)
@@ -72,7 +72,7 @@ class ScanWindow(wx.Dialog):
 		while cont:
 			self.scanner.startAcquisition()
 			if auto_cont:
-				x = utilities.ask('Do you want to add new page(s) ?')
+				x = utilities.ask(_('Do you want to add new page(s) ?'))
 				if x != wx.ID_YES:
 					cont=False
 			else:
@@ -81,15 +81,15 @@ class ScanWindow(wx.Dialog):
 	def actionSaveRecord(self,event):
 		fname = self.recordPart.lbFileName.GetPath()
 		if fname == '' :
-			wx.MessageBox('You must give a valid filename to record the document')
+			wx.MessageBox(_('You must give a valid filename to record the document'))
 			return
 		try:
 			if not data.theData.save_file(fname) : raise Exception
 		except:
-			wx.MessageBox('Unable to add the file to the disk')
+			wx.MessageBox(_('Unable to add the file to the disk'))
 			return
 		if not self.recordPart.do_save_record():
-			wx.MessageBox('Unable to add the file to the database')
+			wx.MessageBox(_('Unable to add the file to the database'))
 		else:
 			# close the dialog
 			self.Close()

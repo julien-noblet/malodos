@@ -9,6 +9,12 @@ attached to this project (LICENSE.txt file)
 =====================================================================
 main application
 '''
+
+import gettext
+import os
+ld = os.path.join(os.path.dirname(__file__) ,'locale')
+gettext.install('malodos', localedir = ld, unicode=True)
+
 import wx
 import gui.mainBoard as mainWindow
 import database
@@ -17,10 +23,11 @@ class MyApp(wx.App):
     def OnInit(self):
         if not database.theBase.buildDB():
             return
-        frame = mainWindow.MainFrame(None, 'HomeDocs')
+        frame = mainWindow.MainFrame(None, 'MALODOS')
         frame.Show(True)
         self.SetTopWindow(frame)
         return True
+
 
 app = MyApp(False)
 

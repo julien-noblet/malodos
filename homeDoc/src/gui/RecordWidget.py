@@ -25,27 +25,27 @@ class RecordWidget(wx.Window):
         self.totSizer.SetNonFlexibleGrowMode(wx.FLEX_GROWMODE_SPECIFIED)
         self.totSizer.AddGrowableCol(1)
         
-        self.txtFileName = wx.StaticText(self.panel , -1 , 'Filename')
+        self.txtFileName = wx.StaticText(self.panel , -1 , _('Filename'))
         self.lbFileName = wx.FilePickerCtrl(self.panel,-1,path=filename,style=file_style)
         self.totSizer.Add(self.txtFileName,0)
         self.totSizer.Add(self.lbFileName,1,wx.EXPAND)
         
-        self.txtTitle = wx.StaticText(self.panel , -1 , 'Title')
+        self.txtTitle = wx.StaticText(self.panel , -1 , _('Title'))
         self.lbTitle = wx.TextCtrl(self.panel , -1 , '')
         self.totSizer.Add(self.txtTitle,0)
         self.totSizer.Add(self.lbTitle,1,wx.EXPAND)
         
-        self.txtDescription = wx.StaticText(self.panel , -1 , 'Description')
+        self.txtDescription = wx.StaticText(self.panel , -1 , _('Description'))
         self.lbDescription = wx.TextCtrl(self.panel , -1 , '')
         self.totSizer.Add(self.txtDescription,0)
         self.totSizer.Add(self.lbDescription,1,wx.EXPAND)
 
-        self.txtTags = wx.StaticText(self.panel , -1 , 'Tags')
+        self.txtTags = wx.StaticText(self.panel , -1 , _('Tags'))
         self.lbTags = wx.TextCtrl(self.panel , -1 , '')
         self.totSizer.Add(self.txtTags,0)
         self.totSizer.Add(self.lbTags,1,wx.EXPAND)
         
-        self.txtDate = wx.StaticText(self.panel , -1 , 'document date')
+        self.txtDate = wx.StaticText(self.panel , -1 , _('document date'))
         self.lbDate = wx.DatePickerCtrl(self.panel , -1,style=wx.DP_DROPDOWN)
         self.totSizer.Add(self.txtDate,0)
         self.totSizer.Add(self.lbDate,1)

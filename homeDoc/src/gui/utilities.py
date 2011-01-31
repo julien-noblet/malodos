@@ -9,10 +9,10 @@ attached to this project (LICENSE.txt file)
 
 import wx
 
-def multichoice(choices,message='choose in the followin'):
-    return wx.GetSingleChoiceIndex(message,'selection',choices)
+def multichoice(choices, message=_('choose in the following :') ):
+    return wx.GetSingleChoiceIndex(message,_('selection'),choices)
 def show_message(message):
-    return wx.MessageBox(message,'alert')
+    return wx.MessageBox(message,_('alert'))
 def ask(message):
-    dlg =  wx.MessageDialog(None,message,'Question',wx.YES_NO)
+    dlg =  wx.MessageDialog(None,message,_('Question'),wx.YES_NO)
     return dlg.ShowModal()

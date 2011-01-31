@@ -39,7 +39,7 @@ class MainFrame(wx.Frame):
     # constructor (GUI building)
     #===========================================================================
     def __init__(self, parent, title):
-        wx.Frame.__init__(self, parent, -1, 'MALODOS Main panel', wx.DefaultPosition, (576, 721), style=wx.CLOSE_BOX | wx.SYSTEM_MENU | wx.CAPTION | wx.RESIZE_BORDER | 0 | 0 | wx.MAXIMIZE_BOX | wx.MINIMIZE_BOX)
+        wx.Frame.__init__(self, parent, -1, _('MALODOS Main panel'), wx.DefaultPosition, (576, 721), style=wx.CLOSE_BOX | wx.SYSTEM_MENU | wx.CAPTION | wx.RESIZE_BORDER | 0 | 0 | wx.MAXIMIZE_BOX | wx.MINIMIZE_BOX)
         self.panel = wx.Panel(self, -1)
         
 
@@ -67,8 +67,8 @@ class MainFrame(wx.Frame):
         self.recordPart = RecordWidget.RecordWidget(self.docViewPanel)
         self.recordPart.lbFileName.Disable()
         self.recordSizer.Add(self.recordPart,1,wx.EXPAND)
-        self.btUpdateRecord = wx.Button(self.docViewPanel,-1,'Update')
-        self.btShowExternal = wx.Button(self.docViewPanel,-1,'System show')
+        self.btUpdateRecord = wx.Button(self.docViewPanel,-1,_('Update'))
+        self.btShowExternal = wx.Button(self.docViewPanel,-1,_('System show'))
         self.docViewSizer.Add(self.recordSizer,0,wx.EXPAND)
         self.recordButtonSizer = wx.BoxSizer(wx.VERTICAL)
         self.recordButtonSizer.Add(self.btUpdateRecord,1,wx.EXPAND)
@@ -77,9 +77,9 @@ class MainFrame(wx.Frame):
         self.docViewPanel.SetSizerAndFit(self.docViewSizer)
 
         self.lbDocuments = wx.ListBox(self.docPart, -1,size= (387, 124),style=wx.LB_SORT | wx.LB_EXTENDED )
-        self.label2 = wx.StaticText(self.panel, -1, 'filter :')
+        self.label2 = wx.StaticText(self.panel, -1, _('filter :'))
         self.tbFilter = wx.TextCtrl(self.panel, -1, '',style=wx.TE_PROCESS_ENTER)
-        self.btBuildFilter = wx.Button(self.panel, -1, 'advanced')
+        self.btBuildFilter = wx.Button(self.panel, -1, _('advanced'))
         self.btBuildFilter.Hide()
         
 
@@ -124,7 +124,7 @@ class MainFrame(wx.Frame):
     # click on add scan button
     #===========================================================================
     def actionAddScan(self,event):
-        Frame = scanWindow.ScanWindow(self,"Scan a new document")
+        Frame = scanWindow.ScanWindow(self,_("Scan a new document"))
         theData.clear_all()
         Frame.ShowModal()
         theData.clear_all()
@@ -134,7 +134,7 @@ class MainFrame(wx.Frame):
     # click on add file button
     #===========================================================================
     def actionAddFile(self,event):
-        Frame = addFileWindow.AddFileWindow(self,"Add a new document")
+        Frame = addFileWindow.AddFileWindow(self,_("Add a new document"))
         Frame.ShowModal()
         self.actionSearch(None)
     #===========================================================================
@@ -183,12 +183,12 @@ class MainFrame(wx.Frame):
         try:
             file_md5 = hashlib.md5(open(row[database.theBase.IDX_FILENAME], "rb").read()).hexdigest()
             if row[database.theBase.IDX_CHECKSUM] !=  file_md5:
-                Q = utilities.ask('The file content has changed! Do you wish to update its signature?')
+                Q = utilities.ask(_('The file content has changed! Do you wish to update its signature ?'))
                 if Q==wx.ID_YES:
                     if not database.theBase.update_doc_signature(docID, file_md5):
-                        wx.MessageBox('Unable to update the database')
+                        wx.MessageBox(_('Unable to update the database'))
         except:
-            utilities.show_message('Unable to check the file signature...')
+            utilities.show_message(_('Unable to check the file signature...'))
         
         self.recordPart.SetFields(filename, title, description, documentDate,tags)
         #print row
@@ -228,7 +228,7 @@ class MainFrame(wx.Frame):
         documentDate = self.recordPart.lbDate.GetValue()
         documentDate=datetime.date(year=documentDate.GetYear(),month=documentDate.GetMonth()+1,day=documentDate.GetDay())
         if not database.theBase.update_doc(docID, title, description, documentDate, filename,tags):
-            wx.MessageBox('Unable to update the database')
+            wx.MessageBox(_('Unable to update the database'))
         else:
             self.actionSearch(None)
         
@@ -243,9 +243,9 @@ class MainFrame(wx.Frame):
             row = self.lbDocuments.GetClientData(i)
             docID.append(row[database.theBase.IDX_ROWID])
         if len(docID)==1:
-            msg = 'do you really want to delete this record (' + row[database.theBase.IDX_TITLE] + ')'        
+            msg = _('do you really want to delete this record (') + row[database.theBase.IDX_TITLE] + ')'        
         else:
-            msg = 'do you really want to delete these ' + str(len(docID)) + ' records'
+            msg = _('do you really want to delete these ') + str(len(docID)) + _(' records')
         confirmation = wx.MessageDialog(self,msg,style=wx.OK|wx.CANCEL | wx.CENTRE)
         x= confirmation.ShowModal()
         if x == wx.ID_CANCEL : return
@@ -281,7 +281,7 @@ class MainFrame(wx.Frame):
         P = wx.Printer(pdd)
         pr = docPrinter.docPrinter()
         if not P.Print(self , pr) :
-            wx.MessageBox("Unable to print the document")
+            wx.MessageBox(_("Unable to print the document"))
     #===========================================================================
     # actionAbout : show the about dialog box
     #===========================================================================

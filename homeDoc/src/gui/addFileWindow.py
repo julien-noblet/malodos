@@ -24,10 +24,10 @@ class AddFileWindow(wx.Dialog):
         '''
         Constructor
         '''
-        wx.Dialog.__init__(self, parent, -1, 'Adding a documents to the database',style=wx.CLOSE_BOX | wx.SYSTEM_MENU | wx.CAPTION | wx.RESIZE_BORDER | 0 | 0 | wx.MAXIMIZE_BOX | wx.MINIMIZE_BOX)
+        wx.Dialog.__init__(self, parent, -1, _('Adding a documents to the database'),style=wx.CLOSE_BOX | wx.SYSTEM_MENU | wx.CAPTION | wx.RESIZE_BORDER | 0 | 0 | wx.MAXIMIZE_BOX | wx.MINIMIZE_BOX)
         self.panel = wx.Panel(self, -1)
         if not filename:
-            dlg = wx.FileDialog(self,style=wx.FD_OPEN,message=u'filename of the document to add')
+            dlg = wx.FileDialog(self,style=wx.FD_OPEN,message=_('filename of the document to add'))
             
             if dlg.ShowModal():
                 filename = os.path.join(dlg.Directory,dlg.Filename)
@@ -37,8 +37,8 @@ class AddFileWindow(wx.Dialog):
         self.recordPart = RecordWidget.RecordWidget(self.panel,filename)
         self.btSizer = wx.BoxSizer(wx.HORIZONTAL)
         
-        self.btOk = wx.Button(self.panel,-1,'Ok')
-        self.btCancel = wx.Button(self.panel,-1,'Cancel')
+        self.btOk = wx.Button(self.panel,-1,_('Ok'))
+        self.btCancel = wx.Button(self.panel,-1,_('Cancel'))
 
         self.btSizer.Add(self.btOk,1,wx.EXPAND)
         self.btSizer.Add(self.btCancel,1,wx.EXPAND)
@@ -61,7 +61,7 @@ class AddFileWindow(wx.Dialog):
     #===========================================================================
     def actionDoAdd(self,event):
         if len(self.recordPart.lbFileName.GetPath()) == 0 :
-            dlg = wx.FileDialog(self,style=wx.FD_OPEN,message=u'filename of the document to add')
+            dlg = wx.FileDialog(self,style=wx.FD_OPEN,message=_('filename of the document to add'))
             
             if dlg.ShowModal():
                 fname = os.path.join(dlg.Directory,dlg.Filename)
@@ -71,7 +71,7 @@ class AddFileWindow(wx.Dialog):
                 self.Close()
                 return
         if not self.recordPart.do_save_record():
-            wx.MessageBox('Unable to add the file to the database')
+            wx.MessageBox(_('Unable to add the file to the database'))
         else:
             # close the dialog
             self.Close()

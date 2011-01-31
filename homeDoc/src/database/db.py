@@ -55,46 +55,46 @@ class Configuration(object):
         self.read_config()
 
     def get_survey_extension_list(self):
-        if not self.config : raise "Configuration not found"
+        if not self.config : raise _("Configuration not found")
         return self.config.get('survey','extension_list')
     def set_survey_extension_list(self,S):
-        if not self.config : raise "Configuration not found"
+        if not self.config : raise _("Configuration not found")
         self.config.set('survey','extension_list',S)
     def get_survey_directory_list(self):
-        if not self.config : raise "Configuration not found"
+        if not self.config : raise _("Configuration not found")
         S = self.config.get('survey','directory_list')
         return self.decode_dir_list(S)
     def set_survey_directory_list(self,dir_list,recursiveIndex):
-        if not self.config : raise "Configuration not found"
+        if not self.config : raise _("Configuration not found")
         S = self.encode_dir_list(dir_list, recursiveIndex)
         self.config.set('survey','directory_list',S)
     def get_installed_languages(self):
-        if not self.config : raise "Configuration not found"
+        if not self.config : raise _("Configuration not found")
         return self.config.get('language','installed').split(',')
     def set_installed_languages(self,S):
-        if not self.config : raise "Configuration not found"
+        if not self.config : raise _("Configuration not found")
         if hasattr(S, '__iter__') : S = ','.join(S)
         self.config.set('language','installed',S)
     def get_current_language(self):
-        if not self.config : raise "Configuration not found"
+        if not self.config : raise _("Configuration not found")
         return self.config.get('language','current')
     def set_current_language(self,S):
         if not self.config : raise "Configuration not found"
         self.config.set('language','current',S)
     def get_current_scanner(self):
-        if not self.config : raise "Configuration not found"
+        if not self.config : raise _("Configuration not found")
         return self.config.get('scanner','source')
     def set_current_scanner(self,S):
-        if not self.config : raise "Configuration not found"
+        if not self.config : raise _("Configuration not found")
         self.config.set('scanner','source',S)
     def get_database_name(self):
-        if not self.config : raise "Configuration not found"
+        if not self.config : raise _("Configuration not found")
         return self.config.get('database', 'filename')
     def set_database_name(self,S):
-        if not self.config : raise "Configuration not found"
+        if not self.config : raise _("Configuration not found")
         return self.config.set('database', 'filename',S)
     def get_resource_filename(self):
-        if not self.config : raise "Configuration not found"
+        if not self.config : raise _("Configuration not found")
         return self.config.get('general', 'resourceFile')
     def read_config(self):
         if os.path.exists(self.conf_file) :
@@ -171,7 +171,7 @@ class Base(object):
             #Q = 'PRAGMA foreign_keys = ON'
             #self.connexion.execute(Q)
         except:
-            print("Unable to connect to database")
+            print(_("Unable to connect to database"))
 
     #===========================================================================
     # test if a table exists
@@ -247,7 +247,7 @@ class Base(object):
             db_version = self.get_parameter(self.param_DB_VERSION)
         db_version = float(db_version)
         if db_version > self.DB_VERSION:
-            gui.utilities.show_message('Unstable state: Your database version is newer than the program itself...')
+            gui.utilities.show_message(_('Unstable state: Your database version is newer than the program itself...'))
             return False
         return True
     
@@ -314,7 +314,7 @@ class Base(object):
                 else:
                     personID = row[0]
             except:
-                gui.utilities.show_message('Unable to assign the registering person')
+                gui.utilities.show_message(_('Unable to assign the registering person'))
                 pass
         try:
             # add the document entry in the database
@@ -323,7 +323,7 @@ class Base(object):
             cur = self.connexion.execute(sql_statement,(title,description,fileName,registeringDate,personID,documentDate,tags,str(file_md5)))
             docID = cur.lastrowid
         except:
-            gui.utilities.show_message('Unable to add the document')
+            gui.utilities.show_message(_('Unable to add the document'))
             return False
         self.connexion.commit()
         if keywordsGroups :
@@ -353,7 +353,7 @@ class Base(object):
             cur = self.connexion.execute(Q , keywords)
             return cur
         except:
-            gui.utilities.show_message('Unable to search keywords')
+            gui.utilities.show_message(_('Unable to search keywords'))
             return None
 
 
@@ -401,7 +401,7 @@ class Base(object):
                 else:  
                     cur = self.connexion.execute(Q)
             except:
-                gui.utilities.show_message('Keyword search failed')
+                gui.utilities.show_message(_('Keyword search failed'))
                 return None
             # cur now contain the docID to take
             if cur:
@@ -410,7 +410,7 @@ class Base(object):
         try:
             cur = self.connexion.execute(sql_statement)
         except:
-            gui.utilities.show_message('Document search failed')
+            gui.utilities.show_message(_('Document search failed'))
             return None
         return cur
     #===========================================================================
@@ -459,7 +459,7 @@ class Base(object):
         try:
             self.connexion.execute(Q,docID)
         except:
-            gui.utilities.show_message('Unable to remove documents/word associations')
+            gui.utilities.show_message(_('Unable to remove documents/word associations'))
             return
         # then delete the documents entries themselves
         Q = 'DELETE FROM ' + self.documents_tableName + ' WHERE ROWID IN ' + self.make_placeholder_list(len(docID))
@@ -467,7 +467,7 @@ class Base(object):
             self.connexion.execute(Q,docID)
             self.connexion.commit()
         except:
-            gui.utilities.show_message('Unable to remove documents entries')
+            gui.utilities.show_message(_('Unable to remove documents entries'))
             return
     #===========================================================================
     # update_keywords_for : remove all the keyword reference to docID
@@ -481,7 +481,7 @@ class Base(object):
         try:
             self.connexion.execute(Q,docID)
         except:
-            gui.utilities.show_message('Unable to remove doc/word association')
+            gui.utilities.show_message(_('Unable to remove doc/word association'))
             return False
         for iField in range(len(keywordsGroups)) :
             keyGroup = keywordsGroups[iField]
@@ -494,7 +494,7 @@ class Base(object):
             try:
                 self.connexion.executemany(Q,absents)
             except  Exception,E:
-                gui.utilities.show_message('Unable to insert new keywords : ' + str(E))
+                gui.utilities.show_message(_('Unable to insert new keywords : ') + str(E))
                 return False
             # get back all the keyword IDs for the current field
             Q = 'SELECT ROWID FROM ' + self.keywords_tableName + ' WHERE keyword IN ' + self.make_placeholder_list(len(all_keywords))
@@ -503,7 +503,7 @@ class Base(object):
                 cur = self.connexion.execute(Q,all_keywords)
                 addedKeys = [ (row[0],) for row in cur]
             except:
-                gui.utilities.show_message('Unable to search for keywords')
+                gui.utilities.show_message(_('Unable to search for keywords'))
                 return False
             # add the new keyID to the table
             for adoc_i in docID:
@@ -512,7 +512,7 @@ class Base(object):
                 try:
                     self.connexion.executemany(Q , addedKeys)
                 except:
-                    gui.utilities.show_message('Unable to insert new document/word association')
+                    gui.utilities.show_message(_('Unable to insert new document/word association'))
                     return False
             try:
                 self.connexion.commit()
@@ -529,7 +529,7 @@ class Base(object):
             self.connexion.execute(Q,(title,description,documentDate,tags,docID))
             self.connexion.commit()
         except:
-            gui.utilities.show_message('Unable to update document into database')
+            gui.utilities.show_message(_('Unable to update document into database'))
             return
         keywordsGroups = self.get_keywordsGroups_from(title, description, filename,tags)
         return self.update_keywords_for(docID,keywordsGroups)
@@ -542,7 +542,7 @@ class Base(object):
             self.connexion.execute(Q,(file_md5,docID))
             self.connexion.commit()
         except:
-            gui.utilities.show_message('Unable to reassign checksum into database entry')
+            gui.utilities.show_message(_('Unable to reassign checksum into database entry'))
             return False
         return True
     #===========================================================================

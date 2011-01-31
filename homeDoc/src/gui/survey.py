@@ -25,7 +25,7 @@ class SurveyWindow(wx.Dialog):
         '''
         Constructor
         '''
-        wx.Dialog.__init__(self, parent, -1, 'Survey directory',style=wx.CLOSE_BOX | wx.SYSTEM_MENU | wx.CAPTION | wx.RESIZE_BORDER  | wx.MAXIMIZE_BOX | wx.MINIMIZE_BOX)
+        wx.Dialog.__init__(self, parent, -1, _('Survey directory'),style=wx.CLOSE_BOX | wx.SYSTEM_MENU | wx.CAPTION | wx.RESIZE_BORDER  | wx.MAXIMIZE_BOX | wx.MINIMIZE_BOX)
         self.panel = wx.Panel(self, -1)
         self.docViewSizer = wx.BoxSizer(wx.VERTICAL)
         self.upPart =  wx.BoxSizer(wx.HORIZONTAL)
@@ -40,7 +40,7 @@ class SurveyWindow(wx.Dialog):
         self.recordPart = RecordWidget.RecordWidget(self.panel)
         self.recordPart.lbFileName.Disable()
         self.recordSizer.Add(self.recordPart,1,wx.EXPAND)
-        self.btAddRecord = wx.Button(self.panel,-1,'Add')
+        self.btAddRecord = wx.Button(self.panel,-1,_('Add'))
         self.docViewSizer.Add(self.recordSizer,0,wx.EXPAND)
         self.recordButtonSizer = wx.BoxSizer(wx.VERTICAL)
         self.recordButtonSizer.Add(self.btAddRecord,1,wx.EXPAND)
@@ -63,7 +63,7 @@ class SurveyWindow(wx.Dialog):
             file_list = set(unicode(f) for f in file_list if not os.path.isdir(os.path.join(dr,f)) and os.path.splitext(f)[1] in accepted_ext)
             file_list = file_list - presents
             if len(file_list)<1 : return
-            self.docList.Append("           UNDER DIRECTORY " + dr,None)
+            self.docList.Append("           " + _('UNDER DIRECTORY')  + dr,None)
             self.docList.Append('*'*60,None)
             for f in file_list:
                 fname = os.path.join(dr,f)
@@ -97,7 +97,7 @@ class SurveyWindow(wx.Dialog):
     #===========================================================================
     def actionDoAdd(self,event):
         if not self.recordPart.do_save_record():
-            wx.MessageBox('Unable to add the file to the database')
+            wx.MessageBox(_('Unable to add the file to the database'))
         else:
             data.theData.clear_all()
             self.recordPart.clear_all()
