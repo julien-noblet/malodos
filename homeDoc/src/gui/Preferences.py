@@ -154,7 +154,7 @@ class PrefGui(wx.Dialog):
     def actionChangeDataBase(self,event):
         utilities.show_message(_('No yet implemented'))
     def actionSavePrefs(self,event):
-        database.theConfig.set_current_language(self.cbLanguage.GetStringSelection())
+        #database.theConfig.set_current_language(self.cbLanguage.GetStringSelection())
         self.dirSurveyFrame.actionSave()
         self.scannerFrame.actionSave()
         if not database.theConfig.commit_config() :
