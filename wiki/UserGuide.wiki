@@ -60,3 +60,9 @@ When you have finish this process, just press the 'done' button to return to the
 
 == Setting preferences ==
 As mentioned above, the list of folder which have to be surveyed can be specified within the preference dialog, accessible via the corresponding button (6th button from the left).
+(to be continued)
+
+
+== Search for documents ==
+
+(to be written)
