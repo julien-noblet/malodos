@@ -46,6 +46,33 @@ class imageData(object):
             return self.pil_images[image_num]
         else:
             return self.image_void
+    def apply_transposition(self,image_num,mode):
+        "apply the mode transposition to asked image or all if not image specified"
+        if image_num is None:
+            for image_num in range(len(self.pil_images)):
+                self.pil_images[image_num] = self.pil_images[image_num].transpose(mode)
+        else:
+            if image_num>=0 and image_num<len(self.pil_images):
+                self.pil_images[image_num] = self.pil_images[image_num].transpose(mode)
+        self.image_changed = True                
+    def swap_x(self,image_num=None):
+        "swap the image along the x axis (or all images is image_num is not given)"
+        self.apply_transposition(image_num,Image.FLIP_LEFT_RIGHT )
+    def swap_y(self,image_num=None):
+        "swap the image along the y axis (or all images is image_num is not given)"
+        self.apply_transposition(image_num,Image.FLIP_TOP_BOTTOM )
+    def rotate(self,image_num=None , nbRot=1):
+        "swap the image along the y axis (or all images is image_num is not given)"
+        mode = None
+        if nbRot==1 : 
+            mode = Image.ROTATE_90
+        elif nbRot==2 :
+            mode = Image.ROTATE_180
+        elif nbRot==3 :
+            mode = Image.ROTATE_270
+        else :
+            return
+        self.apply_transposition(image_num, mode)
 
     def clear_all(self):
         "clear the image data"

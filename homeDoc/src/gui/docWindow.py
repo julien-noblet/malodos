@@ -10,10 +10,9 @@ GUI to be embedded into a frame, that contains a canvas and buttons
 for navigating between the  images managed by the data singleton
 
 '''
-import wx
 import data
 import Resources
-
+import wx.lib.buttons
 class docWindow(wx.Window) :
     center=[0.5,0.5]
     window=[1.0,1.0]
@@ -31,9 +30,25 @@ class docWindow(wx.Window) :
         self.totalWin = wx.BoxSizer(wx.VERTICAL)
         self.buttonPart = wx.BoxSizer(wx.HORIZONTAL)
         self.btLeft = wx.BitmapButton(self.panel,-1,wx.Bitmap(Resources.get_icon_filename('PREVIOUS_PAGE')))
+        self.btLeft.SetToolTipString(_('Previous page'))
         self.btRight = wx.BitmapButton(self.panel,-1,wx.Bitmap(Resources.get_icon_filename('NEXT_PAGE')))
+        self.btRight.SetToolTipString(_('Next page'))
         self.btZoomPlus = wx.BitmapButton(self.panel,-1,wx.Bitmap(Resources.get_icon_filename('ZOOM_PLUS')))
+        self.btZoomPlus.SetToolTipString(_('Zoom'))
         self.btZoomMinus = wx.BitmapButton(self.panel,-1,wx.Bitmap(Resources.get_icon_filename('ZOOM_MINUS')))
+        self.btZoomMinus.SetToolTipString(_('Unzoom'))
+        self.btRotate90 = wx.BitmapButton(self.panel,-1,wx.Bitmap(Resources.get_icon_filename('ROTATE_90')))
+        self.btRotate90.SetToolTipString(_('Rotate clockwise'))
+        self.btRotate270 = wx.BitmapButton(self.panel,-1,wx.Bitmap(Resources.get_icon_filename('ROTATE_270')))
+        self.btRotate270.SetToolTipString(_('Rotate anti-clockwise'))
+        self.btFlipX = wx.BitmapButton(self.panel,-1,wx.Bitmap(Resources.get_icon_filename('FLIP_X')))
+        self.btFlipX.SetToolTipString(_('Flip horizontally'))
+        self.btFlipY = wx.BitmapButton(self.panel,-1,wx.Bitmap(Resources.get_icon_filename('FLIP_Y')))
+        self.btFlipY.SetToolTipString(_('Flip vertically'))
+        self.btAllDocs = wx.lib.buttons.GenBitmapToggleButton(self.panel,-1,wx.Bitmap(Resources.get_icon_filename('ALL_DOCS')))        
+        self.btAllDocs.SetToolTipString(_('Apply to all pages'))
+        #self.btAllDocs.Show(False)
+        
         self.lbImage = wx.StaticText(self.panel,-1,_('No page'))
 
         self.canvas = wx.StaticBitmap(self.panel, -1)
@@ -43,12 +58,22 @@ class docWindow(wx.Window) :
         self.buttonPart.Add(self.btRight,0)
         self.buttonPart.Add(self.btZoomPlus ,0)
         self.buttonPart.Add(self.btZoomMinus,0)
+        self.buttonPart.Add(self.btRotate90 ,0)
+        self.buttonPart.Add(self.btRotate270,0)
+        self.buttonPart.Add(self.btFlipX,0)
+        self.buttonPart.Add(self.btFlipY,0)
+        self.buttonPart.Add(self.btAllDocs,0,wx.ALIGN_CENTER_VERTICAL|wx.ALL)
         self.buttonPart.Add(self.lbImage,1,wx.ALIGN_CENTER_VERTICAL|wx.ALL)
 
         self.Bind(wx.EVT_BUTTON, self.actionPreviousImage, self.btLeft)
         self.Bind(wx.EVT_BUTTON, self.actionNextImage, self.btRight)
         self.Bind(wx.EVT_BUTTON, self.actionZoomPlus, self.btZoomPlus)
         self.Bind(wx.EVT_BUTTON, self.actionZoomMinus, self.btZoomMinus)
+        self.Bind(wx.EVT_BUTTON, self.actionRotate90, self.btRotate90)
+        self.Bind(wx.EVT_BUTTON, self.actionRotate270, self.btRotate270)
+        self.Bind(wx.EVT_BUTTON, self.actionFlipX, self.btFlipX)
+        self.Bind(wx.EVT_BUTTON, self.actionFlipY, self.btFlipY)
+        
         self.Bind(wx.EVT_SIZE,self.onResize)
         self.Bind(wx.EVT_MOUSEWHEEL,self.onMouseWheelEvent)
         self.canvas.Bind(wx.EVT_MOTION,self.onMouseMotion)
@@ -179,6 +204,46 @@ class docWindow(wx.Window) :
     #===========================================================================
     def actionZoomMinus(self,event):
         self.do_zoom(-0.05)
+    #===========================================================================
+    # Rotate 90 degrees
+    #===========================================================================
+    def actionRotate90(self,event):
+        if not data.theData.pil_images : return
+        if self.btAllDocs.GetValue():
+            data.theData.rotate(image_num = None, nbRot = 1)
+        else:
+            data.theData.rotate(image_num = data.theData.current_image, nbRot = 1)
+        self.showCurrentImage(wx.IMAGE_QUALITY_HIGH)
+    #===========================================================================
+    # Rotate -90 degrees
+    #===========================================================================
+    def actionRotate270(self,event):
+        if not data.theData.pil_images : return
+        if self.btAllDocs.GetValue():
+            data.theData.rotate(image_num = None, nbRot = 3)
+        else:
+            data.theData.rotate(image_num = data.theData.current_image, nbRot = 3)
+        self.showCurrentImage(wx.IMAGE_QUALITY_HIGH)
+    #===========================================================================
+    # Flip along X axis
+    #===========================================================================
+    def actionFlipX(self,event):
+        if not data.theData.pil_images : return
+        if self.btAllDocs.GetValue():
+            data.theData.swap_x(image_num = None)
+        else:
+            data.theData.swap_x(image_num = data.theData.current_image)
+        self.showCurrentImage(wx.IMAGE_QUALITY_HIGH)
+    #===========================================================================
+    # Flip along Y axis
+    #===========================================================================
+    def actionFlipY(self,event):
+        if not data.theData.pil_images : return
+        if self.btAllDocs.GetValue():
+            data.theData.swap_y(image_num = None)
+        else:
+            data.theData.swap_y(image_num = data.theData.current_image)
+        self.showCurrentImage(wx.IMAGE_QUALITY_HIGH)
     #===========================================================================
     # called when resizing window/pane
     #===========================================================================
