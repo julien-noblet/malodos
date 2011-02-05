@@ -60,7 +60,7 @@ class SurveyWindow(wx.Dialog):
         def append_dir(param,dr,file_list):
             cur = database.theBase.get_files_under(dr)
             presents = set( (os.path.basename(unicode(row[0])) for row in cur ) )
-            file_list = set(unicode(f) for f in file_list if not os.path.isdir(os.path.join(dr,f)) and os.path.splitext(f)[1] in accepted_ext)
+            file_list = set(f for f in file_list if not os.path.isdir(os.path.join(dr,f)) and os.path.splitext(f)[1] in accepted_ext)
             file_list = file_list - presents
             if len(file_list)<1 : return
             self.docList.Append("           " + _('UNDER DIRECTORY')  + dr,None)
@@ -74,9 +74,9 @@ class SurveyWindow(wx.Dialog):
         (dir_list,recursiveIdx) = database.theConfig.get_survey_directory_list()
         for i in range(len(dir_list)):
             if i in recursiveIdx:
-                os.path.walk(dir_list[i],append_dir, None )
+                os.path.walk(dir_list[i].decode('utf8'),append_dir, None )
             else:
-                append_dir(None, dir_list[i], os.listdir(dir_list[i]))
+                append_dir(None, dir_list[i].decode('utf8'), os.listdir(dir_list[i]))
 
 
         

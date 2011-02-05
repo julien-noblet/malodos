@@ -12,9 +12,21 @@ main application
 
 import gettext
 import os
-ld = os.path.join(os.path.dirname(__file__) ,'locale')
-gettext.install('malodos', localedir = ld, unicode=True)
+import locale
 
+
+ld = os.path.join(os.path.dirname(__file__) ,'locale')
+# code bellow copied from http://www.journaldunet.com/developpeur/tutoriel/pyt/070607-python-traduction/2.shtml 
+if os.name == 'nt':
+    lang = locale.getdefaultlocale()[0][:2]
+    try:
+        cur_lang = gettext.translation('malodos', localedir=ld, languages=[lang])
+        cur_lang.install(unicode=True)
+    except IOError:
+        gettext.install('malodos', localedir = ld, unicode=True)
+else :
+    gettext.install('malodos', localedir = ld, unicode=True)
+# end of copy part
 import wx
 import gui.mainBoard as mainWindow
 import database
