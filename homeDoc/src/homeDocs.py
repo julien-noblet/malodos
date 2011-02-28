@@ -13,9 +13,26 @@ main application
 import gettext
 import os
 import locale
+import sys
 
+exe_name=None
+try:
+    exe_name = os.getcwd()
+except:
+    pass
+if not exe_name :
+    try:
+        exe_name = os.path.dirname(os.path.realpath(sys.executable))
+    except:
+        pass
+if not exe_name :
+    try:
+        exe_name = os.path.dirname(__file__)
+    except:
+        pass
+if not exe_name: exe_name = '.'
+ld = os.path.join(exe_name ,'locale')
 
-ld = os.path.join(os.path.dirname(__file__) ,'locale')
 # code bellow copied from http://www.journaldunet.com/developpeur/tutoriel/pyt/070607-python-traduction/2.shtml 
 if os.name == 'nt':
     lang = locale.getdefaultlocale()[0][:2]

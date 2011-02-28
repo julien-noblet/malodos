@@ -164,19 +164,15 @@ class Base(object):
         '''
         Constructor
         '''
+        self.use_base(base_name)
+    def use_base(self,base_name):
+        self.connexion = sqlite3.connect(base_name, detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
         self.base_name = base_name
-        try:
-            self.connexion = sqlite3.connect(self.base_name, detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
-            #self.connexion.row_factory = sqlite3.Row
-            #Q = 'PRAGMA foreign_keys = ON'
-            #self.connexion.execute(Q)
-        except:
-            print(_("Unable to connect to database"))
 
     #===========================================================================
     # test if a table exists
     #===========================================================================
-    def exist_table(self, table_name):
+    def exist_table(self, base_name):
         '''(
         Test if a given table exists
         )'''

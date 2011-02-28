@@ -151,8 +151,16 @@ class PrefGui(wx.Dialog):
         self.Bind(wx.EVT_BUTTON, self.actionChangeDataBase, self.btChangeBase)
         self.Bind(wx.EVT_BUTTON, self.actionSavePrefs, self.btOk)
         self.Bind(wx.EVT_BUTTON, lambda x : self.Close(), self.btCancel)
-    def actionChangeDataBase(self,event):
-        utilities.show_message(_('No yet implemented'))
+    def actionChangeDataBase(self,event):        
+        filename=None
+        dlg = wx.FileDialog(self,style=wx.FD_OPEN,message=_('choose the database file'))
+        if dlg.ShowModal():
+            filename = os.path.join(dlg.Directory,dlg.Filename)
+        if not filename : return
+        self.txtDatabaseName.SetLabel(filename)
+        database.theConfig.set_database_name(filename)
+        database.theBase.use_base(filename)
+        
     def actionSavePrefs(self,event):
         #database.theConfig.set_current_language(self.cbLanguage.GetStringSelection())
         self.dirSurveyFrame.actionSave()

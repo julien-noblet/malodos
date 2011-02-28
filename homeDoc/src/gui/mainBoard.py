@@ -177,7 +177,7 @@ class MainFrame(wx.Frame):
         row = self.lbDocuments.GetClientData(sel)
         
         docID = row[database.theBase.IDX_ROWID]
-        filename = row[database.theBase.IDX_FILENAME] 
+        filename = row[database.theBase.IDX_FILENAME]
         title = row[database.theBase.IDX_TITLE]
         description = row[database.theBase.IDX_DESCRIPTION]
         documentDate = row[database.theBase.IDX_DOCUMENT_DATE]
@@ -271,6 +271,7 @@ class MainFrame(wx.Frame):
     def actionShowPrefs(self,event):
         Frame = Preferences.PrefGui(self)
         Frame.ShowModal()
+        self.actionSearch(event)
     #===========================================================================
     # actionDoPrint : print the current document
     #===========================================================================

@@ -8,4 +8,7 @@ attached to this project (LICENSE.txt file)
 '''
 import db
 theConfig = db.Configuration()
-theBase = db.Base(theConfig.get_database_name())
+try:
+    theBase = db.Base(theConfig.get_database_name())
+except:
+    print( _("Unable to connect to database"))
