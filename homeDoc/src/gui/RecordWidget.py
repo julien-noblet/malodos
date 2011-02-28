@@ -75,6 +75,8 @@ class RecordWidget(wx.Window):
         filename = self.lbFileName.GetPath()
         if len(filename) == 0:
             return
+        if filename[-4:].lower()!='.pdf':
+            filename = filename  +'.pdf'
 #        if filename[-4:].lower()=='.pdf':
 #            content=""
 #            pdf = pyPdf.PdfFileReader(file(filename, "rb"))
