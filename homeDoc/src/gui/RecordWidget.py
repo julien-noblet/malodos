@@ -8,8 +8,10 @@ attached to this project (LICENSE.txt file)
 GUI part to show/modify a record data
 '''
 import wx
+from  TextCtrlAutoComplete import TextCtrlAutoComplete
 import database
 import datetime
+from data import theData
 #import pyPdf
 
 class RecordWidget(wx.Window):
@@ -31,7 +33,10 @@ class RecordWidget(wx.Window):
         self.totSizer.Add(self.lbFileName,1,wx.EXPAND)
         
         self.txtTitle = wx.StaticText(self.panel , -1 , _('Title'))
-        self.lbTitle = wx.TextCtrl(self.panel , -1 , '')
+        #self.lbTitle = wx.TextCtrl(self.panel , -1 , '')
+        self.lbTitle = TextCtrlAutoComplete(self.panel , choices=(' '),
+                                           entryCallback=self.action_autoCompleteTitle,
+                                           showHead=True)
         self.totSizer.Add(self.txtTitle,0)
         self.totSizer.Add(self.lbTitle,1,wx.EXPAND)
         
@@ -41,7 +46,12 @@ class RecordWidget(wx.Window):
         self.totSizer.Add(self.lbDescription,1,wx.EXPAND)
 
         self.txtTags = wx.StaticText(self.panel , -1 , _('Tags'))
-        self.lbTags = wx.TextCtrl(self.panel , -1 , '')
+        #self.lbTags = wx.TextCtrl(self.panel , -1 , '' , style=wx.TE_HT_ON_TEXT)
+        self.lbTags = TextCtrlAutoComplete(self.panel , choices=(' '),
+                                           entryCallback=self.action_autoCompleteTags,
+                                           getWorkingString=self.defineWorkingString,
+                                           applyItem=self.changeWorkingString,
+                                           showHead=True)
         self.totSizer.Add(self.txtTags,0)
         self.totSizer.Add(self.lbTags,1,wx.EXPAND)
         
@@ -49,10 +59,73 @@ class RecordWidget(wx.Window):
         self.lbDate = wx.DatePickerCtrl(self.panel , -1,style=wx.DP_DROPDOWN)
         self.totSizer.Add(self.txtDate,0)
         self.totSizer.Add(self.lbDate,1)
-        
+              
         self.panel.SetSizerAndFit(self.totSizer)
         self.Bind(wx.EVT_SIZE,self.onResize)
-    
+        self.Bind(wx.EVT_FILEPICKER_CHANGED,self.checkFileName)
+    def checkFileName(self,event):
+        filename = self.lbFileName.GetPath()
+        if len(filename) == 0:
+            return
+        if filename[-4:].lower()!='.pdf':
+            filename = filename  +'.pdf'
+            self.lbFileName.SetPath(filename)       
+    def getCurrentPart(self,pos,text): 
+        pos1 = text.rfind(',',0,pos+1)
+        pos2 = text.find(',',pos+1)
+        return [pos1,pos2]
+    def defineWorkingString(self): 
+        text = self.lbTags.Value
+        if len(text)==0 or text.isspace() : return ''
+        pos = self.lbTags.GetInsertionPoint()
+        if pos>=len(text) : return ''
+        if text[pos]==',' : return ''
+        [pos1,junk] = self.getCurrentPart(pos,text)
+        if pos1<0 or pos1>=len(text)-1: pos1=0
+        if text[pos1]==',' and pos1+1 < text : pos1=pos1+1
+        return text[pos1:pos]
+    def changeWorkingString(self,newText):
+        text = self.lbTags.Value
+        if len(text)==0 or text.isspace() :
+            self.lbTags.SetValue(newText)
+            self.lbTags.SetInsertionPointEnd()
+            return
+        pos = self.lbTags.GetInsertionPoint()
+        [pos1,pos2] = self.getCurrentPart(pos,text)
+        if pos1==pos2 :
+            self.lbTags.SetValue(newText)
+            self.lbTags.SetInsertionPointEnd()
+            return
+        if pos1<0 or pos1>=len(text)-1: pos1=0
+        if text[pos1]==',' :
+            P1 = text[:(pos1+1)]
+        else:
+            P1 = ''
+        if pos2<0:
+            P2=',' + text[pos:]
+        elif text[pos2]==',' :
+            P2 = text[pos2:]
+        else:
+            P2 = ''
+        text = P1 + newText + P2
+        self.lbTags.SetValue(text)
+        newPos = len(P1)+len(newText)
+        if len(P2)>0 : newPos=newPos+1
+        self.lbTags.SetInsertionPoint(newPos)
+    def action_autoCompleteTags(self):
+        s = self.defineWorkingString().lower()
+        possibilities = database.theBase.find_keywords_by_prefix(s, database.theBase.ID_TAG)
+        if possibilities and len(possibilities)>0 :
+            self.lbTags.SetChoices(possibilities)
+        else:
+            self.lbTags.SetChoices([])
+    def action_autoCompleteTitle(self):
+        s = self.lbTitle.Value.lower()
+        possibilities = database.theBase.find_field_by_prefix(s, 'title')
+        if possibilities and len(possibilities)>0:
+            self.lbTitle.SetChoices(possibilities)
+        else:
+            self.lbTitle.SetChoices([])
     def clear_all(self):
         self.lbFileName.SetPath('')
         self.lbTitle.SetValue('')
@@ -73,10 +146,6 @@ class RecordWidget(wx.Window):
         self.panel.Size = self.Size
     def do_save_record(self):
         filename = self.lbFileName.GetPath()
-        if len(filename) == 0:
-            return
-        if filename[-4:].lower()!='.pdf':
-            filename = filename  +'.pdf'
 #        if filename[-4:].lower()=='.pdf':
 #            content=""
 #            pdf = pyPdf.PdfFileReader(file(filename, "rb"))

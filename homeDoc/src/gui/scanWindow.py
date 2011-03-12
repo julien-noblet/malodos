@@ -62,7 +62,7 @@ class ScanWindow(wx.Dialog):
 		self.panel.SetSizerAndFit(self.totalWin)
 		self.SetSize(self.GetSize())
 		self.stSource.Label = self.scanner.chooseSource(database.theConfig.get_current_scanner())
-		self.SetSizeWH(400,600)
+		self.SetSizeWH(550,800)
 	def actionChooseSource(self,event):
 		self.stSource.Label = self.scanner.chooseSource()
 	def actionPerformScan(self,event):

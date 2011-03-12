@@ -49,6 +49,7 @@ class SaneAccess(object):
         try:
             scn = self.devices[self.selected][0]
             self.sourceData = sane.open(scn)
+            self.sourceData.mode='Color'
         except:
             self.sourceData = None
 

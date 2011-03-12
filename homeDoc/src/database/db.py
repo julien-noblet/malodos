@@ -177,7 +177,7 @@ class Base(object):
         Test if a given table exists
         )'''
         try:
-            cur = self.connexion.execute("SELECT name FROM sqlite_master WHERE name = '" + table_name + "' AND type='table' ;")
+            cur = self.connexion.execute("SELECT name FROM sqlite_master WHERE name = '" + base_name + "' AND type='table' ;")
             return (cur and cur.arraysize>0)
         except:
             return False
@@ -366,6 +366,36 @@ class Base(object):
             return cur
         except:
             gui.utilities.show_message('SQL search failed')
+            return None
+    #===============================================================================
+    # find tag entry starting by a given prefix and for an optional given field
+    #===============================================================================
+    def find_keywords_by_prefix(self,prefix='',field_num=None):
+        try:
+            sql_command = "SELECT rowID,keyword FROM " + self.keywords_tableName + " WHERE keyword LIKE ?" 
+            cur = self.connexion.execute(sql_command,(prefix + '%' ,))
+            if field_num is None:
+                return [ row[1] for row in cur]
+            else:
+                keyXX = self.rows_to_str(cur,0,'')
+                sql_command = "SELECT DISTINCT keyID from " + self.docWords_tableName + " WHERE keyID IN " + keyXX + " AND field = ?"
+                cur = self.connexion.execute(sql_command,(field_num,))
+                sql_command = "SELECT keyword FROM " + self.keywords_tableName + " WHERE rowID IN " + self.rows_to_str(cur,0,'')
+                cur = self.connexion.execute(sql_command)
+                return [ row[0] for row in cur]
+        except Exception as E:
+            gui.utilities.show_message('SQL search failed ' + str(E) )
+            return None
+    #===============================================================================
+    # find entry starting by a given prefix and for a given field
+    #===============================================================================
+    def find_field_by_prefix(self,prefix='',field_str='title'):
+        try:
+            sql_command = "SELECT %s FROM %s WHERE %s LIKE ?" % (field_str,self.documents_tableName,field_str)
+            cur = self.connexion.execute(sql_command,(prefix+'%',))
+            return [ row[0] for row in cur]
+        except Exception as E:
+            gui.utilities.show_message('SQL search failed ' + str(E) )
             return None
     
     #===============================================================================

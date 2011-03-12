@@ -12,7 +12,10 @@ singleton class for memory bitmap data management and sharing
 
 
 from PIL import Image , ImageSequence
-import gfx
+try:
+    import gfx
+except:
+    pass
 import wx
 from fpdf import FPDF
 import tempfile

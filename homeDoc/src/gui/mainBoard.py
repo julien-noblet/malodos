@@ -289,12 +289,12 @@ class MainFrame(wx.Frame):
     # actionAbout : show the about dialog box
     #===========================================================================
     def actionAbout(self,event):
-        description = """MALODOS (for MAnagement of LOcal DOcument System) is a simple but usefull \
+        description = """MALODOS (for MAnagement of LOcal DOcument System) is a simple but useful \
 software aimed to help the process of archiving and navigate between the documents presents \
-in your harddrive.
-It is written in python and mainly merges numereous external libraries to \
+in your hard-drive.
+It is written in python and mainly merges numerous external libraries to \
 give a fast and simple way to scan and numerically record your personal documents (such \
-as invoices, taxe declaration, etc...).
+as invoices, taxes declaration, etc...).
 Being written in python, it is portable (works on windows and linux at least, not tested \
 on other systems)."""
 
