@@ -10,6 +10,7 @@ almost copy/paste of the source from twain module website (http://twainmodule.so
 import twain
 import tempfile
 import PIL
+from scannerAccess import scannerOption
 #import gui.utilities
 #import FreeImagePy as FIPY
 import data
@@ -53,7 +54,21 @@ class TwainAccess(object):
             return self.sourceName
         else:
             return "None"
-
+    def get_options(self,optName=None):
+        """ Get current scanner options """
+        L =list()
+        try:
+            if optName is None or optName.lower() == 'manual_multipage' :
+                L.append(scannerOption(name='manual_multipage',title=_('Manual multipage'),
+                 description=_('Check to manually scan a multiple page document'),
+                 type=scannerOption.TYPE_BOOL,value=False))
+        except:
+            pass
+        return L
+    def useOptions(self,options):
+        """Use the specific options."""
+        # TO BE DONE
+        pass
     def openScanner(self):
         """Connect to the scanner"""
         if not self.sourceManager:
@@ -63,11 +78,13 @@ class TwainAccess(object):
                 return
         if not self.sourceManager or not self.sourceName:
             return
+        self.closeScanner()
+        self.sourceData = self.sourceManager.OpenSource(self.sourceName)
+        self.sourceManager.SetCallback(self.onTwainEvent)
+    def closeScanner(self):
         if self.sourceData:
             self.sourceData.destroy()
             self.sourceData=None
-        self.sourceData = self.sourceManager.OpenSource(self.sourceName)
-        self.sourceManager.SetCallback(self.onTwainEvent)
 
     def startAcquisition(self):
         """Begin the acquisition process. The actual acquisition will be notified by
@@ -79,8 +96,7 @@ class TwainAccess(object):
             self.sourceData.SetCapability(twain.ICAP_YRESOLUTION, twain.TWTY_FIX32, 100.0)
             self.sourceData.RequestAcquire(1, 1)
         except:
-            self.sourceData.destroy()
-            self.sourceData=None
+            self.closeScanner()
             pass
                 
 #-------------------------------------------------------------------------

@@ -8,6 +8,8 @@ Written By: Edward Flick (eddy -=at=- cdf-imaging -=dot=- com)
 Copyright 2006 (c) CDF Inc. ( http://www.cdf-imaging.com )
 Contributed to the wxPython project under the wxPython project's license.
 
+Modified by D. Guez to allow to choose only the text between commas
+
 '''
 
 import locale, wx, sys, cStringIO

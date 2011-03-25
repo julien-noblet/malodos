@@ -13,6 +13,7 @@ import wx
 import database
 import os
 import utilities
+import scanWindow
 if os.name == 'posix' :
     from scannerAccess import saneAccess
 else:
@@ -27,11 +28,12 @@ class PrefScanner(wx.NotebookPage):
         
         self.stScanner = wx.StaticText(self.panel,-1,_("None"))
         self.btChangeScanner = wx.Button(self.panel,-1,_("Change"))
+        self.btOptions = wx.Button(self.panel,-1,_("Options"))
 
         self.sizer.Add(wx.StaticText(self.panel,-1,_("Scanner source : ")),flag=wx.ALL)
         self.sizer.Add(self.stScanner,flag=wx.ALL|wx.EXPAND)
         self.sizer.Add(self.btChangeScanner,flag=wx.ALL)
-        
+        self.sizer.Add(self.btOptions,flag=wx.ALL)
         self.panel.SetSizerAndFit(self.sizer)
         
         # OTHER INITIALISATIIONS
@@ -43,10 +45,42 @@ class PrefScanner(wx.NotebookPage):
         self.stScanner.Label = currentScanner
         # BINDING
         self.Bind(wx.EVT_BUTTON, self.actionChangeScanner, self.btChangeScanner)
+        self.Bind(wx.EVT_BUTTON, self.actionChangeScannerOptions, self.btOptions)
     def actionChangeScanner(self,event):
         self.stScanner.Label = self.scanner.chooseSource()
+    def actionChangeScannerOptions(self,event) :
+        if self.stScanner.Label == ''  : self.actionChangeScanner(event)
+        if not self.scanner : return
+        self.scanner.chooseSource(self.stScanner.Label)
+        self.load_scanner_options()
+        opts = self.scanner.get_options()
+        self.scanner.closeScanner()
+        w = scanWindow.OptionsWindow(self, opts , self.currentOptions)
+        w.ShowModal()
+        if  w.definedParams : self.currentOptions = w.definedParams
+    def save_scanner_options(self):
+        if not self.currentOptions : return
+        for k,v in self.currentOptions.items() :
+            database.theConfig.set_param('scanner_options', k, v)
+    def load_scanner_options(self):
+        try:
+            self.currentOptions=dict()
+            op_ini  =  database.theConfig.get_all_params_in('scanner_options')
+            op_scan = self.scanner.get_options()
+            for op in op_scan :
+                if op.name in op_ini.keys() :
+                    self.currentOptions[op.name] = str(op_ini[op.name])
+                else:
+                    self.currentOptions[op.name] = op.value
+            for name,val in op_ini.items() :
+                if not name in self.currentOptions.keys() : self.currentOptions[name]=val
+            #self.currentOptions = database.theConfig.get_all_params_in('scanner_options')
+        except:
+            self.currentOptions = None
+        
     def actionSave(self):
         database.theConfig.set_current_scanner(self.stScanner.Label)
+        self.save_scanner_options()
 
 class PrefSurveyDir(wx.NotebookPage):
     def __init__(self,parent,id,name):

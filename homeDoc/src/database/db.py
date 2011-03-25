@@ -54,48 +54,47 @@ class Configuration(object):
             theFile.close()
         self.read_config()
 
+    def get_param(self,section,key):
+        if not self.config : raise _("Configuration not found")
+        return self.config.get(section,key)
+    def set_param(self,section,key,value,allow_create_section=True):
+        if not self.config : raise _("Configuration not found")
+        if not self.config.has_section(section) and allow_create_section: self.config.add_section(section)
+        return self.config.set(section, key,value)
+    def get_all_params_in(self,section):
+        if not self.config : raise _("Configuration not found")
+        if not self.config.has_section(section) : return dict()
+        return dict(self.config.items(section))
+
     def get_survey_extension_list(self):
-        if not self.config : raise _("Configuration not found")
-        return self.config.get('survey','extension_list')
+        return self.get_param('survey', 'extension_list')
     def set_survey_extension_list(self,S):
-        if not self.config : raise _("Configuration not found")
-        self.config.set('survey','extension_list',S)
+        return self.set_param('survey', 'extension_list',S)
     def get_survey_directory_list(self):
-        if not self.config : raise _("Configuration not found")
-        S = self.config.get('survey','directory_list')
+        S = self.get_param('survey', 'directory_list')
         return self.decode_dir_list(S)
     def set_survey_directory_list(self,dir_list,recursiveIndex):
-        if not self.config : raise _("Configuration not found")
         S = self.encode_dir_list(dir_list, recursiveIndex)
-        self.config.set('survey','directory_list',S)
+        return self.set_param('survey', 'directory_list',S)
     def get_installed_languages(self):
-        if not self.config : raise _("Configuration not found")
-        return self.config.get('language','installed').split(',')
+        return self.get_param('language', 'installed').split(',')
     def set_installed_languages(self,S):
-        if not self.config : raise _("Configuration not found")
         if hasattr(S, '__iter__') : S = ','.join(S)
-        self.config.set('language','installed',S)
+        return self.set_param('language', 'installed',S)
     def get_current_language(self):
-        if not self.config : raise _("Configuration not found")
-        return self.config.get('language','current')
+        return self.get_param('language', 'current')
     def set_current_language(self,S):
-        if not self.config : raise "Configuration not found"
-        self.config.set('language','current',S)
+        return self.set_param('language', 'current',S)
     def get_current_scanner(self):
-        if not self.config : raise _("Configuration not found")
-        return self.config.get('scanner','source')
+        return self.get_param('scanner', 'source')
     def set_current_scanner(self,S):
-        if not self.config : raise _("Configuration not found")
-        self.config.set('scanner','source',S)
+        return self.set_param('scanner', 'source',S)
     def get_database_name(self):
-        if not self.config : raise _("Configuration not found")
-        return self.config.get('database', 'filename')
+        return self.get_param('database', 'filename')
     def set_database_name(self,S):
-        if not self.config : raise _("Configuration not found")
-        return self.config.set('database', 'filename',S)
+        return self.set_param('database', 'filename',S)
     def get_resource_filename(self):
-        if not self.config : raise _("Configuration not found")
-        return self.config.get('general', 'resourceFile')
+        return self.get_param('general', 'resourceFile')
     def read_config(self):
         if os.path.exists(self.conf_file) :
             self.config = ConfigParser.SafeConfigParser()

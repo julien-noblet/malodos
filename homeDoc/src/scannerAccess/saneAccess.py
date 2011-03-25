@@ -10,6 +10,7 @@ sane scanner access
 import sane
 import gui.utilities as GUI
 import data
+from scannerAccess import scannerOption
 
 class SaneAccess(object):
     # DATA MEMBERS
@@ -30,13 +31,13 @@ class SaneAccess(object):
     def chooseSource(self,sourceName=None):
         self.devices = sane.get_devices()
         names = [D[2] for D in self.devices]
-        self.selected = None
+        
         if sourceName:
             try:
                 self.selected = names.index(sourceName)
             except:
-                pass
-        if not self.selected : self.selected = GUI.multichoice(names)
+                self.selected = None
+        if self.selected is None: self.selected = GUI.multichoice(names)
         if self.selected<0 :
             self.selected=None
             return "None"
@@ -44,15 +45,35 @@ class SaneAccess(object):
             return names[self.selected]
     def openScanner(self):
         """Connect to the scanner"""
-        if not self.selected: self.chooseSource()
-        if not self.selected : return
+        if self.selected is None: self.chooseSource()
+        if self.selected is None : return
         try:
             scn = self.devices[self.selected][0]
             self.sourceData = sane.open(scn)
-            self.sourceData.mode='Color'
         except:
             self.sourceData = None
+    def closeScanner(self):
+        if self.sourceData : self.sourceData.close()
+        self.sourceData=None
 
+    def useOptions(self,options):
+        """Use the specific options."""
+        if not self.sourceData:
+            self.openScanner()
+        if not self.sourceData: return
+        for k,v in options.items() :
+            try:
+                if hasattr(self.sourceData,k) and self.sourceData[k].is_settable():
+                    if self.sourceData[k].type == sane.TYPE_BOOL:
+                        self.sourceData.__setattr__(k,v.lower()=='true' or v=='1' or v.lower()=='on')
+                    elif self.sourceData[k].type == sane.TYPE_FIXED:
+                        self.sourceData.__setattr__(k,float(v))
+                    elif self.sourceData[k].type == sane.TYPE_INT:
+                        self.sourceData.__setattr__(k,int(v))
+                    else:
+                        self.sourceData.__setattr__(k,v)
+            except:
+                print _('Option %s not settable') % k
     def startAcquisition(self):
         """Begin the acquisition process."""
         if not self.sourceData:
@@ -63,8 +84,29 @@ class SaneAccess(object):
             img = self.sourceData.scan()
             data.theData.add_image(img)
         except:
-            pass
+            GUI.show_message(_('Error during scanning, aborted.'))
+            return
         
         if self.dataReadyCallback:
                 self.dataReadyCallback()
-
+    def get_options(self,optName=None):
+        """ Get current scanner options """
+        L =list()
+        try:
+            if optName is None or optName.lower() == 'manual_multipage' :
+                L.append(scannerOption.scannerOption(name='manual_multipage',title=_('Manual multipage'),
+                 description=_('Check to manually scan a multiple page document'),
+                 type=scannerOption.TYPE_BOOL,value=False))
+        except:
+            pass
+        if not self.sourceData:
+            self.openScanner()
+        if not self.sourceData: return L
+        for k,o in self.sourceData.opt.items() :
+            try:
+                if not optName is None and optName.lower() != k.lower() : continue 
+                optValue = self.sourceData.__getattr__(k)
+            except:
+                optValue=None
+            L.append(scannerOption.scannerOption(name=k,title=o.title,type=o.type,description=o.desc,constraint=o.constraint,value=optValue))
+        return L
