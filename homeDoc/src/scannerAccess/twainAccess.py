@@ -59,7 +59,7 @@ class TwainAccess(object):
         L =list()
         try:
             if optName is None or optName.lower() == 'manual_multipage' :
-                L.append(scannerOption(name='manual_multipage',title=_('Manual multipage'),
+                L.append(scannerOption.scannerOption(name='manual_multipage',title=_('Manual multipage'),
                  description=_('Check to manually scan a multiple page document'),
                  type=scannerOption.TYPE_BOOL,value=False))
         except:

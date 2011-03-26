@@ -381,7 +381,7 @@ class Base(object):
                 cur = self.connexion.execute(sql_command,(field_num,))
                 sql_command = "SELECT keyword FROM " + self.keywords_tableName + " WHERE rowID IN " + self.rows_to_str(cur,0,'')
                 cur = self.connexion.execute(sql_command)
-                return [ row[0] for row in cur]
+                return [ row[0].encode('utf-8') for row in cur]
         except Exception as E:
             gui.utilities.show_message('SQL search failed ' + str(E) )
             return None
@@ -391,8 +391,9 @@ class Base(object):
     def find_field_by_prefix(self,prefix='',field_str='title'):
         try:
             sql_command = "SELECT %s FROM %s WHERE %s LIKE ?" % (field_str,self.documents_tableName,field_str)
-            cur = self.connexion.execute(sql_command,(prefix+'%',))
-            return [ row[0] for row in cur]
+            p = prefix+'%'
+            cur = self.connexion.execute(sql_command,(p,))
+            return [ row[0].encode('utf-8') for row in cur]
         except Exception as E:
             gui.utilities.show_message('SQL search failed ' + str(E) )
             return None

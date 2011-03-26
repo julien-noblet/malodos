@@ -52,7 +52,9 @@ class SaneAccess(object):
             self.sourceData = sane.open(scn)
         except:
             self.sourceData = None
+
     def closeScanner(self):
+        """ Close the scanner """
         if self.sourceData : self.sourceData.close()
         self.sourceData=None
 
@@ -74,12 +76,12 @@ class SaneAccess(object):
                         self.sourceData.__setattr__(k,v)
             except:
                 print _('Option %s not settable') % k
-    def startAcquisition(self):
+    def startAcquisition(self,options=None):
         """Begin the acquisition process."""
         if not self.sourceData:
             self.openScanner()
         if not self.sourceData: return
-        
+        if not options is None : self.useOptions(options)
         try:
             img = self.sourceData.scan()
             data.theData.add_image(img)
@@ -87,6 +89,7 @@ class SaneAccess(object):
             GUI.show_message(_('Error during scanning, aborted.'))
             return
         
+        self.closeScanner()
         if self.dataReadyCallback:
                 self.dataReadyCallback()
     def get_options(self,optName=None):
@@ -109,4 +112,5 @@ class SaneAccess(object):
             except:
                 optValue=None
             L.append(scannerOption.scannerOption(name=k,title=o.title,type=o.type,description=o.desc,constraint=o.constraint,value=optValue))
+        self.closeScanner()
         return L
