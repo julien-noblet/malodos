@@ -32,10 +32,17 @@ The following is a list of software /libraries to install, along with a link to 
 6. swftools (for pdf reading)
    **************************
    http://www.swftools.org/
+   you should copy the files from <swftools path>/lib/python to your python
+   site-package directory (SWF.so and gfx.so)
    
 7. pypdf (for pdf creation)
    ************************
    downloaded from here, but already provided by the actual MALODOS package download.
    if so required, you should however download it from there :
    https://code.google.com/p/pyfpdf/downloads/detail?name=pyfpdf-1.53c.zip&can=2&q=
-  
+ 
+ 
+ 
+ Once all the dependencies are installed (a packaged version will be provided
+ for MS Windows later), just execute the main script in <MALODOS install
+ dir>/src/homeDocs.py
