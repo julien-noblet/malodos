@@ -13,7 +13,6 @@ import os
 from gui import utilities
 from wx.lib.intctrl import IntCtrl
 from wx.lib.agw.floatspin import FloatSpin
-from wx.lib.scrolledpanel import ScrolledPanel
 from scannerAccess import scannerOption
 from scannerAccess.scannerOption import TYPE_BUTTON
 if os.name == 'posix' :
