@@ -1,0 +1,16 @@
+USAGE file : short documentation on how to use this software.
+
+You have essentially 3 possible actions:
+1) press the scan new file to scan a new document and add it to the database
+2) press the add file button to import an existing file to the database
+3) type any combination of word in the search text area then press enter in order to get a list of documents
+   that corresponds to the selected tags.
+
+once you have selected a document, you can preview it by using the next/previous page buttons, or start the system command
+associated with it by clicking on the <system show> button.
+
+
+This is a first version of the documentation, outrageously short and obvious, but it's just to start with something...
+
+Fill free to leave me comments @ guezdav@gmail.com
+

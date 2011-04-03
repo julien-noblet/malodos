@@ -1,0 +1,167 @@
+'''
+Created on 21 juin 2010. Copyright 2010, David GUEZ
+@author: david guez (guezdav@gmail.com)
+This file is a part of the source code of the MALODOS project.
+You can use and distribute it freely, but have to conform to the license
+attached to this project (LICENSE.txt file)
+=====================================================================
+GUI part to show/modify a record data
+'''
+import wx
+from  TextCtrlAutoComplete import TextCtrlAutoComplete
+import database
+import datetime
+from data import theData
+#import pyPdf
+
+class RecordWidget(wx.Window):
+    def __init__(self,parent,filename='',file_style = wx.FLP_OPEN | wx.FLP_FILE_MUST_EXIST | wx.FLP_USE_TEXTCTRL):
+        '''
+        Constructor
+        '''
+        wx.Window.__init__(self, parent)
+        self.panel = wx.Panel(self, -1)
+
+        self.totSizer = wx.FlexGridSizer(cols=2,vgap=2,hgap=2)
+        self.totSizer.SetFlexibleDirection(wx.HORIZONTAL)
+        self.totSizer.SetNonFlexibleGrowMode(wx.FLEX_GROWMODE_SPECIFIED)
+        self.totSizer.AddGrowableCol(1)
+        
+        self.txtFileName = wx.StaticText(self.panel , -1 , _('Filename'))
+        self.lbFileName = wx.FilePickerCtrl(self.panel,-1,path=filename,style=file_style)
+        self.totSizer.Add(self.txtFileName,0)
+        self.totSizer.Add(self.lbFileName,1,wx.EXPAND)
+        
+        self.txtTitle = wx.StaticText(self.panel , -1 , _('Title'))
+        #self.lbTitle = wx.TextCtrl(self.panel , -1 , '')
+        self.lbTitle = TextCtrlAutoComplete(self.panel , choices=(' '),
+                                           entryCallback=self.action_autoCompleteTitle,
+                                           showHead=True)
+        self.totSizer.Add(self.txtTitle,0)
+        self.totSizer.Add(self.lbTitle,1,wx.EXPAND)
+        
+        self.txtDescription = wx.StaticText(self.panel , -1 , _('Description'))
+        self.lbDescription = wx.TextCtrl(self.panel , -1 , '')
+        self.totSizer.Add(self.txtDescription,0)
+        self.totSizer.Add(self.lbDescription,1,wx.EXPAND)
+
+        self.txtTags = wx.StaticText(self.panel , -1 , _('Tags'))
+        #self.lbTags = wx.TextCtrl(self.panel , -1 , '' , style=wx.TE_HT_ON_TEXT)
+        self.lbTags = TextCtrlAutoComplete(self.panel , choices=(' '),
+                                           entryCallback=self.action_autoCompleteTags,
+                                           getWorkingString=self.defineWorkingString,
+                                           applyItem=self.changeWorkingString,
+                                           showHead=True)
+        self.totSizer.Add(self.txtTags,0)
+        self.totSizer.Add(self.lbTags,1,wx.EXPAND)
+        
+        self.txtDate = wx.StaticText(self.panel , -1 , _('document date'))
+        self.lbDate = wx.DatePickerCtrl(self.panel , -1,style=wx.DP_DROPDOWN)
+        self.totSizer.Add(self.txtDate,0)
+        self.totSizer.Add(self.lbDate,1)
+              
+        self.panel.SetSizerAndFit(self.totSizer)
+        self.Bind(wx.EVT_SIZE,self.onResize)
+        self.Bind(wx.EVT_FILEPICKER_CHANGED,self.checkFileName)
+    def checkFileName(self,event):
+        filename = self.lbFileName.GetPath()
+        if len(filename) == 0:
+            return
+        if filename[-4:].lower()!='.pdf':
+            filename = filename  +'.pdf'
+            self.lbFileName.SetPath(filename)       
+    def getCurrentPart(self,pos,text): 
+        pos1 = text.rfind(',',0,pos+1)
+        pos2 = text.find(',',pos+1)
+        return [pos1,pos2]
+    def defineWorkingString(self): 
+        text = self.lbTags.Value
+        if len(text)==0 or text.isspace() : return ''
+        pos = self.lbTags.GetInsertionPoint()
+        if pos>=len(text) : return ''
+        if text[pos]==',' : return ''
+        [pos1,junk] = self.getCurrentPart(pos,text)
+        if pos1<0 or pos1>=len(text)-1: pos1=0
+        if text[pos1]==',' and pos1+1 < text : pos1=pos1+1
+        return text[pos1:pos]
+    def changeWorkingString(self,newText):
+        text = self.lbTags.Value
+        if len(text)==0 or text.isspace() :
+            self.lbTags.SetValue(newText)
+            self.lbTags.SetInsertionPointEnd()
+            return
+        pos = self.lbTags.GetInsertionPoint()
+        [pos1,pos2] = self.getCurrentPart(pos,text)
+        if pos1==pos2 :
+            self.lbTags.SetValue(newText)
+            self.lbTags.SetInsertionPointEnd()
+            return
+        if pos1<0 or pos1>=len(text)-1: pos1=0
+        if text[pos1]==',' :
+            P1 = text[:(pos1+1)]
+        else:
+            P1 = ''
+        if pos2<0:
+            P2=',' + text[pos:]
+        elif text[pos2]==',' :
+            P2 = text[pos2:]
+        else:
+            P2 = ''
+        text = P1 + newText + P2
+        self.lbTags.SetValue(text)
+        newPos = len(P1)+len(newText)
+        if len(P2)>0 : newPos=newPos+1
+        self.lbTags.SetInsertionPoint(newPos)
+    def action_autoCompleteTags(self):
+        s = self.defineWorkingString().lower()
+        possibilities = database.theBase.find_keywords_by_prefix(s, database.theBase.ID_TAG)
+        if possibilities and len(possibilities)>0 :
+            self.lbTags.SetChoices(possibilities)
+        else:
+            self.lbTags.SetChoices([])
+    def action_autoCompleteTitle(self):
+        s = self.lbTitle.Value.lower()
+        possibilities = database.theBase.find_field_by_prefix(s, 'title')
+        if possibilities and len(possibilities)>0:
+            self.lbTitle.SetChoices(possibilities)
+        else:
+            self.lbTitle.SetChoices([])
+    def clear_all(self):
+        self.lbFileName.SetPath('')
+        self.lbTitle.SetValue('')
+        self.lbDescription.SetValue('')
+        self.lbTags.SetValue('')
+    def SetFields(self,filename=None,title=None,description=None,date=None,tags=None):
+        if not filename is None: self.lbFileName.SetPath(filename) 
+        if not title is None : self.lbTitle.SetValue(title)
+        if not description is None : self.lbDescription.SetValue(description)
+        if not tags is None : self.lbTags.SetValue(tags)
+        if not date is None :
+            dt = wx.DateTime.Today()
+            dt.SetDay(date.day)
+            dt.SetMonth(date.month-1)
+            dt.SetYear(date.year)
+            self.lbDate.SetValue(dt)
+    def onResize(self,event):
+        self.panel.Size = self.Size
+    def do_save_record(self):
+        filename = self.lbFileName.GetPath()
+#        if filename[-4:].lower()=='.pdf':
+#            content=""
+#            pdf = pyPdf.PdfFileReader(file(filename, "rb"))
+#            # Iterate pages
+#            for i in range(0, pdf.getNumPages()):
+#                # Extract text from page and add to content
+#                content += pdf.getPage(i).extractText() + "\n"
+#                # Collapse whitespace
+#                #content = " ".join(content.replace("\xa0", " ").strip().split())
+#            print "file content:"
+#            print content
+        title = self.lbTitle.Value
+        tags = self.lbTags.Value
+        description = self.lbDescription.Value
+        documentDate = self.lbDate.Value
+        documentDate=datetime.date(year=documentDate.GetYear(),month=documentDate.GetMonth()+1,day=documentDate.GetDay())
+        keywordsGroups = database.theBase.get_keywordsGroups_from(title, description, filename , tags)
+        # add the document to the database
+        return database.theBase.add_document(filename, title, description, None, documentDate, keywordsGroups,tags)
