@@ -82,17 +82,32 @@ class SaneAccess(object):
             self.openScanner()
         if not self.sourceData: return
         if not options is None : self.useOptions(options)
-        try:
-            img = self.sourceData.scan()
-            data.theData.add_image(img)
-        except:
-            GUI.show_message(_('Error during scanning, aborted.'))
-            return
         
-        self.closeScanner()
+        src = self.get_options('source',False)
+        if not (src is None) and (len(src)==1) and (src[0].value.lower() == 'automatic document feeder') :
+            try:
+                it = self.sourceData.multi_scan()
+                cont = True
+                while cont :
+                    try:
+                        img = it.next()
+                        data.theData.add_image(img)
+                    except:
+                        cont=False
+            except:
+                GUI.show_message(_('Error during scanning, aborted.'))
+                return
+            self.sourceData=None
+        else:
+            try:
+                img = self.sourceData.scan()
+                data.theData.add_image(img)
+            except:
+                GUI.show_message(_('Error during scanning, aborted.'))
+            self.closeScanner()
         if self.dataReadyCallback:
-                self.dataReadyCallback()
-    def get_options(self,optName=None):
+            self.dataReadyCallback()
+    def get_options(self,optName=None,autoClose=True):
         """ Get current scanner options """
         L =list()
         try:
@@ -112,5 +127,5 @@ class SaneAccess(object):
             except:
                 optValue=None
             L.append(scannerOption.scannerOption(name=k,title=o.title,type=o.type,description=o.desc,constraint=o.constraint,value=optValue))
-        self.closeScanner()
+        if autoClose : self.closeScanner()
         return L

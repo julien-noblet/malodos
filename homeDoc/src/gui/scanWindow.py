@@ -13,6 +13,7 @@ import os
 from gui import utilities
 from wx.lib.intctrl import IntCtrl
 from wx.lib.agw.floatspin import FloatSpin
+from wx.lib.scrolledpanel import ScrolledPanel
 from scannerAccess import scannerOption
 from scannerAccess.scannerOption import TYPE_BUTTON
 if os.name == 'posix' :
@@ -27,10 +28,10 @@ import wx.lib.intctrl
 import wx.lib.agw.floatspin
 
 class OptionsWindow(wx.Dialog):
-	
 	def __init__(self, parent, optList,defaultValues=None):
 		wx.Dialog.__init__(self, parent, -1, _('Scanning options'), wx.DefaultPosition)
-		self.panel = wx.Panel(self, -1)
+		self.ScrollWindow = wx.ScrolledWindow(self, -1)
+		self.panel = wx.Panel(self.ScrollWindow,-1)
 		self.totalWin = wx.GridSizer(1,2)
 
 		k=0
@@ -43,8 +44,8 @@ class OptionsWindow(wx.Dialog):
 			#if not a.is_settable() : continue
 			if a.type==scannerOption.TYPE_BUTTON: continue
 			self.parName.append(a.name)
-			self.txtOpt.append( wx.StaticText(self.panel,-1,a.title) ) 
-			self.txtOpt[k].SetToolTipString(a.description)
+			self.txtOpt.append( wx.StaticText(self.panel,-1, a.title) ) 
+			self.txtOpt[k].SetToolTipString(a.name + ' : ' +a.description)
 			self.totalWin.Add(self.txtOpt[k],0,wx.EXPAND)
 			
 			if isinstance(defaultValues,dict) and defaultValues.has_key(self.parName[k]) :
@@ -124,13 +125,20 @@ class OptionsWindow(wx.Dialog):
 		self.totalWin.Add(self.btOk,0,wx.EXPAND)
 		self.btCancel = wx.Button(self.panel,-1,_('Cancel'))
 		self.totalWin.Add(self.btCancel,0,wx.EXPAND)
-		self.panel.SetSizerAndFit(self.totalWin)
-		self.Fit()
+		self.panel.SetSizer(self.totalWin)
+		self.panel.SetAutoLayout(True)
+		self.panel.Layout()
+		self.panel.Fit()
+		width,height=self.panel.GetSizeTuple()
+		u = 10.0
+		self.ScrollWindow.SetScrollbars(u, u, width/u, height/u)
+		if width>400 : width=400
+		if height>600 : height=600
+		self.SetSize((width+10,height+10))
+		self.Center()
 		
 		self.Bind(wx.EVT_BUTTON,self.actionOk,self.btOk)
 		self.Bind(wx.EVT_BUTTON,self.actionCancel,self.btCancel)
-		#self.SetSize(self.GetSize())
-		#self.SetSizeWH(500,400)
 	def actionCancel(self,event):
 		self.Close()
 	def actionOk(self,event):
@@ -225,7 +233,10 @@ class ScanWindow(wx.Dialog):
 		cont=True
 		data.theData.clear_all()
 		while cont:
-			self.scanner.startAcquisition()
+			try:
+				self.scanner.startAcquisition()
+			except Exception as E:
+				print str(E)
 			if auto_cont:
 				x = utilities.ask(_('Do you want to add new page(s) ?'))
 				if x != wx.ID_YES:
@@ -239,7 +250,7 @@ class ScanWindow(wx.Dialog):
 			wx.MessageBox(_('You must give a valid filename to record the document'))
 			return
 		try:
-			if not data.theData.save_file(fname) : raise Exception
+			if not data.theData.save_file(fname) : raise _('Unable to add the file to the disk')
 		except:
 			wx.MessageBox(_('Unable to add the file to the disk'))
 			return

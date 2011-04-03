@@ -132,11 +132,11 @@ class RecordWidget(wx.Window):
         self.lbDescription.SetValue('')
         self.lbTags.SetValue('')
     def SetFields(self,filename=None,title=None,description=None,date=None,tags=None):
-        if filename : self.lbFileName.SetPath(filename) 
-        if title : self.lbTitle.SetValue(title)
-        if description : self.lbDescription.SetValue(description)
-        if tags : self.lbTags.SetValue(tags)
-        if date :
+        if not filename is None: self.lbFileName.SetPath(filename) 
+        if not title is None : self.lbTitle.SetValue(title)
+        if not description is None : self.lbDescription.SetValue(description)
+        if not tags is None : self.lbTags.SetValue(tags)
+        if not date is None :
             dt = wx.DateTime.Today()
             dt.SetDay(date.day)
             dt.SetMonth(date.month-1)
