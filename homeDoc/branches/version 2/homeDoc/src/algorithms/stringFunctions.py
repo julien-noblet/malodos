@@ -89,6 +89,10 @@ def cut_str(the_str):
             dateStep=1
             dateStr=E
             continue
+        if dateStep==0 and E[0].isdigit() and int(E)>1900 and int(E)<=2100: # assumed to be a year
+            dateStr = datetime.datetime.strptime("01-01-"+str(E),"%d-%m-%Y").strftime("%Y-%m-%d")
+            elems.append(dateStr)
+            continue
         elems.append(E)
         
     return elems
@@ -128,19 +132,19 @@ def str_field_constraint(field_name,req_value):
     if field_name == 'ANY':
         S= "( " + searchField +"= ?)"
         lst=[req_value_search]
-    elif field_name == 'TITLE':
+    elif field_name == 'TITLE' or field_name == 'TI':
         S= "( " + searchField +"= ?" + " AND FIELD=" +  str(database.db.Base.ID_TITLE) +  ")"
         lst=[req_value_search]
-    elif field_name == 'DESCRIPTION':
+    elif field_name == 'DESCRIPTION' or field_name == 'DE':
         S= "( " + searchField +"= ?" + " AND FIELD=" +  str(database.db.Base.IDX_DESCRIPTION) +  ")"
         lst=[req_value_search]
-    elif field_name == 'TAG':
+    elif field_name == 'TAG' or field_name == 'TA':
         S= "( "+ searchField +"= ?" + " AND FIELD=" +  str(database.db.Base.ID_TAG) +  ")"
         lst=[req_value_search]
-    elif field_name == 'FULLTEXT':
+    elif field_name == 'FULLTEXT' or field_name == 'FU':
         S= "( "+searchField +"= ?"+ " AND FIELD=" +  str(database.db.Base.ID_FULL_TEXT) +  ")"
         lst=[req_value_search]
-    elif field_name=="DATE":
+    elif field_name=="DATE" or field_name == 'DD':
         S= "( documentDate = ?)"
         lst=[req_value]
     elif field_name=="DATEMIN":
@@ -155,7 +159,7 @@ def str_field_constraint(field_name,req_value):
         else:
             S= "( documentDate <= ?)"
         lst=[req_value]
-    elif field_name=="REGISTERDATE":
+    elif field_name=="REGISTERDATE" or field_name == 'RD':
         S= "( registerDate = ?)"
         lst=[req_value]
     elif field_name=="REGISTERDATEMIN":
@@ -179,7 +183,9 @@ def req_to_sql(req):
     elems = cut_str(req) # transform the string to list of elements 
     #print ','.join(elems)
     S=''
+    SS=''
     L=[]
+    LL = []
     i = 0
     had_operator=True
     while i<len(elems): # go over elements
@@ -188,6 +194,7 @@ def req_to_sql(req):
             if e=='and' or e=='or' or e=='not' or e=='xor' :
                 had_operator=True
                 S+=' ' + e +' '
+                SS+=' ' + e +' '
                 i+=1
             else:
                 if not had_operator:
@@ -221,10 +228,16 @@ def req_to_sql(req):
                     S+=ss
                     L+=ll
                     i+=1
+                cur = database.theBase.find_sql(ss, ll)
+                if not (cur is None) :
+                    rowIDs = [r[-1] for r in cur]
+                    SS += 'docID in ' + database.theBase.make_placeholder_list(len(rowIDs))
+                    LL += rowIDs
+                    
                 had_operator=False
         else:
             S += e
             i+=1
     #print S
     #print L
-    return (S,L)
+    return (SS,LL)
