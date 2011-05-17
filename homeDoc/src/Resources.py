@@ -44,6 +44,6 @@ def get_message(message_id,language=None):
     if not resourceContent.has_section(language) :
         return '' 
     try:
-        return unicode(resourceContent.get(language,message_id)) 
+        return unicode(resourceContent.get(language,message_id,'')) 
     except:
         return ''

@@ -198,7 +198,8 @@ def req_to_sql(req):
                 i+=1
             else:
                 if not had_operator:
-                    S += ' or '
+                    S += ' and '
+                    SS += ' and '
                 if  i+2<len(elems) and (elems[i+1]==':' or elems[i+1]=='=')\
                       and is_world(elems[i+2]):
                     [ss,ll]=str_field_constraint(e,elems[i+2])

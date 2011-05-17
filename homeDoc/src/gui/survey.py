@@ -51,7 +51,7 @@ class SurveyWindow(wx.Dialog):
         self.Bind(wx.EVT_BUTTON, self.actionDoAdd, self.btAddRecord)
         
         self.populate_list()
-        self.SetSizeWH(800,600)
+        self.SetSizeWH(1000,600)
         
     def populate_list(self):
         accepted_ext = database.theConfig.get_survey_extension_list()

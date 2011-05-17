@@ -54,9 +54,19 @@ class Configuration(object):
             theFile.close()
         self.read_config()
 
-    def get_param(self,section,key):
-        if not self.config : raise _("Configuration not found")
-        return self.config.get(section,key)
+    def get_param(self,section,key,defaultValue=None,create_if_not_exist=False):
+        #if not self.config : raise _("Configuration not found")
+        try:
+            return self.config.get(section,key)
+        except Exception as E:
+            if defaultValue is None : raise E
+            if create_if_not_exist :
+                try:
+                    self.set_param(self,section,key,defaultValue,True)
+                except Exception as Ex:
+                    raise Ex
+            return defaultValue
+                
     def set_param(self,section,key,value,allow_create_section=True):
         if not self.config : raise _("Configuration not found")
         if not self.config.has_section(section) and allow_create_section: self.config.add_section(section)
@@ -511,10 +521,13 @@ class Base(object):
             return False
         for iField in range(len(keywordsGroups)) :
             keyGroup = keywordsGroups[iField]
-            field = keyGroup[0]            
+            field = keyGroup[0]
             # add all absent keywords to the keywords table
-            all_keywords = [ item.lower() for item in keyGroup[1] ]
-            absents = self.find_absent_keywords(all_keywords)
+            if type(keyGroup[1]) is list:
+                all_keywords = dict([ (item.lower(),keyGroup[1].count(item)) for item in keyGroup[1] ])
+            elif type(keyGroup[1]) is dict:
+                all_keywords = dict([ (item.lower(),weight) for item,weight in keyGroup[1].items() ])
+            absents = self.find_absent_keywords(all_keywords.keys())
             absents = map(lambda x:(x,algorithms.words.phonex(x)) , absents)
             Q = 'INSERT INTO ' + self.keywords_tableName + ' VALUES (?,?)'
             try:
@@ -523,18 +536,19 @@ class Base(object):
                 gui.utilities.show_message(_('Unable to insert new keywords : ') + str(E))
                 return False
             # get back all the keyword IDs for the current field
-            Q = 'SELECT ROWID FROM ' + self.keywords_tableName + ' WHERE keyword IN ' + self.make_placeholder_list(len(all_keywords))
+            Q = 'SELECT ROWID,KEYWORD FROM ' + self.keywords_tableName + ' WHERE keyword IN ' + self.make_placeholder_list(len(all_keywords))
             addedKeys = []
             try:
-                cur = self.connexion.execute(Q,all_keywords)
-                addedKeys = [ (row[0],) for row in cur]
+                cur = self.connexion.execute(Q,all_keywords.keys())
+                addedKeys = [ (row[0],all_keywords[row[1].lower()]) for row in cur]
             except:
                 gui.utilities.show_message(_('Unable to search for keywords'))
                 return False
             # add the new keyID to the table
             for adoc_i in docID:
-                word_count=1 # TODO UPDATE COUNTERS
-                Q = 'INSERT INTO ' + self.docWords_tableName + ' VALUES (?,' +  str(adoc_i) + ',' + str(field) + ',' + str(word_count) + ')'
+                #word_count=1 # TODO UPDATE COUNTERS
+                #Q = 'INSERT INTO ' + self.docWords_tableName + ' VALUES (?,' +  str(adoc_i) + ',' + str(field) + ',' + str(word_count) + ')'
+                Q = 'INSERT INTO ' + self.docWords_tableName + ' VALUES (?,' +  str(adoc_i) + ',' + str(field) + ',?)'
                 try:
                     self.connexion.executemany(Q , addedKeys)
                 except:
@@ -574,17 +588,20 @@ class Base(object):
     #===========================================================================
     # get_keywords_from : find the keywords from a document
     #===========================================================================
-    def get_keywordsGroups_from(self,title,description,filename,tags):  
+    def get_keywordsGroups_from(self,title,description,filename,tags,fullText=None):  
         keywords_title = string.split(title, ' ')
-        keywords_title = [i.lower() for i in keywords_title if len(i)>3]
+        keywords_title = [i.lower() for i in keywords_title if len(i)>3 and i.isalpha()]
         
         keywords_descr = string.split(description, ' ')
-        keywords_descr = [i.lower() for i in keywords_descr if len(i)>3]
+        keywords_descr = [i.lower() for i in keywords_descr if len(i)>3 and i.isalpha()]
         
         keywords_tag = string.split(tags , ',')
         keywords_tag =  map(lambda s:s.lower() , keywords_tag)
         
-        return ( ( self.ID_TITLE, keywords_title) , (self.ID_DESCRIPTION , keywords_descr) , (self.ID_TAG ,keywords_tag ) )
+        if fullText is None:
+            return ( ( self.ID_TITLE, keywords_title) , (self.ID_DESCRIPTION , keywords_descr) , (self.ID_TAG ,keywords_tag ) )
+        else:
+            return ( ( self.ID_TITLE, keywords_title) , (self.ID_DESCRIPTION , keywords_descr) , (self.ID_TAG ,keywords_tag ) ,(self.ID_FULL_TEXT,fullText) )
     #===========================================================================
     # get_files_under : retrieve all the documents of the database whose filename
     # are on the directory <directory> (directly and not under subdir)

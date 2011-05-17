@@ -12,6 +12,7 @@ from  TextCtrlAutoComplete import TextCtrlAutoComplete
 import database
 import datetime
 from data import theData
+import data.imageData
 #import pyPdf
 
 class RecordWidget(wx.Window):
@@ -162,6 +163,15 @@ class RecordWidget(wx.Window):
         description = self.lbDescription.Value
         documentDate = self.lbDate.Value
         documentDate=datetime.date(year=documentDate.GetYear(),month=documentDate.GetMonth()+1,day=documentDate.GetDay())
-        keywordsGroups = database.theBase.get_keywordsGroups_from(title, description, filename , tags)
+        try:
+            if theData.current_image == filename :
+                fullText = theData.get_content()
+            else:  
+                imData = data.imageData.imageData()
+                imData.load_file(filename)
+                fullText = imData.get_content()
+        except:
+            fullText=None
         # add the document to the database
+        keywordsGroups = database.theBase.get_keywordsGroups_from(title, description, filename , tags, fullText)
         return database.theBase.add_document(filename, title, description, None, documentDate, keywordsGroups,tags)

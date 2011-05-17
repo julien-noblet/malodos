@@ -10,8 +10,15 @@ attached to this project (LICENSE.txt file)
 '''
 
 import re
-
-
+import subprocess
+import tempfile
+import os
+import codecs
+from PIL import Image
+import database
+import enchant
+import gui.utilities
+from general import str_to_bool
 #===========================================================================
 # phonex : simplify the word so that phonetic comparison can be made between
 # words not spelled identically
@@ -107,3 +114,126 @@ def phonex(word):
         oldc = c
     word = newr
     return word
+
+def get_available_ocr_languages():
+    return enchant.list_languages()
+def get_available_ocr_programs():
+    return ['Tesseract','HOCR','GOCR']
+def is_accepted_ocr_word(word):
+    if not word.isalpha() : return False
+    if len(word)<=3 : return False
+    test_langs = database.theConfig.get_param('OCR', 'languages','').split(',')
+    for l in test_langs :
+        try:
+            d = enchant.Dict(l)
+            if d.check(word) : return True
+        except:
+            pass
+    return False
+def list_to_dict(lst):
+    D={}
+    for i in lst :
+        if not D.has_key(i) : D[i] =  lst.count(i)
+    return D
+def merge_words(init_dict,added_dict):
+    for w,n in added_dict.items():
+        if not init_dict.has_key(w) or init_dict[w]<n : init_dict[w] = n
+    return init_dict
+def ocr_image_file(image_name):
+    outname = tempfile.mktemp('.txt')    
+    words_dict={}
+## ------------ Tesseract
+    useTesseract = str_to_bool(database.theConfig.get_param('OCR', 'useTesseract','0'))
+    useHOCR = str_to_bool(database.theConfig.get_param('OCR', 'useHOCR','0'))
+    useGOCR = str_to_bool(database.theConfig.get_param('OCR', 'useGOCR','0'))
+    
+    nbOCR = [useTesseract,useHOCR,useGOCR ].count(True)
+    if nbOCR==0 : return words_dict
+    stateNum=0
+    pd = gui.utilities.ProgressDialog(title=_('Char recognition'),maxProgress=nbOCR)
+    
+    if useTesseract:
+        try:
+            stateNum+=1
+            pd.set_state(stateNum, 'Tesseract')
+            words =[]
+            subprocess.call(['tesseract',image_name,outname,'-l','fra'])
+            outname2=outname+'.txt'
+            outfile = open(outname2)
+            p = outfile.readlines()
+            os.remove(outname2)
+            
+            for line in p:
+                line_words = [ w.lower() for w in line.split() if is_accepted_ocr_word(w)]
+                words = words + line_words
+            outfile.close()
+            merge_words(words_dict, list_to_dict(words))
+        except:
+            pass
+## ------------ HOCR
+
+    
+    if useHOCR:
+        try:    
+            stateNum+=1
+            pd.set_state(stateNum, 'HOCR')
+            words =[]
+            subprocess.call(['hocr','-o',outname,'-e','utf-8','-i',image_name])
+            outfile = codecs.open(outname,mode='r',encoding='utf-8')
+            p = outfile.readlines()
+            os.remove(outname)
+            #print outname
+            for line in p:
+                line_words = [ w.lower() for w in line.split() if is_accepted_ocr_word(w)]
+                words = words + line_words
+            outfile.close()
+            merge_words(words_dict, list_to_dict(words))
+        except:
+            pass    
+## ------------ GOCR
+    
+    if useGOCR:
+        try:    
+            stateNum+=1
+            pd.set_state(stateNum, 'GOCR')
+            words =[]
+            subprocess.call(['hocr','-o',outname,'-e','utf-8','-i',image_name])
+            outfile = codecs.open(outname,mode='r',encoding='utf-8')
+            p = outfile.readlines()
+            os.remove(outname)
+            #print outname
+            for line in p:
+                line_words = [ w.lower() for w in line.split() if is_accepted_ocr_word(w)]
+                words = words + line_words
+            outfile.close()
+            merge_words(words_dict, list_to_dict(words))
+        except:
+            pass
+    pd.Destroy()
+
+## ------------ Cuneiform
+## ------------ CLARA
+## ------------ OCROpus
+    
+    
+    
+    
+    return words_dict
+def ocr_image(pil_image):
+    img_name = tempfile.mktemp('.tif')
+    try:
+        s = pil_image.size
+        minS = [3000 , 4000]
+        if s[0]<minS[0] or s[1]<minS[1]:
+            f=[s[0]/minS[0] , s[1]/minS[1]]
+            f = max(f)
+            s=[s[0]*f , s[1]*f]
+            pil_image.resize(s,Image.ANTIALIAS)
+        pil_image.save(img_name)
+        words = ocr_image_file(img_name)
+        os.remove(img_name)
+    except:
+        words = []
+    return words
+    
+    #tesseract image_name toto -l fra

@@ -12,6 +12,10 @@ singleton class for memory bitmap data management and sharing
 
 
 from PIL import Image , ImageSequence
+#try:
+#    import reportlab
+#except:
+#    pass
 try:
     import gfx
 except:
@@ -21,6 +25,7 @@ from fpdf import FPDF
 import tempfile
 import sys
 import os.path
+import algorithms.words
 
 class imageData(object):
     val = None
@@ -103,9 +108,16 @@ class imageData(object):
             return True
         except:
             return False
+    def get_content(self):
+        content = {}
+        for i in range(len(self.pil_images)):
+            page_words = algorithms.words.ocr_image(self.pil_images[i])
+            content = algorithms.words.merge_words(content, page_words)
+        return content
     def load_file(self,filename,page=None):
         "Load a given file into memory (only the asked page if given, all the pages otherwise)"
         
+        self.current_file=filename
         self.clear_all()
         
         try_pdf = filename.lower().endswith('.pdf')
@@ -123,7 +135,6 @@ class imageData(object):
                     wxi = wx.Image(filename,index=idx)
                     img = Image.new('RGB', (wxi.GetWidth(), wxi.GetHeight()))
                     img.fromstring(wxi.GetData())
-                    self.current_file=filename
                     self.nb_pages = nmax
                     self.add_image(img)
                     try_pdf=False
@@ -148,7 +159,6 @@ class imageData(object):
                 page = doc.getPage(pagenr+1)
                 bm = page.asImage(page.width,page.height)
                 I = Image.fromstring("RGB",(page.width,page.height),bm)
-                self.current_file=filename
                 self.nb_pages = nmax
                 self.add_image(I)
             self.current_image=0

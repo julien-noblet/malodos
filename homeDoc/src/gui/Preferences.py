@@ -12,13 +12,71 @@ GUI dialog to define general user preferences
 import wx
 import database
 import os
-import utilities
+# import utilities
 import scanWindow
+import Resources
 if os.name == 'posix' :
     from scannerAccess import saneAccess
 else:
     from scannerAccess import twainAccess
+from algorithms.words import get_available_ocr_languages , get_available_ocr_programs
+from algorithms.general import str_to_bool
 
+class PrefContent(wx.NotebookPage):
+    def __init__(self,parent,id,name):
+        wx.NotebookPage.__init__(self,parent,id,name=name)
+        self.panel = wx.Panel(self, -1)
+        self.sizer = wx.GridBagSizer(1,1)
+        self.clOcrProgs = wx.CheckListBox(self.panel,-1,style=wx.LB_EXTENDED)
+        self.clSpellProgs = wx.CheckListBox(self.panel,-1,style=wx.LB_EXTENDED)
+        self.btOcrUp = wx.BitmapButton(self.panel,-1,wx.Bitmap(Resources.get_icon_filename('BT_UP')))
+        self.btOcrDown = wx.BitmapButton(self.panel,-1,wx.Bitmap(Resources.get_icon_filename('BT_DOWN')))
+        self.btSpellUp = wx.BitmapButton(self.panel,-1,wx.Bitmap(Resources.get_icon_filename('BT_UP')))
+        self.btSpellDown = wx.BitmapButton(self.panel,-1,wx.Bitmap(Resources.get_icon_filename('BT_DOWN')))
+        
+        
+        self.clOcrProgs.AppendItems(get_available_ocr_programs())
+        self.clSpellProgs.AppendItems(get_available_ocr_languages())
+        
+
+        
+        self.sizer.Add(wx.StaticText(self.panel,-1,_("OCR programs to use")),(0,0),span=(1,3),flag=wx.ALL|wx.EXPAND)
+        self.sizer.Add(wx.StaticText(self.panel,-1,_("OCR Checking languages")),(0,3),span=(1,3),flag=wx.ALL|wx.EXPAND)
+        self.sizer.Add(self.clOcrProgs,(1,0),span=(1,3),flag=wx.ALL|wx.EXPAND)
+        self.sizer.Add(self.clSpellProgs,(1,3),span=(1,3),flag=wx.ALL|wx.EXPAND)
+        self.sizer.Add(self.btOcrUp,(2,1),flag=wx.CENTER)
+        self.sizer.Add(self.btOcrDown,(2,2),flag=wx.CENTER)
+        self.sizer.Add(self.btSpellUp,(2,4),flag=wx.CENTER)
+        self.sizer.Add(self.btSpellDown,(2,5),flag=wx.CENTER)
+
+        self.sizer.AddGrowableCol(0)
+        self.sizer.AddGrowableCol(5)
+        self.sizer.AddGrowableRow(1)
+        
+        self.actionLoad()
+        self.panel.SetSizerAndFit(self.sizer)
+    def actionSave(self):
+        for i in range(self.clOcrProgs.Count) :
+            opt = 'use' + self.clOcrProgs.GetItems()[i]
+            chk = self.clOcrProgs.IsChecked(i)
+            database.theConfig.set_param('OCR', opt, str(chk),False)
+        database.theConfig.set_param('OCR', 'languages', ','.join(self.clSpellProgs.GetCheckedStrings()),True)
+    def actionLoad(self):
+        for i in range(self.clOcrProgs.Count) :
+            opt = 'use' + self.clOcrProgs.GetItems()[i]
+            chk = database.theConfig.get_param('OCR', opt,'0').lower()
+            chk = str_to_bool(chk)
+            self.clOcrProgs.Check(i,chk)
+        lngs = database.theConfig.get_param('OCR', 'languages','').split(',')
+        for i in range(self.clSpellProgs.Count):
+            l = self.clSpellProgs.GetString(i)
+            try:
+                lngs.index(l)
+                self.clSpellProgs.Check(i)
+            except:
+                self.clSpellProgs.Check(i,False)
+                
+            
 
 class PrefScanner(wx.NotebookPage):
     def __init__(self,parent,id,name):
@@ -46,6 +104,7 @@ class PrefScanner(wx.NotebookPage):
         # BINDING
         self.Bind(wx.EVT_BUTTON, self.actionChangeScanner, self.btChangeScanner)
         self.Bind(wx.EVT_BUTTON, self.actionChangeScannerOptions, self.btOptions)
+        self.currentOptions=dict()
     def actionChangeScanner(self,event):
         self.stScanner.Label = self.scanner.chooseSource()
     def actionChangeScannerOptions(self,event) :
@@ -157,9 +216,11 @@ class PrefGui(wx.Dialog):
         self.tabFrame = wx.Notebook(self.panel,-1)
         self.dirSurveyFrame = PrefSurveyDir(self.tabFrame,-1,name=_("Dir. survey"))
         self.scannerFrame = PrefScanner(self.tabFrame,-1,name=_("Scanner"))
+        self.contentFrame = PrefContent(self.tabFrame,-1,name=_("Content"))
         
         self.tabFrame.AddPage(self.dirSurveyFrame,self.dirSurveyFrame.GetName())
         self.tabFrame.AddPage(self.scannerFrame,self.scannerFrame.GetName())
+        self.tabFrame.AddPage(self.contentFrame,self.contentFrame.GetName())
         
         self.prefSizer.Add(self.tabFrame,(1,0),span=(1,3),flag=wx.EXPAND|wx.ALL)
         self.prefSizer.Add(self.btOk,(2,0),flag=wx.EXPAND|wx.ALL)
@@ -179,7 +240,7 @@ class PrefGui(wx.Dialog):
 #            self.cbLanguage.SetSelection(0)
         
         self.panel.SetSizerAndFit(self.prefSizer)
-        self.SetClientSize((600,300))
+        self.SetClientSize((600,400))
         
         # binding
         self.Bind(wx.EVT_BUTTON, self.actionChangeDataBase, self.btChangeBase)
@@ -199,6 +260,7 @@ class PrefGui(wx.Dialog):
         #database.theConfig.set_current_language(self.cbLanguage.GetStringSelection())
         self.dirSurveyFrame.actionSave()
         self.scannerFrame.actionSave()
+        self.contentFrame.actionSave()
         if not database.theConfig.commit_config() :
             wx.MessageBox(_('Problem : Unable to write the configuration file.'))
         else:

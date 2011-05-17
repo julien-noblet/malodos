@@ -16,3 +16,16 @@ def show_message(message):
 def ask(message):
     dlg =  wx.MessageDialog(None,message,_('Question'),wx.YES_NO)
     return dlg.ShowModal()
+
+class ProgressDialog:
+    def __init__(self,title='Progression',maxProgress=100.0,message=None):
+        self.pd = wx.ProgressDialog(title,message='',maximum=maxProgress,style=wx.PD_APP_MODAL | wx.PD_ELAPSED_TIME)
+        if not message is None : self.pd.Update(1,message)
+        #self.pd.ShowModal()
+    def set_state(self,progression,message=None):
+        if message is None:
+            self.pd.Update(progression)
+        else:
+            self.pd.Update(progression,message)
+    def Destroy(self):
+        self.pd.Destroy()

@@ -25,6 +25,8 @@ import hashlib
 from gui import Preferences
 import Resources
 import algorithms.stringFunctions
+import data
+import enchant
 
 class MainFrame(wx.Frame):
     ID_ADD_FILE=1
@@ -71,10 +73,15 @@ class MainFrame(wx.Frame):
         self.btUpdateRecord.SetToolTipString(_('Update'))
         self.btShowExternal = wx.BitmapButton(self.docViewPanel,-1,wx.Bitmap(Resources.get_icon_filename('SYSTEM_SHOW')))
         self.btShowExternal.SetToolTipString(_('System show'))
+
+        #self.btDoOCR = wx.BitmapButton(self.docViewPanel,-1,wx.Bitmap(Resources.get_icon_filename('SYSTEM_SHOW')))
+        #self.btDoOCR.SetToolTipString(_('Do OCR'))
+
         self.docViewSizer.Add(self.recordSizer,0,wx.EXPAND)
         self.recordButtonSizer = wx.BoxSizer(wx.VERTICAL)
         self.recordButtonSizer.Add(self.btUpdateRecord,1,wx.EXPAND)
         self.recordButtonSizer.Add(self.btShowExternal,1,wx.EXPAND)
+        #self.recordButtonSizer.Add(self.btDoOCR,1,wx.EXPAND)
         self.recordSizer.Add(self.recordButtonSizer)
         self.docViewPanel.SetSizerAndFit(self.docViewSizer)
 
@@ -115,6 +122,7 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_TOOL,self.actionAbout,id=self.ID_CREDITS)
         self.Bind(wx.EVT_BUTTON,self.actionStartExternalApp,self.btShowExternal)
         self.Bind(wx.EVT_BUTTON,self.actionUpdateRecord,self.btUpdateRecord)
+        #self.Bind(wx.EVT_BUTTON,self.actionTestOCR,self.btDoOCR)
 
         # layout assignment
         self.panel.SetSizerAndFit(self.totalWin)
@@ -122,6 +130,9 @@ class MainFrame(wx.Frame):
         self.Maximize()
         self.actionSearch(None)
         
+    def actionTestOCR(self,event):
+        words_dict = data.theData.get_content()
+        for w,n in words_dict.items() : print w + '(' + str(n) + ' fois)'
     #===========================================================================
     # click on add scan button
     #===========================================================================
@@ -150,19 +161,7 @@ class MainFrame(wx.Frame):
             docList = database.theBase.find_documents(None)
         else:
             [request,pars] = algorithms.stringFunctions.req_to_sql(self.tbFilter.Value)
-            #print request
             docList = database.theBase.find_sql(request,pars)
-        # else:        
-        #    # retrieve the keywords from the different fields
-        #    keywords = string.strip(self.tbFilter.Value, ' ')
-        #    keywords = string.split(keywords, ' ')
-        #    # remove short words
-        #    keywords = [i for i in keywords if len(i)>3]
-        #    # treat the case where no keyword are found
-        #    if len(keywords)<1: keywords = None
-        #    # find the list corresponding to the selected keywords
-        #    docList = database.theBase.find_documents(keywords)
-        # return if no doc found
         if not docList: return
         # otherwise show them in the listbox
         for row in docList:
