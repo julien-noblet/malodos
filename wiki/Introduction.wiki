@@ -14,7 +14,7 @@ Note : after having presenting a first alpha version of this soft into forums, I
 
 So the MALODOS project born, and you're now visiting its helper page. And actually, you'll get a software which
   # is simple to use (actually I hope so...)
-  # is not too expensive (no charge, however feel free to donate something if you think it deserves it)
+  # is not too expensive (no charge, however feel free to [https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=D7H33JFSFA98J&lc=IL&item_name=David%20GUEZ&item_number=MALODOS&currency_code=ILS&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted donate] something if you think it deserves it)
   # not taking you as an hostage (hereafter all the data format will be explained, and images are basically standard pdf files)
 
 A complete documentation of the program is (actually will be) available [https://sites.google.com/site/malodospage/ here].
