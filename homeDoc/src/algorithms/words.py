@@ -150,66 +150,94 @@ def ocr_image_file(image_name):
     nbOCR = [useTesseract,useHOCR,useGOCR ].count(True)
     if nbOCR==0 : return words_dict
     stateNum=0
-    pd = gui.utilities.ProgressDialog(title=_('Char recognition'),maxProgress=nbOCR)
+    pd = gui.utilities.getGlobalProgressDialog()
     
     if useTesseract:
         try:
+            stepToClose=False
+            pd.add_to_current_step(0, _('calling tesseract'))
             stateNum+=1
-            pd.set_state(stateNum, 'Tesseract')
             words =[]
             subprocess.call(['tesseract',image_name,outname,'-l','fra'])
             outname2=outname+'.txt'
             outfile = open(outname2)
             p = outfile.readlines()
             os.remove(outname2)
-            
+            pd.add_to_current_step(0.5 / nbOCR)
+            pd.new_sub_step(0.5/nbOCR, _('spellchecking'))
+            stepToClose=True
+            nlines = len(p)
             for line in p:
                 line_words = [ w.lower() for w in line.split() if is_accepted_ocr_word(w)]
                 words = words + line_words
+                pd.add_to_current_step(1.0/nlines)
             outfile.close()
             merge_words(words_dict, list_to_dict(words))
+            pd.finish_current_step()
         except:
-            pass
+            if stepToClose :
+                pd.finish_current_step()
+            else:  
+                pd.set_current_step_to(1.0/nbOCR)
 ## ------------ HOCR
 
     
     if useHOCR:
         try:    
+            stepToClose=False
+            pd.add_to_current_step(0, _('calling hOCR'))
             stateNum+=1
-            pd.set_state(stateNum, 'HOCR')
             words =[]
             subprocess.call(['hocr','-o',outname,'-e','utf-8','-i',image_name])
             outfile = codecs.open(outname,mode='r',encoding='utf-8')
             p = outfile.readlines()
             os.remove(outname)
             #print outname
+            pd.add_to_current_step(0.5 / nbOCR)
+            pd.new_sub_step(0.5/nbOCR, _('spellchecking'))
+            stepToClose=True
+            nlines = len(p)
             for line in p:
                 line_words = [ w.lower() for w in line.split() if is_accepted_ocr_word(w)]
                 words = words + line_words
+                pd.add_to_current_step(1.0/nlines)
             outfile.close()
             merge_words(words_dict, list_to_dict(words))
+            pd.finish_current_step()
         except:
-            pass    
+            if stepToClose :
+                pd.finish_current_step()
+            else:  
+                pd.set_current_step_to(1.0/nbOCR)
 ## ------------ GOCR
     
     if useGOCR:
         try:    
+            stepToClose=False
+            pd.add_to_current_step(0, _('calling gOCR'))
             stateNum+=1
-            pd.set_state(stateNum, 'GOCR')
             words =[]
             subprocess.call(['hocr','-o',outname,'-e','utf-8','-i',image_name])
             outfile = codecs.open(outname,mode='r',encoding='utf-8')
             p = outfile.readlines()
             os.remove(outname)
             #print outname
+            pd.add_to_current_step(0.5 / nbOCR)
+            pd.new_sub_step(0.5/nbOCR, _('spellchecking'))
+            stepToClose=True
+            nlines = len(p)
             for line in p:
                 line_words = [ w.lower() for w in line.split() if is_accepted_ocr_word(w)]
                 words = words + line_words
+                pd.add_to_current_step(1.0/nlines)
             outfile.close()
             merge_words(words_dict, list_to_dict(words))
+            pd.finish_current_step()
         except:
-            pass
-    pd.Destroy()
+            if stepToClose :
+                pd.finish_current_step()
+            else:  
+                pd.set_current_step_to(1.0/nbOCR)
 
 ## ------------ Cuneiform
 ## ------------ CLARA

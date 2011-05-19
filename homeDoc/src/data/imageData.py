@@ -26,6 +26,7 @@ import tempfile
 import sys
 import os.path
 import algorithms.words
+import gui.utilities
 
 class imageData(object):
     val = None
@@ -110,9 +111,16 @@ class imageData(object):
             return False
     def get_content(self):
         content = {}
-        for i in range(len(self.pil_images)):
+        pd = gui.utilities.getGlobalProgressDialog(_('Character recognition'), '')
+        n = len(self.pil_images)
+        for i in range(n):
+            pd.new_sub_step(1.0/n)
             page_words = algorithms.words.ocr_image(self.pil_images[i])
+            #pd.finish_current_step()
+            #pd.new_sub_step(0.5/n)
             content = algorithms.words.merge_words(content, page_words)
+            pd.finish_current_step()
+        gui.utilities.closeGlobalProgressDialog()
         return content
     def load_file(self,filename,page=None):
         "Load a given file into memory (only the asked page if given, all the pages otherwise)"

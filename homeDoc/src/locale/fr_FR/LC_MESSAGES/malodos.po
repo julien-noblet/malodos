@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-05-18 01:11+0300\n"
-"PO-Revision-Date: 2011-05-18 01:11+0200\n"
+"POT-Creation-Date: 2011-05-19 23:51+0300\n"
+"PO-Revision-Date: 2011-05-19 23:52+0200\n"
 "Last-Translator: David guez <guezdav@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -706,5 +706,27 @@ msgstr "Contenu"
 
 #: algorithms/words.py:153
 msgid "Char recognition"
+msgstr "Reconnaissance de caractère"
+
+#: algorithms/words.py:158
+msgid "calling tesseract"
+msgstr "appel de tesseract"
+
+#: algorithms/words.py:167
+#: algorithms/words.py:197
+#: algorithms/words.py:226
+msgid "spellchecking"
+msgstr "correction orthographique"
+
+#: algorithms/words.py:188
+msgid "calling hOCR"
+msgstr "appel de hOCR"
+
+#: algorithms/words.py:217
+msgid "calling gOCR"
+msgstr "Appel de gOCR"
+
+#: data/imageData.py:114
+msgid "Character recognition"
 msgstr "Reconnaissance de caractère"
 
