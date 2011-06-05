@@ -13,6 +13,7 @@ import database
 import datetime
 from data import theData
 import data.imageData
+from  algorithms.general import str_to_bool
 #import pyPdf
 
 class RecordWidget(wx.Window):
@@ -147,17 +148,6 @@ class RecordWidget(wx.Window):
         self.panel.Size = self.Size
     def do_save_record(self):
         filename = self.lbFileName.GetPath()
-#        if filename[-4:].lower()=='.pdf':
-#            content=""
-#            pdf = pyPdf.PdfFileReader(file(filename, "rb"))
-#            # Iterate pages
-#            for i in range(0, pdf.getNumPages()):
-#                # Extract text from page and add to content
-#                content += pdf.getPage(i).extractText() + "\n"
-#                # Collapse whitespace
-#                #content = " ".join(content.replace("\xa0", " ").strip().split())
-#            print "file content:"
-#            print content
         title = self.lbTitle.Value
         tags = self.lbTags.Value
         description = self.lbDescription.Value
@@ -169,9 +159,41 @@ class RecordWidget(wx.Window):
             else:  
                 imData = data.imageData.imageData()
                 imData.load_file(filename)
-                fullText = imData.get_content()
+                doOCR = str_to_bool( database.theConfig.get_param('OCR', 'autoStart','1') )
+                if doOCR :
+                    fullText = imData.get_content()
+                else:
+                    fullText = None
         except:
             fullText=None
         # add the document to the database
         keywordsGroups = database.theBase.get_keywordsGroups_from(title, description, filename , tags, fullText)
         return database.theBase.add_document(filename, title, description, None, documentDate, keywordsGroups,tags)
+    def update_record(self,docID,redoOCR=False):
+        filename = self.lbFileName.GetPath()
+        title = self.lbTitle.Value
+        tags = self.lbTags.Value
+        description = self.lbDescription.Value
+        documentDate = self.lbDate.Value
+        documentDate=datetime.date(year=documentDate.GetYear(),month=documentDate.GetMonth()+1,day=documentDate.GetDay())
+        fullText=None
+        if redoOCR:
+            try:
+                if theData.current_image == filename :
+                    fullText = theData.get_content()
+                else:  
+                    imData = data.imageData.imageData()
+                    imData.load_file(filename)
+                    doOCR = str_to_bool( database.theConfig.get_param('OCR', 'autoStart','1') )
+                    if doOCR :
+                        fullText = imData.get_content()
+                    else:
+                        fullText = None
+            except:
+                pass
+        # add the document to the database
+        #keywordsGroups = database.theBase.get_keywordsGroups_from(title, description, filename , tags, fullText)
+        if not database.theBase.update_doc(docID, title, description, documentDate, filename,tags,fullText):
+            wx.MessageBox(_('Unable to update the database'))
+            return False
+        return True

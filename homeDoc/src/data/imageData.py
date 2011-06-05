@@ -116,11 +116,10 @@ class imageData(object):
         for i in range(n):
             pd.new_sub_step(1.0/n)
             page_words = algorithms.words.ocr_image(self.pil_images[i])
-            #pd.finish_current_step()
-            #pd.new_sub_step(0.5/n)
             content = algorithms.words.merge_words(content, page_words)
             pd.finish_current_step()
         gui.utilities.closeGlobalProgressDialog()
+        #for w in content: print w
         return content
     def load_file(self,filename,page=None):
         "Load a given file into memory (only the asked page if given, all the pages otherwise)"

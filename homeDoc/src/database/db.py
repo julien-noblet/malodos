@@ -481,8 +481,12 @@ class Base(object):
 #        keywords_str = '(' + ','.join(keywords_str) + ')'
         
         Q = 'SELECT keyword FROM ' + self.keywords_tableName + ' WHERE keyword IN ' + self.make_placeholder_list(len(keywords))
-        cur = self.connexion.execute(Q,keywords)
-        already_present = [ i[0] for i in cur]
+        try:
+            cur = self.connexion.execute(Q,keywords)
+            already_present = [ i[0] for i in cur]
+        except:
+            gui.utilities.show_message(_('Keyword search failed'))
+            already_present = [ ]
         absents = [ s for s in keywords if s not in already_present]
         return list(set(absents))
     #===========================================================================
@@ -509,12 +513,19 @@ class Base(object):
     # update_keywords_for : remove all the keyword reference to docID
     # and  replace by a new list
     #===========================================================================
-    def update_keywords_for(self,docID,keywordsGroups):
+    def update_keywords_for(self,docID,keywordsGroups,keepFullTextIfNotGiven=True):
         # first : delete all the keyword references to docID
         if not hasattr(docID,'__iter__') : docID = (docID,)
-
+        hasFullText = False
+        for iField in range(len(keywordsGroups)) :
+            if keywordsGroups[iField][0] == self.ID_FULL_TEXT :
+                hasFullText=True
+                break
         Q = 'DELETE FROM ' + self.docWords_tableName + ' WHERE docID IN ' + self.make_placeholder_list(len(docID))
+        if keepFullTextIfNotGiven and not hasFullText :
+            Q = Q+' AND field <> ' + str(self.ID_FULL_TEXT)
         try:
+            #print Q
             self.connexion.execute(Q,docID)
         except:
             gui.utilities.show_message(_('Unable to remove doc/word association'))
@@ -563,7 +574,7 @@ class Base(object):
     #===========================================================================
     # update_doc : replace the values for a given doc
     #===========================================================================
-    def update_doc(self,docID,title,description,documentDate,filename,tags):
+    def update_doc(self,docID,title,description,documentDate,filename,tags,fullText):
         Q = 'UPDATE ' + self.documents_tableName + ' SET title=? , description=?, documentDate=? ,tags=? WHERE ROWID=?'
         try:
             self.connexion.execute(Q,(title,description,documentDate,tags,docID))
@@ -571,7 +582,7 @@ class Base(object):
         except:
             gui.utilities.show_message(_('Unable to update document into database'))
             return
-        keywordsGroups = self.get_keywordsGroups_from(title, description, filename,tags)
+        keywordsGroups = self.get_keywordsGroups_from(title, description, filename,tags,fullText)
         return self.update_keywords_for(docID,keywordsGroups)
     #===========================================================================
     # update_doc : replace the values for a given doc
@@ -621,5 +632,15 @@ class Base(object):
             return cur
         except:
             #gui.utilities.show_message('Unable to get file list from database')
+            return ()
+    #===========================================================================
+    # get_all_keywords : retrieve all the recorded keywords
+    #===========================================================================
+    def get_all_keywords(self):
+        Q = "SELECT keyword FROM " + self.keywords_tableName
+        try:
+            cur = self.connexion.execute(Q)
+            return tuple([row[0].encode('utf-8').lower() for row in cur])
+        except:
             return ()
         

@@ -15,6 +15,7 @@ import os
 # import utilities
 import scanWindow
 import Resources
+from twisted.cred._digest import algorithms
 if os.name == 'posix' :
     from scannerAccess import saneAccess
 else:
@@ -27,6 +28,7 @@ class PrefContent(wx.NotebookPage):
         wx.NotebookPage.__init__(self,parent,id,name=name)
         self.panel = wx.Panel(self, -1)
         self.sizer = wx.GridBagSizer(1,1)
+        self.cbAutoOCR = wx.CheckBox(self.panel,-1,_('Automatically proceed with OCR when a new document is added to the database'))
         self.clOcrProgs = wx.CheckListBox(self.panel,-1,style=wx.LB_EXTENDED)
         self.clSpellProgs = wx.CheckListBox(self.panel,-1,style=wx.LB_EXTENDED)
         self.btOcrUp = wx.BitmapButton(self.panel,-1,wx.Bitmap(Resources.get_icon_filename('BT_UP')))
@@ -37,21 +39,20 @@ class PrefContent(wx.NotebookPage):
         
         self.clOcrProgs.AppendItems(get_available_ocr_programs())
         self.clSpellProgs.AppendItems(get_available_ocr_languages())
-        
 
-        
-        self.sizer.Add(wx.StaticText(self.panel,-1,_("OCR programs to use")),(0,0),span=(1,3),flag=wx.ALL|wx.EXPAND)
-        self.sizer.Add(wx.StaticText(self.panel,-1,_("OCR Checking languages")),(0,3),span=(1,3),flag=wx.ALL|wx.EXPAND)
-        self.sizer.Add(self.clOcrProgs,(1,0),span=(1,3),flag=wx.ALL|wx.EXPAND)
-        self.sizer.Add(self.clSpellProgs,(1,3),span=(1,3),flag=wx.ALL|wx.EXPAND)
-        self.sizer.Add(self.btOcrUp,(2,1),flag=wx.CENTER)
-        self.sizer.Add(self.btOcrDown,(2,2),flag=wx.CENTER)
-        self.sizer.Add(self.btSpellUp,(2,4),flag=wx.CENTER)
-        self.sizer.Add(self.btSpellDown,(2,5),flag=wx.CENTER)
+        self.sizer.Add(self.cbAutoOCR,(0,0),span=(1,6),flag=wx.ALL|wx.EXPAND)
+        self.sizer.Add(wx.StaticText(self.panel,-1,_("OCR programs to use")),(1,0),span=(1,3),flag=wx.ALL|wx.EXPAND)
+        self.sizer.Add(wx.StaticText(self.panel,-1,_("OCR Checking languages")),(1,3),span=(1,3),flag=wx.ALL|wx.EXPAND)
+        self.sizer.Add(self.clOcrProgs,(2,0),span=(1,3),flag=wx.ALL|wx.EXPAND)
+        self.sizer.Add(self.clSpellProgs,(2,3),span=(1,3),flag=wx.ALL|wx.EXPAND)
+        self.sizer.Add(self.btOcrUp,(3,1),flag=wx.CENTER)
+        self.sizer.Add(self.btOcrDown,(3,2),flag=wx.CENTER)
+        self.sizer.Add(self.btSpellUp,(3,4),flag=wx.CENTER)
+        self.sizer.Add(self.btSpellDown,(3,5),flag=wx.CENTER)
 
         self.sizer.AddGrowableCol(0)
         self.sizer.AddGrowableCol(5)
-        self.sizer.AddGrowableRow(1)
+        self.sizer.AddGrowableRow(2)
         
         self.actionLoad()
         self.panel.SetSizerAndFit(self.sizer)
@@ -61,6 +62,7 @@ class PrefContent(wx.NotebookPage):
             chk = self.clOcrProgs.IsChecked(i)
             database.theConfig.set_param('OCR', opt, str(chk),False)
         database.theConfig.set_param('OCR', 'languages', ','.join(self.clSpellProgs.GetCheckedStrings()),True)
+        database.theConfig.set_param('OCR', 'autoStart', str(self.cbAutoOCR.Value),True)
     def actionLoad(self):
         for i in range(self.clOcrProgs.Count) :
             opt = 'use' + self.clOcrProgs.GetItems()[i]
@@ -75,8 +77,7 @@ class PrefContent(wx.NotebookPage):
                 self.clSpellProgs.Check(i)
             except:
                 self.clSpellProgs.Check(i,False)
-                
-            
+        self.cbAutoOCR.Value = str_to_bool( database.theConfig.get_param('OCR', 'autoStart','1') )
 
 class PrefScanner(wx.NotebookPage):
     def __init__(self,parent,id,name):

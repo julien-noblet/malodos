@@ -119,16 +119,17 @@ def get_available_ocr_languages():
     return enchant.list_languages()
 def get_available_ocr_programs():
     return ['Tesseract','HOCR','GOCR']
-def is_accepted_ocr_word(word):
+def is_accepted_ocr_word(word,dictList,knownTerms):
+    try:
+        i = knownTerms.index(word)
+        return True
+    except:
+        pass
     if not word.isalpha() : return False
     if len(word)<=3 : return False
-    test_langs = database.theConfig.get_param('OCR', 'languages','').split(',')
-    for l in test_langs :
-        try:
-            d = enchant.Dict(l)
-            if d.check(word) : return True
-        except:
-            pass
+    for d in dictList :
+        if d.check(word) :
+            return True
     return False
 def list_to_dict(lst):
     D={}
@@ -152,13 +153,22 @@ def ocr_image_file(image_name):
     stateNum=0
     pd = gui.utilities.getGlobalProgressDialog()
     
+    test_langs = database.theConfig.get_param('OCR', 'languages','').split(',')
+    dictList=[]
+    knownTerms = database.theBase.get_all_keywords()
+    for l in test_langs :
+        try:
+            d = enchant.Dict(l)
+            dictList.append(d)
+        except:
+            pass
     if useTesseract:
         try:
             stepToClose=False
             pd.add_to_current_step(0, _('calling tesseract'))
             stateNum+=1
             words =[]
-            subprocess.call(['tesseract',image_name,outname,'-l','fra'])
+            subprocess.call(['tesseract',image_name,outname,'-l','fra'],stdout=None,stderr=None)
             outname2=outname+'.txt'
             outfile = open(outname2)
             p = outfile.readlines()
@@ -168,7 +178,7 @@ def ocr_image_file(image_name):
             stepToClose=True
             nlines = len(p)
             for line in p:
-                line_words = [ w.lower() for w in line.split() if is_accepted_ocr_word(w)]
+                line_words = [ w for w in [ unicode(ww).lower() for ww in line.split()] if is_accepted_ocr_word(w,dictList,knownTerms)]
                 words = words + line_words
                 pd.add_to_current_step(1.0/nlines)
             outfile.close()
@@ -198,7 +208,7 @@ def ocr_image_file(image_name):
             stepToClose=True
             nlines = len(p)
             for line in p:
-                line_words = [ w.lower() for w in line.split() if is_accepted_ocr_word(w)]
+                line_words = [ w for w in [ unicode(ww).lower() for ww in line.split()] if is_accepted_ocr_word(w,dictList,knownTerms)]
                 words = words + line_words
                 pd.add_to_current_step(1.0/nlines)
             outfile.close()
@@ -227,7 +237,7 @@ def ocr_image_file(image_name):
             stepToClose=True
             nlines = len(p)
             for line in p:
-                line_words = [ w.lower() for w in line.split() if is_accepted_ocr_word(w)]
+                line_words = [ w for w in [ unicode(ww).lower() for ww in line.split()] if is_accepted_ocr_word(w,dictList,knownTerms)]
                 words = words + line_words
                 pd.add_to_current_step(1.0/nlines)
             outfile.close()
@@ -242,9 +252,6 @@ def ocr_image_file(image_name):
 ## ------------ Cuneiform
 ## ------------ CLARA
 ## ------------ OCROpus
-    
-    
-    
     
     return words_dict
 def ocr_image(pil_image):

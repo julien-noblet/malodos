@@ -222,17 +222,7 @@ class MainFrame(wx.Frame):
         sel = sel[0]
         row = self.lbDocuments.GetClientData(sel)
         docID = row[database.theBase.IDX_ROWID]
-        filename = self.recordPart.lbFileName.GetPath() 
-        title = self.recordPart.lbTitle.Value
-        tags = self.recordPart.lbTags.Value
-        description = self.recordPart.lbDescription.GetValue()
-        documentDate = self.recordPart.lbDate.GetValue()
-        documentDate=datetime.date(year=documentDate.GetYear(),month=documentDate.GetMonth()+1,day=documentDate.GetDay())
-        if not database.theBase.update_doc(docID, title, description, documentDate, filename,tags):
-            wx.MessageBox(_('Unable to update the database'))
-        else:
-            self.actionSearch(None)
-        
+        if self.recordPart.update_record(docID) : self.actionSearch(event)
     #===========================================================================
     # actionRemoveRecord : remove the selected items
     #===========================================================================
