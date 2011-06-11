@@ -17,12 +17,14 @@ import ConfigParser
 
 resourceContent = None
 
+def get_resource_dir():
+    return os.path.join(os.path.dirname(sys.argv[0]),'../resources')
 def read_resource_file():
     global resourceContent
     try:
         resource_file = database.theConfig.get_resource_filename()
     except:
-        resource_file = os.path.join(os.path.dirname(sys.argv[0]),'../resources/resources.ini')
+        resource_file = os.path.join(get_resource_dir(),'resources.ini')
     if os.path.exists(resource_file) :
         resourceContent = ConfigParser.SafeConfigParser()
         resourceContent.read(resource_file)

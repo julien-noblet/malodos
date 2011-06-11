@@ -20,15 +20,18 @@ if os.name == 'posix' :
     from scannerAccess import saneAccess
 else:
     from scannerAccess import twainAccess
-from algorithms.words import get_available_ocr_languages , get_available_ocr_programs
+
+from database import theConfig
+
 from algorithms.general import str_to_bool
+from algorithms.words import get_available_languages
 
 class PrefContent(wx.NotebookPage):
     def __init__(self,parent,id,name):
         wx.NotebookPage.__init__(self,parent,id,name=name)
         self.panel = wx.Panel(self, -1)
         self.sizer = wx.GridBagSizer(1,1)
-        self.cbAutoOCR = wx.CheckBox(self.panel,-1,_('Automatically proceed with OCR when a new document is added to the database'))
+        self.cbAutoOCR = wx.CheckBox(self.panel,-1,_('Automatically proceed to OCR when a new document is added to the database'))
         self.clOcrProgs = wx.CheckListBox(self.panel,-1,style=wx.LB_EXTENDED)
         self.clSpellProgs = wx.CheckListBox(self.panel,-1,style=wx.LB_EXTENDED)
         self.btOcrUp = wx.BitmapButton(self.panel,-1,wx.Bitmap(Resources.get_icon_filename('BT_UP')))
@@ -36,9 +39,14 @@ class PrefContent(wx.NotebookPage):
         self.btSpellUp = wx.BitmapButton(self.panel,-1,wx.Bitmap(Resources.get_icon_filename('BT_UP')))
         self.btSpellDown = wx.BitmapButton(self.panel,-1,wx.Bitmap(Resources.get_icon_filename('BT_DOWN')))
         
-        
-        self.clOcrProgs.AppendItems(get_available_ocr_programs())
-        self.clSpellProgs.AppendItems(get_available_ocr_languages())
+        ocrConf = theConfig.get_ocr_configuration()
+        self.clOcrProgs.AppendItems(ocrConf.get_available_ocr_programs())
+        self.clSpellProgs.AppendItems(get_available_languages())
+#        all_sects = ocrConf.get_available_ocr_programs()
+#        needed_ext = set()
+#        for i in all_sects : needed_ext.add(ocrConf.get_needed_image_format(i))
+#        print needed_ext
+#        for i in all_sects : print ocrConf.build_call_sequence(i, 'toto.'+ocrConf.get_needed_image_format(i), 'toto.txt')
 
         self.sizer.Add(self.cbAutoOCR,(0,0),span=(1,6),flag=wx.ALL|wx.EXPAND)
         self.sizer.Add(wx.StaticText(self.panel,-1,_("OCR programs to use")),(1,0),span=(1,3),flag=wx.ALL|wx.EXPAND)

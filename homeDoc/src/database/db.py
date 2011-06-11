@@ -18,40 +18,20 @@ import gui.utilities
 import os.path
 import ConfigParser
 import algorithms.words
+import Resources
 
-class Configuration(object):
-    def __init__(self):
+class ConfigReader(object):
+    def __init__(self,conf_file=None):
         self.config = None
-        if os.name=='nt':
-            self.conf_dir = os.path.join(os.path.expanduser('~'),'malodos')
-        else:
-            self.conf_dir = os.path.join(os.path.expanduser('~'),'.malodos')
-        if not os.path.isdir(self.conf_dir) :
-            try:
-                os.mkdir(self.conf_dir)
-            except:
-                return
-        if not os.path.exists(self.conf_dir) : return
-        self.conf_file = os.path.join(self.conf_dir,'malodos.ini')
+        self.conf_file = conf_file
+        if conf_file is None : return
         if not os.path.exists(self.conf_file) :
             try:
                 theFile = open(self.conf_file,'w')
             except:
                 return
-            self.config = ConfigParser.SafeConfigParser()
-            self.config.add_section('database')
-            self.set_database_name( os.path.join(self.conf_dir,'malodos.db'))
-            self.config.add_section('scanner')
-            self.set_current_scanner('None')
-            self.config.add_section('language')
-            #self.set_installed_languages(u'english,français,עברית')
-            self.set_installed_languages(u'english')
-            self.set_current_language('english')
-            self.config.add_section('survey')
-            self.set_survey_directory_list( (os.path.join(self.conf_dir,'documents'),) , (0,))
-            self.set_survey_extension_list( 'png tif tiff pdf jpg jpeg gif bmp doc txt odt' )
-            self.commit_config()
             theFile.close()
+        self.config = ConfigParser.SafeConfigParser()
         self.read_config()
 
     def get_param(self,section,key,defaultValue=None,create_if_not_exist=False):
@@ -62,7 +42,7 @@ class Configuration(object):
             if defaultValue is None : raise E
             if create_if_not_exist :
                 try:
-                    self.set_param(self,section,key,defaultValue,True)
+                    self.set_param(section,key,defaultValue,True)
                 except Exception as Ex:
                     raise Ex
             return defaultValue
@@ -75,6 +55,112 @@ class Configuration(object):
         if not self.config : raise _("Configuration not found")
         if not self.config.has_section(section) : return dict()
         return dict(self.config.items(section))
+    def read_config(self):
+        if os.path.exists(self.conf_file) :
+            self.config = ConfigParser.SafeConfigParser()
+            self.config.read(self.conf_file)
+    def commit_config(self):
+            try:
+                theFile = open(self.conf_file,'w')
+                self.config.write(theFile)
+                theFile.close()
+                return True
+            except:
+                return False
+
+class OCRConfiguration(ConfigReader):
+    def __init__(self,conf_file):
+        ConfigReader.__init__(self,conf_file)
+    def get_available_ocr_programs(self):
+        return self.config.sections()
+    def get_needed_image_format(self,ocr_sequence):
+        return self.get_param(ocr_sequence, 'inputFormat', 'tif', False)
+    def build_call_sequence(self,ocr_section,input_file,output_file):
+        needed_format = self.get_needed_image_format(ocr_section).lower()
+        if os.path.splitext(input_file)[1].lower() != '.'+  needed_format :
+            msg = _('Unable to get the image in format %s for section %s ') % (needed_format,ocr_section)
+            gui.utilities.show_message(msg)
+            return []
+        pname = self.get_param(ocr_section, 'programName', '', False)
+        if pname == '' : return []
+        placeHolder = ['','','']
+        to_place=[]
+        try:
+            to_place.append(self.get_param(ocr_section, 'inputOption', None, False))
+            to_place.append(self.get_param(ocr_section, 'outputOption', None, False))
+            otherOpts = self.get_param(ocr_section, 'otherOptions', '', False)
+            if otherOpts != '' : to_place.append(otherOpts)
+        except:
+            return []
+        to_place2=[]
+        for s in to_place:
+            if s.startswith('$1') or s.startswith('$2') or s.startswith('$3'):
+                ps = int(s[1])-1
+                s=s[2:]
+                if placeHolder[ps] != '':
+                    msg = _('Misformatted OCR configuration for section %s ')% ocr_section
+                    gui.utilities.show_message(msg) 
+                    return []
+                else:
+                    placeHolder[ps] = s
+            else:
+                to_place2.append(s)
+        for s in to_place2:
+            no_placed=True
+            for i in range(len(placeHolder)) :
+                if placeHolder[i] == '' :
+                    placeHolder[i] = s
+                    not_placed=False
+                    break
+            if not_placed :
+                msg = _('Misformatted OCR configuration for section %s ')% ocr_section
+                gui.utilities.show_message(msg) 
+                return []
+        
+        for i in range(len(placeHolder)) :
+            s=placeHolder[i]
+            s = s.replace("$outputFilenameNoExt" , os.path.splitext(output_file)[0])
+            s = s.replace("$outputFilename" , output_file)
+            s = s.replace("$inputFilenameNoExt" , os.path.splitext(input_file)[0])
+            s = s.replace("$inputFilename" , input_file)
+            placeHolder[i] = s
+        ans = [pname]
+        for s in placeHolder : ans.extend(s.split())
+        return ans
+
+
+class Configuration(ConfigReader):
+    def __init__(self):
+        if os.name=='nt':
+            self.conf_dir = os.path.join(os.path.expanduser('~'),'malodos')
+        else:
+            self.conf_dir = os.path.join(os.path.expanduser('~'),'.malodos')
+        if not os.path.isdir(self.conf_dir) :
+            try:
+                os.mkdir(self.conf_dir)
+            except:
+                ConfigReader.__init__(self)
+                return
+        if not os.path.exists(self.conf_dir) :
+            ConfigReader.__init__(self)
+            return
+        conf_file = os.path.join(self.conf_dir,'malodos.ini')
+        fillConf = not os.path.exists(conf_file) 
+        ConfigReader.__init__(self,conf_file)
+        if  fillConf and os.path.exists(self.conf_file) and self.config is not None:
+            self.config.add_section('database')
+            self.set_database_name( os.path.join(self.conf_dir,'malodos.db'))
+            self.config.add_section('scanner')
+            self.set_current_scanner('None')
+            self.config.add_section('language')
+            #self.set_installed_languages(u'english,français,עברית')
+            self.set_installed_languages(u'english')
+            self.set_current_language('english')
+            self.config.add_section('survey')
+            self.set_survey_directory_list( (os.path.join(self.conf_dir,'documents'),) , (0,))
+            self.set_survey_extension_list( 'png tif tiff pdf jpg jpeg gif bmp doc txt odt' )
+            self.commit_config()
+        self.read_config()
 
     def get_survey_extension_list(self):
         return self.get_param('survey', 'extension_list')
@@ -105,18 +191,12 @@ class Configuration(object):
         return self.set_param('database', 'filename',S)
     def get_resource_filename(self):
         return self.get_param('general', 'resourceFile')
-    def read_config(self):
-        if os.path.exists(self.conf_file) :
-            self.config = ConfigParser.SafeConfigParser()
-            self.config.read(self.conf_file)
-    def commit_config(self):
-            try:
-                theFile = open(self.conf_file,'w')
-                self.config.write(theFile)
-                theFile.close()
-                return True
-            except:
-                return False
+    def get_ocr_confname(self):
+        defConf = os.path.join(Resources.get_resource_dir(),'OCR.ini')
+        return self.get_param('OCR', 'configurationFile',defConf,True)
+    def get_ocr_configuration(self):
+        return OCRConfiguration(self.get_ocr_confname())
+    
     def encode_dir_list(self , dir_list , checked):
         answer = ""
         for i in range(len(dir_list)) :
@@ -136,7 +216,8 @@ class Configuration(object):
                 item=item[1:]
             dir_list.append(item)
         return (dir_list , checked)
-    
+
+
 class Base(object):
     '''(
     this class is the interface between the application and the database engine

@@ -115,10 +115,8 @@ def phonex(word):
     word = newr
     return word
 
-def get_available_ocr_languages():
-    return enchant.list_languages()
-def get_available_ocr_programs():
-    return ['Tesseract','HOCR','GOCR']
+def get_available_languages():
+        return enchant.list_languages()
 def is_accepted_ocr_word(word,dictList,knownTerms):
     try:
         i = knownTerms.index(word)
@@ -140,15 +138,16 @@ def merge_words(init_dict,added_dict):
     for w,n in added_dict.items():
         if not init_dict.has_key(w) or init_dict[w]<n : init_dict[w] = n
     return init_dict
-def ocr_image_file(image_name):
+def ocr_image_file(image_name,usedOCR):
     outname = tempfile.mktemp('.txt')    
     words_dict={}
-## ------------ Tesseract
-    useTesseract = str_to_bool(database.theConfig.get_param('OCR', 'useTesseract','0'))
-    useHOCR = str_to_bool(database.theConfig.get_param('OCR', 'useHOCR','0'))
-    useGOCR = str_to_bool(database.theConfig.get_param('OCR', 'useGOCR','0'))
-    
-    nbOCR = [useTesseract,useHOCR,useGOCR ].count(True)
+    ocrConf = database.theConfig.get_ocr_configuration()
+#    usedOCR = []
+#    for s in ocrConf.get_available_ocr_programs() :
+#        if str_to_bool(database.theConfig.get_param('OCR', 'use'+s,'0')) :
+#            usedOCR.append(s)
+
+    nbOCR = len(usedOCR)
     if nbOCR==0 : return words_dict
     stateNum=0
     pd = gui.utilities.getGlobalProgressDialog()
@@ -162,113 +161,68 @@ def ocr_image_file(image_name):
             dictList.append(d)
         except:
             pass
-    if useTesseract:
+
+    for prg in usedOCR:
         try:
             stepToClose=False
-            pd.add_to_current_step(0, _('calling tesseract'))
+            s= _('calling %s') %prg
+            pd.add_to_current_step(0,s)
             stateNum+=1
-            words =[]
-            subprocess.call(['tesseract',image_name,outname,'-l','fra'],stdout=None,stderr=None)
-            outname2=outname+'.txt'
-            outfile = open(outname2)
+            ocr_words =[]
+            seq = ocrConf.build_call_sequence(prg, image_name, outname)
+            #print  prg,image_name,outname,seq
+            subprocess.call(seq,stdout=None,stderr=None)
+            outfile = open(outname)
             p = outfile.readlines()
-            os.remove(outname2)
-            pd.add_to_current_step(0.5 / nbOCR)
+            pd.add_to_current_step(0.5/nbOCR )
             pd.new_sub_step(0.5/nbOCR, _('spellchecking'))
             stepToClose=True
             nlines = len(p)
             for line in p:
                 line_words = [ w for w in [ unicode(ww).lower() for ww in line.split()] if is_accepted_ocr_word(w,dictList,knownTerms)]
-                words = words + line_words
+                ocr_words = ocr_words + line_words
                 pd.add_to_current_step(1.0/nlines)
             outfile.close()
-            merge_words(words_dict, list_to_dict(words))
-            pd.finish_current_step()
-        except:
-            if stepToClose :
-                pd.finish_current_step()
-            else:  
-                pd.set_current_step_to(1.0/nbOCR)
-## ------------ HOCR
-
-    
-    if useHOCR:
-        try:    
-            stepToClose=False
-            pd.add_to_current_step(0, _('calling hOCR'))
-            stateNum+=1
-            words =[]
-            subprocess.call(['hocr','-o',outname,'-e','utf-8','-i',image_name])
-            outfile = codecs.open(outname,mode='r',encoding='utf-8')
-            p = outfile.readlines()
             os.remove(outname)
-            #print outname
-            pd.add_to_current_step(0.5 / nbOCR)
-            pd.new_sub_step(0.5/nbOCR, _('spellchecking'))
-            stepToClose=True
-            nlines = len(p)
-            for line in p:
-                line_words = [ w for w in [ unicode(ww).lower() for ww in line.split()] if is_accepted_ocr_word(w,dictList,knownTerms)]
-                words = words + line_words
-                pd.add_to_current_step(1.0/nlines)
-            outfile.close()
-            merge_words(words_dict, list_to_dict(words))
-            pd.finish_current_step()
-        except:
-            if stepToClose :
-                pd.finish_current_step()
-            else:  
-                pd.set_current_step_to(1.0/nbOCR)
-## ------------ GOCR
-    
-    if useGOCR:
-        try:    
-            stepToClose=False
-            pd.add_to_current_step(0, _('calling gOCR'))
-            stateNum+=1
-            words =[]
-            subprocess.call(['hocr','-o',outname,'-e','utf-8','-i',image_name])
-            outfile = codecs.open(outname,mode='r',encoding='utf-8')
-            p = outfile.readlines()
-            os.remove(outname)
-            #print outname
-            pd.add_to_current_step(0.5 / nbOCR)
-            pd.new_sub_step(0.5/nbOCR, _('spellchecking'))
-            stepToClose=True
-            nlines = len(p)
-            for line in p:
-                line_words = [ w for w in [ unicode(ww).lower() for ww in line.split()] if is_accepted_ocr_word(w,dictList,knownTerms)]
-                words = words + line_words
-                pd.add_to_current_step(1.0/nlines)
-            outfile.close()
-            merge_words(words_dict, list_to_dict(words))
-            pd.finish_current_step()
-        except:
-            if stepToClose :
-                pd.finish_current_step()
-            else:  
-                pd.set_current_step_to(1.0/nbOCR)
-
-## ------------ Cuneiform
-## ------------ CLARA
-## ------------ OCROpus
-    
+            merge_words(words_dict, list_to_dict(ocr_words))
+        finally:
+            if stepToClose: pd.finish_current_step()
+    #print words_dict
     return words_dict
+    
 def ocr_image(pil_image):
-    img_name = tempfile.mktemp('.tif')
-    try:
-        s = pil_image.size
-        minS = [3000 , 4000]
-        if s[0]<minS[0] or s[1]<minS[1]:
-            f=[s[0]/minS[0] , s[1]/minS[1]]
-            f = max(f)
-            s=[s[0]*f , s[1]*f]
-            pil_image.resize(s,Image.ANTIALIAS)
-        pil_image.save(img_name)
-        words = ocr_image_file(img_name)
-        os.remove(img_name)
-    except:
-        words = []
-    return words
+    words_dict={}
+    usedOCR = {}
+    ocrConf = database.theConfig.get_ocr_configuration()
+    pd = gui.utilities.getGlobalProgressDialog()
+    for s in ocrConf.get_available_ocr_programs() :
+        if str_to_bool(database.theConfig.get_param('OCR', 'use'+s,'0')) :
+            frm = ocrConf.get_needed_image_format(s)
+            if usedOCR.has_key(frm) :
+                usedOCR[frm].append(s)
+            else:
+                usedOCR[frm] = [s]
+    nbOCR=0
+    for frm in usedOCR.keys(): nbOCR += len(usedOCR[frm])
+    for frm in usedOCR.keys():
+        img_name = tempfile.mktemp('.'+frm)
+        print 'using file %s' %img_name
+        pd.new_sub_step(len(usedOCR[frm])/nbOCR, _('spellchecking'))
+        try:
+            s = pil_image.size
+            minS = [3000 , 4000]
+            if s[0]<minS[0] or s[1]<minS[1]:
+                f=[s[0]/minS[0] , s[1]/minS[1]]
+                f = max(f)
+                s=[s[0]*f , s[1]*f]
+                pil_image.resize(s,Image.ANTIALIAS)
+            pil_image.save(img_name)
+            frm_words = ocr_image_file(img_name,usedOCR[frm])
+            os.remove(img_name)
+        except:
+            frm_words = {}
+        pd.finish_current_step()
+        words_dict = merge_words(words_dict, frm_words)
+    return words_dict
     
     #tesseract image_name toto -l fra

@@ -29,7 +29,8 @@ class ProgressDialog:
         self.stepSize.append(stepSize)
         self.donePerStep.append(0.0)
         if newMessage is not None :
-            progression = round(self.calculate_total_done() * self.NMAX)
+            progression = round(self.calculate_total_done() * (self.NMAX-1))
+            if progression>=self.NMAX : progression=self.NMAX-1
             self.pd.Update(progression,newMessage)
     def finish_current_step(self):
         self.stepSize.pop()
@@ -46,6 +47,7 @@ class ProgressDialog:
         self.donePerStep[-1] = stepProgression
         if self.donePerStep[-1]>=1 : self.donePerStep[-1]=1.0
         progression = round(self.calculate_total_done() * (self.NMAX-1))
+        if progression>=self.NMAX : progression=self.NMAX-1
         if message is None:
             self.pd.Update(progression)
         else:
