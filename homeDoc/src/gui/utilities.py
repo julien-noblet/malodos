@@ -20,7 +20,6 @@ def ask(message):
 class ProgressDialog:
     def __init__(self,title='Progression',message=None):
         self.NMAX=100000
-        self.accumulator = 0
         self.stepSize=[1.0]
         self.donePerStep=[0.0]
         self.pd = wx.ProgressDialog(title,message='',maximum=self.NMAX,style=wx.PD_APP_MODAL | wx.PD_ELAPSED_TIME)
@@ -33,13 +32,14 @@ class ProgressDialog:
             if progression>=self.NMAX : progression=self.NMAX-1
             self.pd.Update(progression,newMessage)
     def finish_current_step(self):
-        self.stepSize.pop()
-        v = self.donePerStep.pop()
+        v=self.stepSize.pop()
+        self.donePerStep.pop()
         self.donePerStep[-1] += v
     def calculate_total_done(self):
         total=0.0
-        s=1
+        s=1.0
         for i in range(len(self.stepSize)) :
+            #print '(i=%d , s=%g , t=%g)' % (i,s,total)
             s *= self.stepSize[i]
             total += self.donePerStep[i]*s
         return total
@@ -47,6 +47,10 @@ class ProgressDialog:
         self.donePerStep[-1] = stepProgression
         if self.donePerStep[-1]>=1 : self.donePerStep[-1]=1.0
         progression = round(self.calculate_total_done() * (self.NMAX-1))
+#        print self.stepSize
+#        print self.donePerStep
+#        print self.calculate_total_done()
+#        print '*'*10
         if progression>=self.NMAX : progression=self.NMAX-1
         if message is None:
             self.pd.Update(progression)
@@ -54,6 +58,9 @@ class ProgressDialog:
             self.pd.Update(progression,message)
     def add_to_current_step(self,stepIncrement,message=None):
         self.set_current_step_to(self.donePerStep[-1] + stepIncrement, message)
+    def clear(self):
+        self.stepSize=[1.0]
+        self.donePerStep=[0.0]        
     def destroy(self):
         self.pd.Destroy()
 

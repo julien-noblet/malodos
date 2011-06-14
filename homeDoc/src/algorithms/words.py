@@ -142,10 +142,6 @@ def ocr_image_file(image_name,usedOCR):
     outname = tempfile.mktemp('.txt')    
     words_dict={}
     ocrConf = database.theConfig.get_ocr_configuration()
-#    usedOCR = []
-#    for s in ocrConf.get_available_ocr_programs() :
-#        if str_to_bool(database.theConfig.get_param('OCR', 'use'+s,'0')) :
-#            usedOCR.append(s)
 
     nbOCR = len(usedOCR)
     if nbOCR==0 : return words_dict
@@ -170,7 +166,6 @@ def ocr_image_file(image_name,usedOCR):
             stateNum+=1
             ocr_words =[]
             seq = ocrConf.build_call_sequence(prg, image_name, outname)
-            #print  prg,image_name,outname,seq
             subprocess.call(seq,stdout=None,stderr=None)
             outfile = open(outname)
             p = outfile.readlines()
@@ -188,7 +183,7 @@ def ocr_image_file(image_name,usedOCR):
         finally:
             if stepToClose: pd.finish_current_step()
     #print words_dict
-    return words_dict
+    return words_dict 
     
 def ocr_image(pil_image):
     words_dict={}
@@ -206,8 +201,8 @@ def ocr_image(pil_image):
     for frm in usedOCR.keys(): nbOCR += len(usedOCR[frm])
     for frm in usedOCR.keys():
         img_name = tempfile.mktemp('.'+frm)
-        print 'using file %s' %img_name
-        pd.new_sub_step(len(usedOCR[frm])/nbOCR, _('spellchecking'))
+        #print 'using file %s' %img_name
+        pd.new_sub_step(float(len(usedOCR[frm]))/nbOCR, _('spellchecking'))
         try:
             s = pil_image.size
             minS = [3000 , 4000]
@@ -224,5 +219,3 @@ def ocr_image(pil_image):
         pd.finish_current_step()
         words_dict = merge_words(words_dict, frm_words)
     return words_dict
-    
-    #tesseract image_name toto -l fra

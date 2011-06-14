@@ -112,6 +112,7 @@ class imageData(object):
     def get_content(self):
         content = {}
         pd = gui.utilities.getGlobalProgressDialog(_('Character recognition'), '')
+        pd.clear()
         n = len(self.pil_images)
         for i in range(n):
             pd.new_sub_step(1.0/n)
