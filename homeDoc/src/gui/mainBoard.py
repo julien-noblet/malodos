@@ -191,7 +191,7 @@ class MainFrame(wx.Frame):
         except:
             utilities.show_message(_('Unable to check the file signature...'))
         
-        self.recordPart.SetFields(filename, title, description, documentDate,tags)
+        self.recordPart.SetFields(filename, title, description, documentDate,tags,False)
         #print row
         try:
             theData.load_file(filename)

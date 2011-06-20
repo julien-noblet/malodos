@@ -169,7 +169,7 @@ def ocr_image_file(image_name,usedOCR):
             subprocess.call(seq,stdout=None,stderr=None)
             outfile = open(outname)
             p = outfile.readlines()
-            pd.add_to_current_step(0.5/nbOCR )
+            pd.add_to_current_step(0.5/nbOCR)
             pd.new_sub_step(0.5/nbOCR, _('spellchecking'))
             stepToClose=True
             nlines = len(p)

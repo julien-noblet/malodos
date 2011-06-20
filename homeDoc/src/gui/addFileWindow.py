@@ -10,6 +10,8 @@ GUI dialog for addition of a file into the database
 import wx
 import os
 import RecordWidget
+from database import theConfig
+from algorithms.general import str_to_bool
 
 class AddFileWindow(wx.Dialog):
     '''
@@ -35,6 +37,7 @@ class AddFileWindow(wx.Dialog):
         
         self.totSizer = wx.BoxSizer(wx.VERTICAL)
         self.recordPart = RecordWidget.RecordWidget(self.panel,filename)
+        self.recordPart.cbOCR.SetValue(str_to_bool(theConfig.get_param('OCR', 'autoStart','1')))
         self.btSizer = wx.BoxSizer(wx.HORIZONTAL)
         
         self.btOk = wx.Button(self.panel,-1,_('Ok'))

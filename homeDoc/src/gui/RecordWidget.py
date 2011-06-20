@@ -17,7 +17,7 @@ from  algorithms.general import str_to_bool
 #import pyPdf
 
 class RecordWidget(wx.Window):
-    def __init__(self,parent,filename='',file_style = wx.FLP_OPEN | wx.FLP_FILE_MUST_EXIST | wx.FLP_USE_TEXTCTRL):
+    def __init__(self,parent,filename='',file_style = wx.FLP_OPEN | wx.FLP_FILE_MUST_EXIST | wx.FLP_USE_TEXTCTRL,):
         '''
         Constructor
         '''
@@ -62,6 +62,11 @@ class RecordWidget(wx.Window):
         self.totSizer.Add(self.txtDate,0)
         self.totSizer.Add(self.lbDate,1)
               
+        self.txtOCR = wx.StaticText(self.panel , -1 , _('do OCR'))
+        self.cbOCR = wx.CheckBox(self.panel , -1)
+        self.totSizer.Add(self.txtOCR,0)
+        self.totSizer.Add(self.cbOCR,1)
+
         self.panel.SetSizerAndFit(self.totSizer)
         self.Bind(wx.EVT_SIZE,self.onResize)
         self.Bind(wx.EVT_FILEPICKER_CHANGED,self.checkFileName)
@@ -133,7 +138,7 @@ class RecordWidget(wx.Window):
         self.lbTitle.SetValue('')
         self.lbDescription.SetValue('')
         self.lbTags.SetValue('')
-    def SetFields(self,filename=None,title=None,description=None,date=None,tags=None):
+    def SetFields(self,filename=None,title=None,description=None,date=None,tags=None,doOCR=None):
         if not filename is None: self.lbFileName.SetPath(filename) 
         if not title is None : self.lbTitle.SetValue(title)
         if not description is None : self.lbDescription.SetValue(description)
@@ -144,6 +149,7 @@ class RecordWidget(wx.Window):
             dt.SetMonth(date.month-1)
             dt.SetYear(date.year)
             self.lbDate.SetValue(dt)
+        if not doOCR is None : self.cbOCR.SetValue(doOCR)
     def onResize(self,event):
         self.panel.Size = self.Size
     def do_save_record(self):

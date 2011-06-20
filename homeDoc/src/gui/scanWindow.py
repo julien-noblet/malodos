@@ -25,6 +25,8 @@ import RecordWidget
 import database
 import wx.lib.intctrl
 import wx.lib.agw.floatspin
+from database import theConfig
+from algorithms.general import str_to_bool
 
 class OptionsWindow(wx.Dialog):
 	def __init__(self, parent, optList,defaultValues=None):
@@ -172,6 +174,8 @@ class ScanWindow(wx.Dialog):
 		
 		self.docWin = docWindow.docWindow(self.panel,-1)
 		self.recordPart = RecordWidget.RecordWidget(self.panel,file_style=wx.FLP_SAVE | wx.FLP_OVERWRITE_PROMPT | wx.FLP_USE_TEXTCTRL)
+		self.recordPart.cbOCR.SetValue(str_to_bool(theConfig.get_param('OCR', 'autoStart','1')))
+
 		self.upPart.Add(wx.StaticText(self.panel,-1,_("Source :")),0,wx.ALL | wx.ALIGN_CENTRE_VERTICAL)
 		self.upPart.Add(self.stSource,0,wx.ALL| wx.ALIGN_CENTRE_VERTICAL)
 		self.upPart.Add(self.btSource,0,wx.EXPAND | wx.CENTER)

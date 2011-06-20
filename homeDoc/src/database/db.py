@@ -724,4 +724,17 @@ class Base(object):
             return tuple([row[0].encode('utf-8').lower() for row in cur])
         except:
             return ()
+    #===========================================================================
+    # doc_without_ocr : retrieve all docs without any OCR term recored
+    #===========================================================================
+    def doc_without_ocr(self):
+        Q = "select distinct docID from %s except select distinct docID from %s where field=%d" %(self.docWords_tableName,self.docWords_tableName,self.ID_FULL_TEXT)
+        try:
+            cur = self.connexion.execute(Q)
+            rowIDList = self.rows_to_str(cur,0,'')
+            sql_command = "SELECT *,ROWID FROM "+ self.documents_tableName + ' WHERE ROWID IN ' + str(rowIDList)
+            cur = self.connexion.execute(sql_command)
+            return cur
+        except:
+            return ()
         
