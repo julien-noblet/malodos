@@ -15,12 +15,17 @@ import database
 import os.path
 import data
 from algorithms.general import str_to_bool
-
+import hashlib
+from database import theConfig
 class SurveyWindow(wx.Dialog):
     '''
     classdocs
     '''
 
+# ******************************************
+# ****    tab for files not in DB       ****
+# ****    -----------------------       ****
+# ******************************************
     class SurveyContent(wx.NotebookPage):
         def __init__(self,parent,baseWin):
             wx.NotebookPage.__init__(self,parent,-1,name="Survey")
@@ -89,7 +94,7 @@ class SurveyWindow(wx.Dialog):
                     return
             else:
                 return
-                
+                missing
             #fname = self.docList.GetClientData(sel)
             #if not fname : return
             self.baseWin.recordPart.SetFields(filename = fname,doOCR=str_to_bool( database.theConfig.get_param('OCR', 'autoStart','1') ))
@@ -99,10 +104,85 @@ class SurveyWindow(wx.Dialog):
                 self.baseWin.docWin.showCurrentImage()
             except:
                 data.theData.clear_all()
-
+# ******************************************
+# ****    tab for OCR content missing   ****
+# ****    ---------------------------   ****
+# ******************************************
     class MissOCRContent(wx.NotebookPage):
         def __init__(self,parent,baseWin):
             wx.NotebookPage.__init__(self,parent,-1,name="MissOCR")
+            self.baseWin=baseWin
+            self.sizer = wx.GridBagSizer(1,1)
+            self.panel = wx.Panel(self, -1)
+            self.docList = wx.ListBox(self.panel,-1,style=wx.LB_SORT|wx.LB_MULTIPLE)
+            self.btFixSel = wx.Button(self.panel,-1,_("Fix selected"))
+            self.btFixAll = wx.Button(self.panel,-1,_("Fix All"))
+            self.sizer.Add(self.docList,(0,0),span=(1,3),flag=wx.ALL|wx.EXPAND|wx.GROW)
+            self.sizer.Add(self.btFixSel,(1,0),flag=wx.ALL|wx.EXPAND|wx.GROW)
+            self.sizer.Add(self.btFixAll,(1,1),flag=wx.ALL|wx.EXPAND|wx.GROW)
+            self.sizer.AddGrowableRow(0)
+            self.sizer.AddGrowableCol(2)
+            self.panel.SetSizerAndFit(self.sizer)
+            self.Bind(wx.EVT_LISTBOX,self.actionDocSelect,self.docList)
+            self.Bind(wx.EVT_BUTTON,self.action_OCR_for_selection,self.btFixSel)
+            self.Bind(wx.EVT_BUTTON,self.action_OCR_for_all,self.btFixAll)
+        def actionDocSelect(self,event):
+            sel = self.docList.GetSelections()
+            if len(sel)!=1 : return
+            sel=sel[0]
+            if sel is None : return
+            row = self.docList.GetClientData(sel)
+            
+            docID = row[database.theBase.IDX_ROWID]
+            filename = row[database.theBase.IDX_FILENAME]
+            title = row[database.theBase.IDX_TITLE]
+            description = row[database.theBase.IDX_DESCRIPTION]
+            documentDate = row[database.theBase.IDX_DOCUMENT_DATE]
+            tags = row[database.theBase.IDX_TAGS]
+            self.baseWin.recordPart.SetFields(filename, title, description, documentDate,tags,True)
+            try:
+                data.theData.load_file(filename)
+                self.baseWin.docWin.resetView()
+                self.baseWin.docWin.showCurrentImage()
+            except:
+                data.theData.clear_all()
+        def populate(self):
+            self.docList.Clear()
+            docIDs = database.theBase.doc_without_ocr()
+            for row in docIDs:
+                self.docList.Append(row[database.theBase.IDX_TITLE] , row)
+        def action_OCR_for_selection(self,event):
+            self.do_OCR_for(self.docList.GetSelections())
+        def action_OCR_for_all(self,event):
+            self.do_OCR_for(range(self.docList.GetCount()))
+        def do_OCR_for(self,selection):
+            for sel in selection :
+                row = self.docList.GetClientData(sel)
+                docID = row[database.theBase.IDX_ROWID]
+                filename = row[database.theBase.IDX_FILENAME]
+                title = row[database.theBase.IDX_TITLE]
+                description = row[database.theBase.IDX_DESCRIPTION]
+                documentDate = row[database.theBase.IDX_DOCUMENT_DATE]
+                tags = row[database.theBase.IDX_TAGS]
+                try:
+                    imData = data.imageData.imageData()
+                    imData.load_file(filename)
+                    fullText = imData.get_content()
+                except:
+                    fullText = None
+                if fullText is None or len(fullText)==0 : fullText = {'NOTHING FOUND':1}
+                # add the document to the database
+                keywordsGroups = database.theBase.get_keywordsGroups_from(title, description, filename , tags, fullText)
+                database.theBase.update_keywords_for(docID, keywordsGroups, True)
+            self.populate()
+
+# ******************************************
+# ****    tab for files missing         ****
+# ****    ---------------------         ****
+# ******************************************
+    class FileProblemContent(wx.NotebookPage):
+        def __init__(self,parent,baseWin):
+            wx.NotebookPage.__init__(self,parent,-1,name="FileProblem")
             self.baseWin=baseWin
             self.sizer = wx.BoxSizer(wx.VERTICAL)
             self.panel = wx.Panel(self, -1)
@@ -121,7 +201,7 @@ class SurveyWindow(wx.Dialog):
             description = row[database.theBase.IDX_DESCRIPTION]
             documentDate = row[database.theBase.IDX_DOCUMENT_DATE]
             tags = row[database.theBase.IDX_TAGS]
-            self.baseWin.recordPart.SetFields(filename, title, description, documentDate,tags,True)
+            self.baseWin.recordPart.SetFields(filename, title, description, documentDate,tags,str_to_bool(theConfig.get_param('OCR', 'autoStart','1')))
             try:
                 data.theData.load_file(filename)
                 self.baseWin.docWin.resetView()
@@ -129,9 +209,23 @@ class SurveyWindow(wx.Dialog):
             except:
                 data.theData.clear_all()
         def populate(self):
-            docIDs = database.theBase.doc_without_ocr()
-            for row in docIDs:
-                self.docList.Append(row[database.theBase.IDX_TITLE] , row)
+            docLst = database.theBase.find_documents(None)
+            #problems = [0]*len(docLst)
+            for row in docLst:
+                #row = docLst[i]
+                file    = row[database.db.Base.IDX_FILENAME]
+                md5_cs  = row[database.db.Base.IDX_CHECKSUM]
+                if not os.path.exists(file):
+                    #problems[i] = 1
+                    self.docList.Append(row[database.theBase.IDX_TITLE] , row)
+                    continue 
+                md5_file = hashlib.md5(open(file, "rb").read()).hexdigest()
+                if md5_file != md5_cs :
+                    #problems[i] = 2
+                    self.docList.Append(row[database.theBase.IDX_TITLE] , row)
+
+
+
     def __init__(self, parent):
         '''
         Constructor
@@ -146,8 +240,10 @@ class SurveyWindow(wx.Dialog):
         self.tabFrame = wx.Notebook(self.panel,-1)
         self.dirSurveyFrame = self.SurveyContent(self.tabFrame,self)
         self.missOCRFrame = self.MissOCRContent(self.tabFrame,self)
+        self.fileProblemsFrame = self.FileProblemContent(self.tabFrame,self)
         self.tabFrame.AddPage(self.dirSurveyFrame,_("Directory survey"))
         self.tabFrame.AddPage(self.missOCRFrame,_("Missing OCR"))
+        self.tabFrame.AddPage(self.fileProblemsFrame,_("Removes/modified files"))
         #self.prefSizer.Add(self.tabFrame,(1,0),span=(1,3),flag=wx.EXPAND|wx.ALL)
         self.upPart.Add(self.tabFrame,1,wx.EXPAND)
         
@@ -172,9 +268,8 @@ class SurveyWindow(wx.Dialog):
         
         self.dirSurveyFrame.populate()
         self.missOCRFrame.populate()
+        self.fileProblemsFrame.populate()
         self.SetSizeWH(1000,600)
-        
-                        
 
     #===========================================================================
     # Click on Add document button
