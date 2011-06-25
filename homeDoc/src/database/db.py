@@ -655,7 +655,7 @@ class Base(object):
     #===========================================================================
     # update_doc : replace the values for a given doc
     #===========================================================================
-    def update_doc(self,docID,title,description,documentDate,filename,tags,fullText):
+    def update_doc(self,docID,title,description,documentDate,filename,tags,fullText=None):
         Q = 'UPDATE ' + self.documents_tableName + ' SET title=? , description=?, documentDate=? ,tags=? WHERE ROWID=?'
         try:
             self.connexion.execute(Q,(title,description,documentDate,tags,docID))

@@ -84,6 +84,7 @@ class SurveyWindow(wx.Dialog):
                     os.path.walk(dname,append_dir, dname )
                 else:
                     append_dir(dname, dir_list[i].decode('utf8'), os.listdir(dir_list[i]))
+            self.docList.ExpandAll()
         def actionDocSelect(self,event):
             sel = self.docList.GetSelection()
             if sel :
@@ -182,16 +183,26 @@ class SurveyWindow(wx.Dialog):
 # ******************************************
     class FileProblemContent(wx.NotebookPage):
         def __init__(self,parent,baseWin):
-            wx.NotebookPage.__init__(self,parent,-1,name="FileProblem")
+            wx.NotebookPage.__init__(self,parent,-1,name="MissOCR")
             self.baseWin=baseWin
-            self.sizer = wx.BoxSizer(wx.VERTICAL)
+            self.sizer = wx.GridBagSizer(1,1)
             self.panel = wx.Panel(self, -1)
-            self.docList = wx.ListBox(self.panel,-1,style=wx.LB_SORT)
-            self.sizer.Add(self.docList,1,flag=wx.ALL|wx.EXPAND|wx.GROW)
+            self.docList = wx.ListBox(self.panel,-1,style=wx.LB_SORT|wx.LB_MULTIPLE)
+            self.btFixSel = wx.Button(self.panel,-1,_("Fix selected"))
+            self.btFixAll = wx.Button(self.panel,-1,_("Fix All"))
+            self.sizer.Add(self.docList,(0,0),span=(1,3),flag=wx.ALL|wx.EXPAND|wx.GROW)
+            self.sizer.Add(self.btFixSel,(1,0),flag=wx.ALL|wx.EXPAND|wx.GROW)
+            self.sizer.Add(self.btFixAll,(1,1),flag=wx.ALL|wx.EXPAND|wx.GROW)
+            self.sizer.AddGrowableRow(0)
+            self.sizer.AddGrowableCol(2)
             self.panel.SetSizerAndFit(self.sizer)
             self.Bind(wx.EVT_LISTBOX,self.actionDocSelect,self.docList)
+            self.Bind(wx.EVT_BUTTON,self.actionFixSelection,self.btFixSel)
+            self.Bind(wx.EVT_BUTTON,self.actionFixAll,self.btFixAll)
         def actionDocSelect(self,event):
-            sel = self.docList.GetSelection()
+            sel = self.docList.GetSelections()
+            if len(sel)!=1 : return
+            sel=sel[0]
             if sel is None : return
             row = self.docList.GetClientData(sel)
             
@@ -208,7 +219,36 @@ class SurveyWindow(wx.Dialog):
                 self.baseWin.docWin.showCurrentImage()
             except:
                 data.theData.clear_all()
+        def actionFixSelection(self,event):
+            self.doFixFor(self.docList.GetSelections())
+        def actionFixAll(self,event):
+            self.doFixFor(range(self.docList.GetCount()))
+        def tryToFind(self,filename,md5_cs):
+            return None
+        def doFixRow(self,row):
+            docID = row[database.theBase.IDX_ROWID]
+            filename = row[database.theBase.IDX_FILENAME]
+            title = row[database.theBase.IDX_TITLE]
+            description = row[database.theBase.IDX_DESCRIPTION]
+            documentDate = row[database.theBase.IDX_DOCUMENT_DATE]
+            tags = row[database.theBase.IDX_TAGS]
+            md5_cs  = row[database.db.Base.IDX_CHECKSUM]
+            if not os.path.exists(filename):
+                filename = self.tryToFind(filename,md5_cs)
+                if filename is None :
+                    database.theBase.remove_documents((docID,))
+                else:
+                    database.theBase.update_doc(docID, title, description, documentDate, filename, tags)
+                return
+            new_md5_cs = hashlib.md5(open(filename, "rb").read()).hexdigest()
+            database.theBase.update_doc_signature(docID, new_md5_cs)
+        def doFixFor(self,selection):
+            for sel in selection :
+                row = self.docList.GetClientData(sel)
+                self.doFixRow(row)
+            self.populate()
         def populate(self):
+            self.docList.Clear()
             docLst = database.theBase.find_documents(None)
             #problems = [0]*len(docLst)
             for row in docLst:
@@ -280,4 +320,4 @@ class SurveyWindow(wx.Dialog):
         else:
             data.theData.clear_all()
             self.recordPart.clear_all()
-            self.populate_list()
+            self.tabFrame.GetCurrentPage().populate()
