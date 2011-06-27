@@ -656,9 +656,9 @@ class Base(object):
     # update_doc : replace the values for a given doc
     #===========================================================================
     def update_doc(self,docID,title,description,documentDate,filename,tags,fullText=None):
-        Q = 'UPDATE ' + self.documents_tableName + ' SET title=? , description=?, documentDate=? ,tags=? WHERE ROWID=?'
+        Q = 'UPDATE ' + self.documents_tableName + ' SET title=? , description=?, documentDate=? ,tags=? , filename=? WHERE ROWID=?'
         try:
-            self.connexion.execute(Q,(title,description,documentDate,tags,docID))
+            self.connexion.execute(Q,(title,description,documentDate,tags,filename,docID))
             self.connexion.commit()
         except:
             gui.utilities.show_message(_('Unable to update document into database'))

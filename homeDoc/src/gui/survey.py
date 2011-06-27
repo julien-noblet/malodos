@@ -212,6 +212,10 @@ class SurveyWindow(wx.Dialog):
             description = row[database.theBase.IDX_DESCRIPTION]
             documentDate = row[database.theBase.IDX_DOCUMENT_DATE]
             tags = row[database.theBase.IDX_TAGS]
+            md5_cs  = row[database.db.Base.IDX_CHECKSUM]
+            if not os.path.exists(filename):
+                filename = self.tryToFind(os.path.splitext(filename)[1],md5_cs)
+            if filename is None : filename=''
             self.baseWin.recordPart.SetFields(filename, title, description, documentDate,tags,str_to_bool(theConfig.get_param('OCR', 'autoStart','1')))
             try:
                 data.theData.load_file(filename)
@@ -224,7 +228,32 @@ class SurveyWindow(wx.Dialog):
         def actionFixAll(self,event):
             self.doFixFor(range(self.docList.GetCount()))
         def tryToFind(self,filename,md5_cs):
-            return None
+            #return None
+            (dir_list,recursiveIdx) = database.theConfig.get_survey_directory_list()
+            for i in range(len(dir_list)):
+                dname = dir_list[i].decode('utf8')
+                if i in recursiveIdx:
+                    L=[]
+                    LL = os.walk(dname)
+                    if filename[0]=='.':
+                        L.extend([os.path.join(x[0],y) for x in LL for y in x[2] if os.path.splitext(y)[1] == filename])
+                    else:
+                        L.extend([os.path.join(x[0],y) for x in LL for y in x[2] if y == filename])
+                else:
+                    LL = os.listdir(dname)
+                    if filename[0]=='.':
+                        L= [x for x in LL if os.path.splitext(x)[1]==filename]
+                    else:
+                        L= [x for x in LL if os.path.split(x)[1]==filename]
+                candidates = []
+                for iL in L:
+                    #print iL
+                    md = hashlib.md5(open(iL, "rb").read()).hexdigest()
+                    if md == md5_cs : candidates.append(iL)
+                if len(candidates)==1:
+                    return candidates[0]
+                else:
+                    return None
         def doFixRow(self,row):
             docID = row[database.theBase.IDX_ROWID]
             filename = row[database.theBase.IDX_FILENAME]
@@ -234,10 +263,14 @@ class SurveyWindow(wx.Dialog):
             tags = row[database.theBase.IDX_TAGS]
             md5_cs  = row[database.db.Base.IDX_CHECKSUM]
             if not os.path.exists(filename):
-                filename = self.tryToFind(filename,md5_cs)
+                filename = self.tryToFind(os.path.splitext(filename)[1],md5_cs)
+                #filename = self.tryToFind(os.path.split(filename)[1],md5_cs)
+                #print filename
+                #return
                 if filename is None :
                     database.theBase.remove_documents((docID,))
                 else:
+                    #print "updating with" + filename 
                     database.theBase.update_doc(docID, title, description, documentDate, filename, tags)
                 return
             new_md5_cs = hashlib.md5(open(filename, "rb").read()).hexdigest()
