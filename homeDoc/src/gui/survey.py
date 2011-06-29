@@ -21,17 +21,26 @@ class SurveyWindow(wx.Dialog):
     '''
     classdocs
     '''
+# ****************************************************
+# ****    abstract base for any content tab       ****
+# ****    ---------------------------------       ****
+# ****************************************************
+    class Content(wx.NotebookPage):
+        def __init__(self,parent,baseWin,tabName):
+            wx.NotebookPage.__init__(self,parent,-1,name=tabName)
+            self.baseWin=baseWin
+            self.panel = wx.Panel(self, -1)
+        def populate(self):
+            raise "populate method must be implemented"
 
 # ******************************************
 # ****    tab for files not in DB       ****
 # ****    -----------------------       ****
 # ******************************************
-    class SurveyContent(wx.NotebookPage):
+    class SurveyContent(Content):
         def __init__(self,parent,baseWin):
-            wx.NotebookPage.__init__(self,parent,-1,name="Survey")
-            self.baseWin=baseWin
+            SurveyWindow.Content.__init__(self,parent,baseWin,"Survey")
             self.sizer = wx.BoxSizer(wx.VERTICAL)
-            self.panel = wx.Panel(self, -1)
             self.docList = wx.TreeCtrl(self.panel,-1,style=wx.TR_DEFAULT_STYLE|wx.TR_HIDE_ROOT|wx.TR_FULL_ROW_HIGHLIGHT)
             self.sizer.Add(self.docList,1,flag=wx.ALL|wx.EXPAND|wx.GROW)
             self.panel.SetSizerAndFit(self.sizer)
@@ -95,7 +104,6 @@ class SurveyWindow(wx.Dialog):
                     return
             else:
                 return
-                missing
             #fname = self.docList.GetClientData(sel)
             #if not fname : return
             self.baseWin.recordPart.SetFields(filename = fname,doOCR=str_to_bool( database.theConfig.get_param('OCR', 'autoStart','1') ))
@@ -103,18 +111,17 @@ class SurveyWindow(wx.Dialog):
                 data.theData.load_file(fname)
                 self.baseWin.docWin.resetView()
                 self.baseWin.docWin.showCurrentImage()
+                self.baseWin.SetModeAdd()
             except:
                 data.theData.clear_all()
 # ******************************************
 # ****    tab for OCR content missing   ****
 # ****    ---------------------------   ****
 # ******************************************
-    class MissOCRContent(wx.NotebookPage):
+    class MissOCRContent(Content):
         def __init__(self,parent,baseWin):
-            wx.NotebookPage.__init__(self,parent,-1,name="MissOCR")
-            self.baseWin=baseWin
+            SurveyWindow.Content.__init__(self,parent,baseWin,"OCR")
             self.sizer = wx.GridBagSizer(1,1)
-            self.panel = wx.Panel(self, -1)
             self.docList = wx.ListBox(self.panel,-1,style=wx.LB_SORT|wx.LB_MULTIPLE)
             self.btFixSel = wx.Button(self.panel,-1,_("Fix selected"))
             self.btFixAll = wx.Button(self.panel,-1,_("Fix All"))
@@ -145,6 +152,7 @@ class SurveyWindow(wx.Dialog):
                 data.theData.load_file(filename)
                 self.baseWin.docWin.resetView()
                 self.baseWin.docWin.showCurrentImage()
+                self.baseWin.SetModeUpdate(docID)
             except:
                 data.theData.clear_all()
         def populate(self):
@@ -171,7 +179,7 @@ class SurveyWindow(wx.Dialog):
                     fullText = imData.get_content()
                 except:
                     fullText = None
-                if fullText is None or len(fullText)==0 : fullText = {'NOTHING FOUND':1}
+                #if fullText is None or len(fullText)==0 : fullText = {'NOTHING FOUND':1}
                 # add the document to the database
                 keywordsGroups = database.theBase.get_keywordsGroups_from(title, description, filename , tags, fullText)
                 database.theBase.update_keywords_for(docID, keywordsGroups, True)
@@ -181,12 +189,10 @@ class SurveyWindow(wx.Dialog):
 # ****    tab for files missing         ****
 # ****    ---------------------         ****
 # ******************************************
-    class FileProblemContent(wx.NotebookPage):
+    class FileProblemContent(Content):
         def __init__(self,parent,baseWin):
-            wx.NotebookPage.__init__(self,parent,-1,name="MissOCR")
-            self.baseWin=baseWin
+            SurveyWindow.Content.__init__(self,parent,baseWin,"Missing")
             self.sizer = wx.GridBagSizer(1,1)
-            self.panel = wx.Panel(self, -1)
             self.docList = wx.ListBox(self.panel,-1,style=wx.LB_SORT|wx.LB_MULTIPLE)
             self.btFixSel = wx.Button(self.panel,-1,_("Fix selected"))
             self.btFixAll = wx.Button(self.panel,-1,_("Fix All"))
@@ -221,6 +227,7 @@ class SurveyWindow(wx.Dialog):
                 data.theData.load_file(filename)
                 self.baseWin.docWin.resetView()
                 self.baseWin.docWin.showCurrentImage()
+                self.baseWin.SetModeUpdate(docID)
             except:
                 data.theData.clear_all()
         def actionFixSelection(self,event):
@@ -308,7 +315,8 @@ class SurveyWindow(wx.Dialog):
         self.docViewSizer = wx.BoxSizer(wx.VERTICAL)
         self.upPart =  wx.BoxSizer(wx.HORIZONTAL)
         self.recordSizer =  wx.BoxSizer(wx.HORIZONTAL)
-
+        self.moreAdd=None
+        self.docID=None
         #self.docList = wx.TreeCtrl(self.panel,-1,style=wx.TR_DEFAULT_STYLE|wx.TR_HIDE_ROOT|wx.TR_FULL_ROW_HIGHLIGHT) #wx.ListBox(self.panel,-1)# 
         self.tabFrame = wx.Notebook(self.panel,-1)
         self.dirSurveyFrame = self.SurveyContent(self.tabFrame,self)
@@ -328,7 +336,7 @@ class SurveyWindow(wx.Dialog):
         self.recordPart = RecordWidget.RecordWidget(self.panel)
         self.recordPart.lbFileName.Disable()
         self.recordSizer.Add(self.recordPart,1,wx.EXPAND)
-        self.btAddRecord = wx.Button(self.panel,-1,_('Add'))
+        self.btAddRecord = wx.Button(self.panel,-1,_('Add/Update'))
         self.docViewSizer.Add(self.recordSizer,0,wx.EXPAND)
         self.recordButtonSizer = wx.BoxSizer(wx.VERTICAL)
         self.recordButtonSizer.Add(self.btAddRecord,1,wx.EXPAND)
@@ -339,18 +347,35 @@ class SurveyWindow(wx.Dialog):
         #self.docList.Bin(wx.EVT_TREE_SEL_CHANGED, handler)
         self.Bind(wx.EVT_BUTTON, self.actionDoAdd, self.btAddRecord)
         
-        self.dirSurveyFrame.populate()
-        self.missOCRFrame.populate()
-        self.fileProblemsFrame.populate()
+        for ipage in range(self.tabFrame.GetPageCount()) : self.tabFrame.GetPage(ipage).populate()
+#        self.dirSurveyFrame.populate()
+#        self.missOCRFrame.populate()
+#        self.fileProblemsFrame.populate()
         self.SetSizeWH(1000,600)
-
+    #===========================================================================
+    def SetModeAdd(self):
+        self.btAddRecord.SetLabel(_('Add'))
+        self.moreAdd=True
+        self.docID=None
+    #===========================================================================
+    def SetModeUpdate(self,docID):
+        self.btAddRecord.SetLabel(_('Update'))
+        self.moreAdd=False
+        self.docID=docID
     #===========================================================================
     # Click on Add document button
     #===========================================================================
     def actionDoAdd(self,event):
-        if not self.recordPart.do_save_record():
-            wx.MessageBox(_('Unable to add the file to the database'))
+        if self.modeAdd is None: return
+        if self.modeAdd :
+            rep = self.recordPart.do_save_record()
+        else:
+            if self.docID is None : return
+            rep = self.recordPart.update_record(self.docID)
+        if not rep:
+            wx.MessageBox(_('Unable to add/update the file to the database'))
         else:
             data.theData.clear_all()
             self.recordPart.clear_all()
-            self.tabFrame.GetCurrentPage().populate()
+            for ipage in range(self.tabFrame.GetPageCount()) : self.tabFrame.GetPage(ipage).populate()
+            self.modeAdd=None

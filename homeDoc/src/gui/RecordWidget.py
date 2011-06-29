@@ -14,6 +14,8 @@ import datetime
 from data import theData
 import data.imageData
 from  algorithms.general import str_to_bool
+import os.path
+import gui.utilities
 #import pyPdf
 
 class RecordWidget(wx.Window):
@@ -154,6 +156,9 @@ class RecordWidget(wx.Window):
         self.panel.Size = self.Size
     def do_save_record(self):
         filename = self.lbFileName.GetPath()
+        if not os.path.exists(filename):
+            gui.utilities.show_message(_('A valid filename is required'))
+            return False
         title = self.lbTitle.Value
         tags = self.lbTags.Value
         description = self.lbDescription.Value
@@ -172,10 +177,11 @@ class RecordWidget(wx.Window):
                     fullText = None
         except:
             fullText=None
+        if fullText is None or len(fullText)==0 : fullText = {'NOTHING FOUND':1}
         # add the document to the database
         keywordsGroups = database.theBase.get_keywordsGroups_from(title, description, filename , tags, fullText)
         return database.theBase.add_document(filename, title, description, None, documentDate, keywordsGroups,tags)
-    def update_record(self,docID,redoOCR=False):
+    def update_record(self,docID,redoOCR=None):
         filename = self.lbFileName.GetPath()
         title = self.lbTitle.Value
         tags = self.lbTags.Value
@@ -183,6 +189,7 @@ class RecordWidget(wx.Window):
         documentDate = self.lbDate.Value
         documentDate=datetime.date(year=documentDate.GetYear(),month=documentDate.GetMonth()+1,day=documentDate.GetDay())
         fullText=None
+        if redoOCR is None : redoOCR = self.cbOCR.GetValue()
         if redoOCR:
             try:
                 if theData.current_image == filename :
@@ -195,6 +202,7 @@ class RecordWidget(wx.Window):
                         fullText = imData.get_content()
                     else:
                         fullText = None
+                    if fullText is None or len(fullText)==0 : fullText = {'NOTHING FOUND':1}
             except:
                 pass
         # add the document to the database
