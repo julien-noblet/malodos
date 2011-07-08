@@ -95,6 +95,7 @@ class OCRConfiguration(ConfigReader):
         except:
             return []
         to_place2=[]
+        outF=None
         for s in to_place:
             if s.startswith('$1') or s.startswith('$2') or s.startswith('$3'):
                 ps = int(s[1])-1
@@ -102,9 +103,11 @@ class OCRConfiguration(ConfigReader):
                 if placeHolder[ps] != '':
                     msg = _('Misformatted OCR configuration for section %s ')% ocr_section
                     gui.utilities.show_message(msg) 
-                    return []
+                    return ([],None)
                 else:
                     placeHolder[ps] = s
+            elif s.startswith('>'):
+                outF = s[1:]
             else:
                 to_place2.append(s)
         for s in to_place2:
@@ -117,18 +120,20 @@ class OCRConfiguration(ConfigReader):
             if not_placed :
                 msg = _('Misformatted OCR configuration for section %s ')% ocr_section
                 gui.utilities.show_message(msg) 
-                return []
-        
-        for i in range(len(placeHolder)) :
-            s=placeHolder[i]
+                return ([],None)
+        def do_replace(s):
             s = s.replace("$outputFilenameNoExt" , os.path.splitext(output_file)[0])
             s = s.replace("$outputFilename" , output_file)
             s = s.replace("$inputFilenameNoExt" , os.path.splitext(input_file)[0])
             s = s.replace("$inputFilename" , input_file)
-            placeHolder[i] = s
+            return s
+            
+        for i in range(len(placeHolder)) :
+            placeHolder[i] = do_replace(placeHolder[i])
+        if outF is not None : outF=do_replace(outF)
         ans = [pname]
         for s in placeHolder : ans.extend(s.split())
-        return ans
+        return (ans,outF)
 
 
 class Configuration(ConfigReader):

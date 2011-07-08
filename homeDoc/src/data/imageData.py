@@ -63,7 +63,7 @@ class imageData(object):
         else:
             if image_num>=0 and image_num<len(self.pil_images):
                 self.pil_images[image_num] = self.pil_images[image_num].transpose(mode)
-        self.image_changed = True                
+        self.image_changed = True
     def swap_x(self,image_num=None):
         "swap the image along the x axis (or all images is image_num is not given)"
         self.apply_transposition(image_num,Image.FLIP_LEFT_RIGHT )

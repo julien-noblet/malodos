@@ -167,15 +167,17 @@ def ocr_image_file(image_name,usedOCR):
             pd.add_to_current_step(0,s)
             stateNum+=1
             ocr_words =[]
-            seq = ocrConf.build_call_sequence(prg, image_name, outname)
-            print seq
+            (seq,outF) = ocrConf.build_call_sequence(prg, image_name, outname)
+            #print seq,outF
             if os.path.exists(outname) : os.remove(outname)
+            if outF is not None : outF= open(outF,'w')
             try:
-                subprocess.call(seq,stdout=None,stderr=None)
+                subprocess.call(seq,stdout=outF,stderr=None)
             except:
                 continue
+            #print prg,frm,outF
+            if outF is not None : outF.close()
             frm = ocrConf.get_output_format(prg)
-            #print prg,frm
             try:
                 outfile = codecs.open(outname,mode='r',encoding=frm)
             except:
@@ -199,7 +201,7 @@ def ocr_image_file(image_name,usedOCR):
             if stepToClose: pd.finish_current_step()
             stepToClose=False
         if stepToClose: pd.finish_current_step()
-    #for i in words_dict.keys() : print i
+    for i in words_dict.keys() : print i
     return words_dict 
     
 def ocr_image(pil_image):
