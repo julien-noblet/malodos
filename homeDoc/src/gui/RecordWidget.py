@@ -203,7 +203,7 @@ class RecordWidget(wx.Window):
                     else:
                         fullText = None
                     if fullText is None or len(fullText)==0 : fullText = {'NOTHING FOUND':1}
-            except:
+            except Exception, E:
                 pass
         # add the document to the database
         #keywordsGroups = database.theBase.get_keywordsGroups_from(title, description, filename , tags, fullText)

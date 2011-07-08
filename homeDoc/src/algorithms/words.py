@@ -19,6 +19,8 @@ import database
 import enchant
 import gui.utilities
 from general import str_to_bool
+from PIL import ImageFilter
+from PIL import ImageOps
 #===========================================================================
 # phonex : simplify the word so that phonetic comparison can be made between
 # words not spelled identically
@@ -166,8 +168,21 @@ def ocr_image_file(image_name,usedOCR):
             stateNum+=1
             ocr_words =[]
             seq = ocrConf.build_call_sequence(prg, image_name, outname)
-            subprocess.call(seq,stdout=None,stderr=None)
-            outfile = open(outname)
+            print seq
+            if os.path.exists(outname) : os.remove(outname)
+            try:
+                subprocess.call(seq,stdout=None,stderr=None)
+            except:
+                continue
+            frm = ocrConf.get_output_format(prg)
+            #print prg,frm
+            try:
+                outfile = codecs.open(outname,mode='r',encoding=frm)
+            except:
+                try:
+                    outfile = open(outname)
+                except:
+                    continue
             p = outfile.readlines()
             pd.add_to_current_step(0.5/nbOCR)
             pd.new_sub_step(0.5/nbOCR, _('spellchecking'))
@@ -178,11 +193,13 @@ def ocr_image_file(image_name,usedOCR):
                 ocr_words = ocr_words + line_words
                 pd.add_to_current_step(1.0/nlines)
             outfile.close()
-            os.remove(outname)
+            if os.path.exists(outname) : os.remove(outname)
             merge_words(words_dict, list_to_dict(ocr_words))
-        finally:
+        except:
             if stepToClose: pd.finish_current_step()
-    #print words_dict
+            stepToClose=False
+        if stepToClose: pd.finish_current_step()
+    #for i in words_dict.keys() : print i
     return words_dict 
     
 def ocr_image(pil_image):
@@ -201,19 +218,24 @@ def ocr_image(pil_image):
     for frm in usedOCR.keys(): nbOCR += len(usedOCR[frm])
     for frm in usedOCR.keys():
         img_name = tempfile.mktemp('.'+frm)
-        #print 'using file %s' %img_name
         pd.new_sub_step(float(len(usedOCR[frm]))/nbOCR, _('spellchecking'))
         try:
             s = pil_image.size
-            minS = [3000 , 4000]
+            minS = [1500 , 2000]
             if s[0]<minS[0] or s[1]<minS[1]:
-                f=[s[0]/minS[0] , s[1]/minS[1]]
+                f=[float(minS[0])/s[0] , float(minS[1])/s[1]]
                 f = max(f)
-                s=[s[0]*f , s[1]*f]
-                pil_image.resize(s,Image.ANTIALIAS)
+                s=[int(s[0]*f) , int(s[1]*f)]
+                #print s
+                pil_image = pil_image.resize(s,Image.ANTIALIAS)
+                #print pil_image.size
+#            pil_image = ImageOps.grayscale(pil_image)
+            pil_image = pil_image.filter(ImageFilter.EDGE_ENHANCE_MORE)
+            pil_image = ImageOps.autocontrast(pil_image)
             pil_image.save(img_name)
             frm_words = ocr_image_file(img_name,usedOCR[frm])
             os.remove(img_name)
+            #print img_name
         except:
             frm_words = {}
         pd.finish_current_step()

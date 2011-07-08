@@ -75,6 +75,8 @@ class OCRConfiguration(ConfigReader):
         return self.config.sections()
     def get_needed_image_format(self,ocr_sequence):
         return self.get_param(ocr_sequence, 'inputFormat', 'tif', False)
+    def get_output_format(self,ocr_sequence):
+        return self.get_param(ocr_sequence, 'outputFormat', 'ascii', False).lower()
     def build_call_sequence(self,ocr_section,input_file,output_file):
         needed_format = self.get_needed_image_format(ocr_section).lower()
         if os.path.splitext(input_file)[1].lower() != '.'+  needed_format :

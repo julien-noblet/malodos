@@ -17,6 +17,7 @@ import data
 from algorithms.general import str_to_bool
 import hashlib
 from database import theConfig
+import gui.utilities
 class SurveyWindow(wx.Dialog):
     '''
     classdocs
@@ -165,7 +166,11 @@ class SurveyWindow(wx.Dialog):
         def action_OCR_for_all(self,event):
             self.do_OCR_for(range(self.docList.GetCount()))
         def do_OCR_for(self,selection):
+            pd = gui.utilities.getGlobalProgressDialog(_('Character recognition'), '')
+            pd.clear()
+            n = len(selection)
             for sel in selection :
+                pd.new_sub_step(1.0/n)
                 row = self.docList.GetClientData(sel)
                 docID = row[database.theBase.IDX_ROWID]
                 filename = row[database.theBase.IDX_FILENAME]
@@ -176,13 +181,16 @@ class SurveyWindow(wx.Dialog):
                 try:
                     imData = data.imageData.imageData()
                     imData.load_file(filename)
-                    fullText = imData.get_content()
+                    fullText = imData.get_content(False)
                 except:
                     fullText = None
+                finally:
+                    pd.finish_current_step()
                 #if fullText is None or len(fullText)==0 : fullText = {'NOTHING FOUND':1}
                 # add the document to the database
                 keywordsGroups = database.theBase.get_keywordsGroups_from(title, description, filename , tags, fullText)
                 database.theBase.update_keywords_for(docID, keywordsGroups, True)
+                
             self.populate()
 
 # ******************************************
@@ -355,12 +363,12 @@ class SurveyWindow(wx.Dialog):
     #===========================================================================
     def SetModeAdd(self):
         self.btAddRecord.SetLabel(_('Add'))
-        self.moreAdd=True
+        self.modeAdd=True
         self.docID=None
     #===========================================================================
     def SetModeUpdate(self,docID):
         self.btAddRecord.SetLabel(_('Update'))
-        self.moreAdd=False
+        self.modeAdd=False
         self.docID=docID
     #===========================================================================
     # Click on Add document button
