@@ -1,0 +1,16 @@
+#labels Featured
+# Updates.
+
+
+= Notes on version 1.1.1 =
+
+This version add support for external OCR programs, such as [http://code.google.com/p/tesseract-ocr/ tesseract], [http://jocr.sourceforge.net/ gocr] or [http://code.google.com/p/ocropus/ ocropus].
+These programs must be installed separately. I'm currently using tesseract which seems to give quite good results. Please have a look on the tesseract website for installation instruction.
+Once installed (the program itself must be in your PATH) , you will have to tell *MALODOS* to use it, by using the preference window / content tab. A more detailed documentation will come later.
+
+Note also that this version adds a new dependenciy : [http://packages.python.org/pyenchant/ pyenchant].
+You will also have to install it, but the easyest way to to it is to use pil or easy_install :
+{{{
+easy_install pyenchant
+}}}
+This package is used for OCR to check the validity of found terms. So you also need to specify which has to be used for spellchecking, also via the preferences/content tab.
