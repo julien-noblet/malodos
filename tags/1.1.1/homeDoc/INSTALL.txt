@@ -1,0 +1,50 @@
+INSTALL file : describe the installation steps for the malodos software.
+
+Being written in python, MALODOS doesn't require any compilation.However, the program is built on top of several libraries
+which have to be installed in order to get MALODOS working.
+
+The following is a list of software /libraries to install, along with a link to their download websites.
+
+1. Python :
+   *********
+   obviously, the soft being written in this language, you have to have a working interpreter.
+   The version used for this program is 2.6. No other version is tested yet...
+   http://www.python.org/
+   
+2. twain (for scanner access under windows) can be downloaded from here:
+   ****************************************
+   http://sourceforge.net/projects/twainmodule/files/
+3. sane (for scanner access under linux)
+   *************************************
+   this library is now provided by standard python distributions.
+4. PIL
+   ***
+   the version used for this program is 1.1.7.
+   http://www.pythonware.com/products/pil/
+   or for 1.1.7 for python 2.6 (if this meet your requirements)
+   http://effbot.org/downloads/PIL-1.1.7.win32-py2.6.exe
+   
+5. wxpython (and thus wxwidgets) for the GUI
+   *****************************************
+   can be downloaded from here : http://www.wxpython.org/download.php#binaries
+   this version was used for the soft development:
+   http://downloads.sourceforge.net/wxpython/wxPython2.8-win32-unicode-2.8.11.0-py26.exe
+6. swftools (for pdf reading)
+   **************************
+   http://www.swftools.org/
+   you should copy the files from <swftools path>/lib/python to your python
+   site-package directory (SWF.so and gfx.so)
+   
+7. pypdf (for pdf creation)
+   ************************
+   downloaded from here, but already provided by the actual MALODOS package download.
+   if so required, you should however download it from there :
+   https://code.google.com/p/pyfpdf/downloads/detail?name=pyfpdf-1.53c.zip&can=2&q=
+ 
+ 8.Enchant
+   *******
+   http://www.abisource.com/projects/enchant/
+   Used to call the system installed spellchecker language when using OCR feature
+ 
+ Once all the dependencies are installed (a packaged version will be provided
+ for MS Windows later), just execute the main script in <MALODOS installdir>/src/homeDocs.py
