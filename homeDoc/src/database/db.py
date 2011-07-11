@@ -318,16 +318,6 @@ class Base(object):
         self.create_table(self.docWords_tableName, 'keyID INTEGER  ,docID INTEGER, field INT,count INT default 1')
         self.create_table(self.persons_tableName, 'name TEXT')
         self.create_table(self.params_tableName, 'name TEXT , value TEXT')
-        sql_statement = 'create view if not exists fullDoc as select D.title as title,D.description,D.filename,D.registerDate,D.registeringPersonID,D.documentDate,D.tags,D.checksum, D.RowID docID,K.keyword,K.soundex_word as soundex_word,DW.field,DW.count '
-        sql_statement += 'FROM ' + self.keywords_tableName + ' K,' + self.documents_tableName + ' D,'
-        sql_statement += self.docWords_tableName + ' DW'
-        sql_statement += ' WHERE DW.keyID = K.rowID AND DW.docID = D.RowID'
-        try:
-            self.connexion.execute(sql_statement)
-        except:
-            gui.utilities.show_message('Error during database view creation')
-            return False
-        
         if os.name == 'nt' or os.name == 'win32' :
             self.connexion.create_function("IS_IN_DIR", 2, lambda fname,dirname : self.win32_samefile(os.path.dirname(fname), dirname))
         else:
@@ -354,16 +344,16 @@ class Base(object):
                 self.connexion.commit()
             except:
                 pass
-            sql_statement = 'create view fullDoc as select D.title as title,D.description,D.filename,D.registerDate,D.registeringPersonID,D.documentDate,D.tags,D.checksum, D.RowID docID,K.keyword,K.soundex_word as soundex_word,DW.field,DW.count '
-            sql_statement += 'FROM ' + self.keywords_tableName + ' K,' + self.documents_tableName + ' D,'
-            sql_statement += self.docWords_tableName + ' DW'
-            sql_statement += ' WHERE DW.keyID = K.rowID AND DW.docID = D.RowID'
-            try:
-                self.connexion.execute(sql_statement)
-                self.connexion.commit()
-            except:
-                gui.utilities.show_message('Error during database view creation')
-                return False
+        sql_statement = 'create view if not exists fullDoc as select D.title as title,D.description,D.filename,D.registerDate,D.registeringPersonID,D.documentDate,D.tags,D.checksum, D.RowID docID,K.keyword,K.soundex_word as soundex_word,DW.field,DW.count '
+        sql_statement += 'FROM ' + self.keywords_tableName + ' K,' + self.documents_tableName + ' D,'
+        sql_statement += self.docWords_tableName + ' DW'
+        sql_statement += ' WHERE DW.keyID = K.rowID AND DW.docID = D.RowID'
+        try:
+            self.connexion.execute(sql_statement)
+        except Exception,E:
+            gui.utilities.show_message('Error during database view creation :' + str(E))
+            return False
+        
         self.set_parameter(self.param_DB_VERSION, self.DB_VERSION)
         return True
     
