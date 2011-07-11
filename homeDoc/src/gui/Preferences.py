@@ -15,7 +15,6 @@ import os
 # import utilities
 import scanWindow
 import Resources
-from twisted.cred._digest import algorithms
 if os.name == 'posix' :
     from scannerAccess import saneAccess
 else:
@@ -68,7 +67,7 @@ class PrefContent(wx.NotebookPage):
         for i in range(self.clOcrProgs.Count) :
             opt = 'use' + self.clOcrProgs.GetItems()[i]
             chk = self.clOcrProgs.IsChecked(i)
-            database.theConfig.set_param('OCR', opt, str(chk),False)
+            database.theConfig.set_param('OCR', opt, str(chk),True)
         database.theConfig.set_param('OCR', 'languages', ','.join(self.clSpellProgs.GetCheckedStrings()),True)
         database.theConfig.set_param('OCR', 'autoStart', str(self.cbAutoOCR.Value),True)
     def actionLoad(self):

@@ -51,7 +51,7 @@ import database
 class MyApp(wx.App):
     def OnInit(self):
         if not database.theBase.buildDB():
-            return
+            return False
         frame = mainWindow.MainFrame(None, 'MALODOS')
         frame.Show(True)
         self.SetTopWindow(frame)

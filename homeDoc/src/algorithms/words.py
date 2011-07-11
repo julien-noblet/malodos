@@ -201,7 +201,7 @@ def ocr_image_file(image_name,usedOCR):
             if stepToClose: pd.finish_current_step()
             stepToClose=False
         if stepToClose: pd.finish_current_step()
-    for i in words_dict.keys() : print i
+    #for i in words_dict.keys() : print i
     return words_dict 
     
 def ocr_image(pil_image):

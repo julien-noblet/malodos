@@ -10,6 +10,7 @@ attached to this project (LICENSE.txt file)
 
 interface between the application and the database engine
 '''
+
 import sqlite3
 import datetime
 import hashlib
@@ -80,7 +81,7 @@ class OCRConfiguration(ConfigReader):
     def build_call_sequence(self,ocr_section,input_file,output_file):
         needed_format = self.get_needed_image_format(ocr_section).lower()
         if os.path.splitext(input_file)[1].lower() != '.'+  needed_format :
-            msg = _('Unable to get the image in format %s for section %s ') % (needed_format,ocr_section)
+            msg = _('Unable to get the image in format %(needed_format) for section %(section) ') % {'needed_format':needed_format,'ocr_section':ocr_section}
             gui.utilities.show_message(msg)
             return []
         pname = self.get_param(ocr_section, 'programName', '', False)
@@ -160,12 +161,11 @@ class Configuration(ConfigReader):
             self.config.add_section('scanner')
             self.set_current_scanner('None')
             self.config.add_section('language')
-            #self.set_installed_languages(u'english,français,עברית')
             self.set_installed_languages(u'english')
             self.set_current_language('english')
             self.config.add_section('survey')
             self.set_survey_directory_list( (os.path.join(self.conf_dir,'documents'),) , (0,))
-            self.set_survey_extension_list( 'png tif tiff pdf jpg jpeg gif bmp doc txt odt' )
+            self.set_survey_extension_list( 'png tif tiff pdf jpg jpeg gif bmp' )
             self.commit_config()
         self.read_config()
 
@@ -238,7 +238,7 @@ class Base(object):
     persons_tableName = 'persons'
     params_tableName = 'parameters'
     param_DB_VERSION='DB_VERSION'
-    DB_VERSION=1.0
+    DB_VERSION=1.1
     
     IDX_TITLE=0
     IDX_DESCRIPTION=1
@@ -315,10 +315,10 @@ class Base(object):
             gui.utilities.show_message('Error during database index creation')
             
         #self.create_table(self.docWords_tableName, 'keyID INTEGER references ' + self.keywords_tableName + '(ROWID) ,docID INTEGER references ' + self.documents_tableName + '(ROWID)')
-        self.create_table(self.docWords_tableName, 'keyID INTEGER  ,docID INTEGER, field INT,count INT')
+        self.create_table(self.docWords_tableName, 'keyID INTEGER  ,docID INTEGER, field INT,count INT default 1')
         self.create_table(self.persons_tableName, 'name TEXT')
         self.create_table(self.params_tableName, 'name TEXT , value TEXT')
-        sql_statement = 'create view if not exists fullDoc as select D.title,D.description,D.filename,D.registerDate,D.registeringPersonID,D.documentDate,D.tags,D.checksum, D.RowID docID,K.keyword,K.soundex_word,DW.field,DW.count '
+        sql_statement = 'create view if not exists fullDoc as select D.title as title,D.description,D.filename,D.registerDate,D.registeringPersonID,D.documentDate,D.tags,D.checksum, D.RowID docID,K.keyword,K.soundex_word as soundex_word,DW.field,DW.count '
         sql_statement += 'FROM ' + self.keywords_tableName + ' K,' + self.documents_tableName + ' D,'
         sql_statement += self.docWords_tableName + ' DW'
         sql_statement += ' WHERE DW.keyID = K.rowID AND DW.docID = D.RowID'
@@ -342,6 +342,30 @@ class Base(object):
         if db_version > self.DB_VERSION:
             gui.utilities.show_message(_('Unstable state: Your database version is newer than the program itself...'))
             return False
+        if db_version<1.1 :
+            sql_statement = 'ALTER TABLE %s ADD COUNT INT default 1' % self.docWords_tableName
+            try:
+                self.connexion.execute(sql_statement)
+            except Exception as E:
+                gui.utilities.show_message('Error during database view creation : ' + str(E))
+            sql_statement = 'DROP VIEW fullDoc'
+            try:
+                self.connexion.execute(sql_statement)
+                self.connexion.commit()
+            except:
+                gui.utilities.show_message('Error during database view creation')
+                return False
+            sql_statement = 'create view fullDoc as select D.title as title,D.description,D.filename,D.registerDate,D.registeringPersonID,D.documentDate,D.tags,D.checksum, D.RowID docID,K.keyword,K.soundex_word as soundex_word,DW.field,DW.count '
+            sql_statement += 'FROM ' + self.keywords_tableName + ' K,' + self.documents_tableName + ' D,'
+            sql_statement += self.docWords_tableName + ' DW'
+            sql_statement += ' WHERE DW.keyID = K.rowID AND DW.docID = D.RowID'
+            try:
+                self.connexion.execute(sql_statement)
+                self.connexion.commit()
+            except:
+                gui.utilities.show_message('Error during database view creation')
+                return False
+        self.set_parameter(self.param_DB_VERSION, self.DB_VERSION)
         return True
     
     #===========================================================================
@@ -454,15 +478,18 @@ class Base(object):
     # find documents corresponding to the sql request
     #===============================================================================
     def find_sql(self,request,pars):
+        if request=='': return self.find_documents(None)     
         try:
-            sql_command = "SELECT docID,sum(count) FROM fullDoc WHERE " + request + " GROUP BY docID" 
+            sql_command = "SELECT docID FROM fullDoc WHERE " + request + " GROUP BY docID" 
+#            print sql_command,pars
             cur = self.connexion.execute(sql_command,pars)
             rowIDList = self.rows_to_str(cur,0,'')
             sql_command = "SELECT *,ROWID FROM "+ self.documents_tableName + ' WHERE ROWID IN ' + str(rowIDList)
             cur = self.connexion.execute(sql_command)
             return cur
-        except:
-            gui.utilities.show_message('SQL search failed')
+        except Exception as E:
+            gui.utilities.show_message('SQL search failed ' + str(E))
+            #print E 
             return None
     #===============================================================================
     # find tag entry starting by a given prefix and for an optional given field
