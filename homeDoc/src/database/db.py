@@ -353,8 +353,7 @@ class Base(object):
                 self.connexion.execute(sql_statement)
                 self.connexion.commit()
             except:
-                gui.utilities.show_message('Error during database view creation')
-                return False
+                pass
             sql_statement = 'create view fullDoc as select D.title as title,D.description,D.filename,D.registerDate,D.registeringPersonID,D.documentDate,D.tags,D.checksum, D.RowID docID,K.keyword,K.soundex_word as soundex_word,DW.field,DW.count '
             sql_statement += 'FROM ' + self.keywords_tableName + ' K,' + self.documents_tableName + ' D,'
             sql_statement += self.docWords_tableName + ' DW'
