@@ -17,4 +17,4 @@ So the MALODOS project born, and you're now visiting its helper page. And actual
   # is not too expensive (no charge, however feel free to [https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=D7H33JFSFA98J&lc=IL&item_name=David%20GUEZ&item_number=MALODOS&currency_code=ILS&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted donate] something if you think it deserves it)
   # not taking you as an hostage (hereafter all the data format will be explained, and images are basically standard pdf files)
 
-A complete documentation of the program is (actually will be) available [https://sites.google.com/site/malodospage/ here].
+A complete documentation of the program is available [https://sites.google.com/site/malodospage/ here].
