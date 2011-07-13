@@ -237,8 +237,11 @@ class Base(object):
     docWords_tableName = 'docWords'
     persons_tableName = 'persons'
     params_tableName = 'parameters'
+    folders_tableName='folders'
+    folderDoc_tableName='folderDocs'
+    
     param_DB_VERSION='DB_VERSION'
-    DB_VERSION=1.1
+    DB_VERSION=1.2
     
     IDX_TITLE=0
     IDX_DESCRIPTION=1
@@ -305,6 +308,8 @@ class Base(object):
         docWords = keyID,docID,field
         persons = name
         params = name , value
+        folders = name,parentID
+        foldDocs = docID,folderID
         )'''
         self.create_table(self.documents_tableName, 'title TEXT(64), description TEXT(256), filename TEXT(256), registerDate DATE, registeringPersonID INTEGER, documentDate DATE,tags TEXT,checksum TEXT')
         self.create_table(self.keywords_tableName, 'keyword TEXT PRIMARY KEY , soundex_word TEXT ')
@@ -318,6 +323,8 @@ class Base(object):
         self.create_table(self.docWords_tableName, 'keyID INTEGER  ,docID INTEGER, field INT,count INT default 1')
         self.create_table(self.persons_tableName, 'name TEXT')
         self.create_table(self.params_tableName, 'name TEXT , value TEXT')
+        self.create_table(self.folders_tableName, 'name TEXT , parentID INT')
+        self.create_table(self.folderDoc_tableName, 'docID INT , folderID INT')
         if os.name == 'nt' or os.name == 'win32' :
             self.connexion.create_function("IS_IN_DIR", 2, lambda fname,dirname : self.win32_samefile(os.path.dirname(fname), dirname))
         else:
