@@ -16,6 +16,8 @@ import data.imageData
 from  algorithms.general import str_to_bool
 import os.path
 import gui.utilities
+import gui.virtualFolder
+
 #import pyPdf
 
 class RecordWidget(wx.Window):
@@ -25,29 +27,31 @@ class RecordWidget(wx.Window):
         '''
         wx.Window.__init__(self, parent)
         self.panel = wx.Panel(self, -1)
+        
+        self.totSizer = wx.BoxSizer(wx.HORIZONTAL)
 
-        self.totSizer = wx.FlexGridSizer(cols=2,vgap=2,hgap=2)
-        self.totSizer.SetFlexibleDirection(wx.HORIZONTAL)
-        self.totSizer.SetNonFlexibleGrowMode(wx.FLEX_GROWMODE_SPECIFIED)
-        self.totSizer.AddGrowableCol(1)
+        self.txtFieldSizer = wx.FlexGridSizer(cols=2,vgap=2,hgap=2)
+        self.txtFieldSizer.SetFlexibleDirection(wx.HORIZONTAL)
+        self.txtFieldSizer.SetNonFlexibleGrowMode(wx.FLEX_GROWMODE_SPECIFIED)
+        self.txtFieldSizer.AddGrowableCol(1)
         
         self.txtFileName = wx.StaticText(self.panel , -1 , _('Filename'))
         self.lbFileName = wx.FilePickerCtrl(self.panel,-1,path=filename,style=file_style)
-        self.totSizer.Add(self.txtFileName,0)
-        self.totSizer.Add(self.lbFileName,1,wx.EXPAND)
+        self.txtFieldSizer.Add(self.txtFileName,0)
+        self.txtFieldSizer.Add(self.lbFileName,1,wx.EXPAND)
         
         self.txtTitle = wx.StaticText(self.panel , -1 , _('Title'))
         #self.lbTitle = wx.TextCtrl(self.panel , -1 , '')
         self.lbTitle = TextCtrlAutoComplete(self.panel , choices=(' '),
                                            entryCallback=self.action_autoCompleteTitle,
                                            showHead=True)
-        self.totSizer.Add(self.txtTitle,0)
-        self.totSizer.Add(self.lbTitle,1,wx.EXPAND)
+        self.txtFieldSizer.Add(self.txtTitle,0)
+        self.txtFieldSizer.Add(self.lbTitle,1,wx.EXPAND)
         
         self.txtDescription = wx.StaticText(self.panel , -1 , _('Description'))
         self.lbDescription = wx.TextCtrl(self.panel , -1 , '')
-        self.totSizer.Add(self.txtDescription,0)
-        self.totSizer.Add(self.lbDescription,1,wx.EXPAND)
+        self.txtFieldSizer.Add(self.txtDescription,0)
+        self.txtFieldSizer.Add(self.lbDescription,1,wx.EXPAND)
 
         self.txtTags = wx.StaticText(self.panel , -1 , _('Tags'))
         #self.lbTags = wx.TextCtrl(self.panel , -1 , '' , style=wx.TE_HT_ON_TEXT)
@@ -56,22 +60,42 @@ class RecordWidget(wx.Window):
                                            getWorkingString=self.defineWorkingString,
                                            applyItem=self.changeWorkingString,
                                            showHead=True)
-        self.totSizer.Add(self.txtTags,0)
-        self.totSizer.Add(self.lbTags,1,wx.EXPAND)
+        self.txtFieldSizer.Add(self.txtTags,0)
+        self.txtFieldSizer.Add(self.lbTags,1,wx.EXPAND)
         
         self.txtDate = wx.StaticText(self.panel , -1 , _('document date'))
         self.lbDate = wx.DatePickerCtrl(self.panel , -1,style=wx.DP_DROPDOWN)
-        self.totSizer.Add(self.txtDate,0)
-        self.totSizer.Add(self.lbDate,1)
+        self.txtFieldSizer.Add(self.txtDate,0)
+        self.txtFieldSizer.Add(self.lbDate,1)
               
-        self.txtOCR = wx.StaticText(self.panel , -1 , _('do OCR'))
-        self.cbOCR = wx.CheckBox(self.panel , -1)
-        self.totSizer.Add(self.txtOCR,0)
-        self.totSizer.Add(self.cbOCR,1)
-
+#        self.txtOCR = wx.StaticText(self.panel , -1 , _('do OCR'))
+        self.cbOCR = wx.CheckBox(self.panel , -1,label=_('do OCR'))
+#        self.txtFieldSizer.Add(self.txtOCR,0)
+        self.txtFieldSizer.Add(self.cbOCR,1)
+        
+        self.totSizer.Add(self.txtFieldSizer,proportion=2,flag=wx.EXPAND)
+        
+        self.virtFolderSizer = wx.GridBagSizer(1)
+        self.lbFolders = wx.ListCtrl(self.panel,-1)
+        self.virtFolderSizer.Add(self.lbFolders,(0,0),span=(1,3),flag=wx.EXPAND)
+        self.btAdd = wx.Button(self.panel,-1,'add')
+        self.btChange = wx.Button(self.panel,-1,'change')
+        self.btRemove = wx.Button(self.panel,-1,'remove')
+        self.virtFolderSizer.Add(self.btAdd,(1,0),flag=wx.SHAPED|wx.ALIGN_LEFT)
+        self.virtFolderSizer.Add(self.btChange,(1,1),flag=wx.SHAPED|wx.ALIGN_CENTRE)
+        self.virtFolderSizer.Add(self.btRemove,(1,2),flag=wx.SHAPED|wx.ALIGN_RIGHT)
+        self.virtFolderSizer.AddGrowableRow(0)
+        self.virtFolderSizer.AddGrowableCol(1)
+        self.totSizer.Add(self.virtFolderSizer,proportion=1,flag=wx.EXPAND)
+        
         self.panel.SetSizerAndFit(self.totSizer)
         self.Bind(wx.EVT_SIZE,self.onResize)
         self.Bind(wx.EVT_FILEPICKER_CHANGED,self.checkFileName)
+        self.Bind(wx.EVT_BUTTON,self.actionAddInFolder,self.btAdd)
+        
+    def actionAddInFolder(self,event):
+        folder = gui.virtualFolder.FolderView(self)
+        folder.Show()
     def checkFileName(self,event):
         filename = self.lbFileName.GetPath()
         if len(filename) == 0:
