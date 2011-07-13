@@ -6,7 +6,7 @@ This file is a part of the source code of the MALODOS project.
 You can use and distribute it freely, but have to conform to the license
 attached to this project (LICENSE.txt file)
 =====================================================================
-   view / select / edit virtual folders
+view / select / edit virtual folders
 '''
 import wx
 
