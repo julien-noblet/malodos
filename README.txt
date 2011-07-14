@@ -5,7 +5,7 @@ You can use and distribute it freely, but have to conform to the license
 attached to this project (LICENSE.txt file)
 
 
-ALODOS (for MAnagement of LOcal DOcument System) is simple but usefull software aimed to help the process of archiving and navigate between the documents presents in your harddrive.
+MALODOS (for MAnagement of LOcal DOcument System) is simple but usefull software aimed to help the process of archiving and navigate between the documents presents in your harddrive.
 
 It is written in python and mainly merges numereous external libraries to give a fast and simple way to scan and numerically record your personal documents (such as invoices, taxe declaration, etc...)
 
@@ -20,6 +20,9 @@ The libraries onto which it is built are essentially:
 - swftools (for pdf reading)
 - pypdf (for pdf creation)
 
+The icons are taken from this website : http://icones.pro
+
 This project is hosted on google code at the following address and can be downloaded from there:
+http://code.google.com/p/malodos/downloads/detail?name=homeDoc-0.1.zip&can=2&q=
 
 
