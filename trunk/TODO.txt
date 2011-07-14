@@ -4,13 +4,20 @@ TODO file : LIST THE NEXT FEATURES WHICH ARE EXPECTED TO BE IMPLEMENTED IN NEXT 
 ----------
 
 * localization (probably have to use the gettext library)
-* add a zoom / pan option for the embedded document previewer
+DONE * add a zoom / pan option for the embedded document previewer
 * add a print document option
 * documentation (in code and user guide)
-* adding a survey option that will help to give an alarm if a document file is added in a user requested folder.
-* adding options to search for documents with logical operators / regular expression...
-* adding a fulltext search option, which imply to implement an OCR processing of the content of bitmap image files
+DONE * adding a survey option that will help to give an alarm if a document file is added in a user requested folder.
+DONE * adding options to search for documents with logical operators / regular expression...
+DONE * adding a fulltext search option, which imply to implement an OCR processing of the content of bitmap image files
   and a specific access for Microsoft Word / Open Office / other text file formats
 * the code actually uses many different libraries to read/write the image files (namely : pypdf to write pdf, swftools to read pdf,
   wxwidget to read G4 tiff files, and PIL for other raster formats). This induces many dependencies that may be avoided
   by re-encoding some of them or by finding a library that can do it for me (must be portable under windows/linux).
+DONE for windows * package the software in order to facilitate the installation by non technician users...
+DONE * add a tag field
+* helps the user to choose relevant tag according to the other fields contents (probably needs a fulltext field to work)
+* add the document to go option
+* add many folder / sub folder for each document (car insurance can be classified in car or insurance...)
+	should be better to automatically create virtual folders...
+* add an encryption capability
