@@ -10,12 +10,10 @@ almost copy/paste of the source from twain module website (http://twainmodule.so
 import twain
 import tempfile
 import PIL
-import gui.utilities
+from scannerAccess import scannerOption
+#import gui.utilities
 #import FreeImagePy as FIPY
 import data
-
-class NoScannerFoundError(Exception):
-    pass
 
 class TwainAccess(object):
     # DATA MEMBERS
@@ -28,54 +26,88 @@ class TwainAccess(object):
         self.imageContainer = imageContainer
         self.dataReadyCallback = dataReadyCallback
         self.tmpFileName=tempfile.NamedTemporaryFile().name
+        self.sourceName= None
     # METHODS
-    def chooseSource(self):
+    def chooseSource(self,sourceName=None):
         if not self.sourceManager:
-            self.sourceManager = twain.SourceManager(self.imageContainer, ProductName="homeDocs")
+            self.sourceManager = twain.SourceManager(self.imageContainer, ProductName="MALODOS")
         if not self.sourceManager:
-            raise NoScannerFoundError
-            return
+            self.sourceName= None
+            return "None"
         if self.sourceData:
             self.sourceData.destroy()
             self.sourceData=None
-        #self.sourceData = self.sourceManager.OpenSource()
-
-    def OpenScanner(self):
+        if sourceName:
+            deviceList = self.sourceManager.GetSourceList()
+            try:
+                selected = deviceList.index(sourceName)
+                self.sourceData = self.sourceManager.OpenSource(sourceName)
+            except:
+                self.sourceData = None
+            
+        if not self.sourceData : self.sourceData = self.sourceManager.OpenSource()
+        if self.sourceData:
+            self.sourceName = self.sourceData.GetSourceName()
+            self.sourceData.destroy()
+            self.sourceData=None
+        if self.sourceName :
+            return self.sourceName
+        else:
+            return "None"
+    def get_options(self,optName=None):
+        """ Get current scanner options """
+        L =list()
+        try:
+            if optName is None or optName.lower() == 'manual_multipage' :
+                L.append(scannerOption.scannerOption(name='manual_multipage',title=_('Manual multipage'),
+                 description=_('Check to manually scan a multiple page document'),
+                 type=scannerOption.TYPE_BOOL,value=False))
+        except:
+            pass
+        return L
+    def useOptions(self,options):
+        """Use the specific options."""
+        # TO BE DONE
+        pass
+    def openScanner(self):
         """Connect to the scanner"""
         if not self.sourceManager:
             try:
                 self.chooseSource()
             except:
                 return
-        if not self.sourceManager:
+        if not self.sourceManager or not self.sourceName:
             return
+        self.closeScanner()
+        self.sourceData = self.sourceManager.OpenSource(self.sourceName)
+        self.sourceManager.SetCallback(self.onTwainEvent)
+    def closeScanner(self):
         if self.sourceData:
             self.sourceData.destroy()
             self.sourceData=None
-        self.sourceData = self.sourceManager.OpenSource()
-        self.sourceManager.SetCallback(self.OnTwainEvent)
 
     def startAcquisition(self):
         """Begin the acquisition process. The actual acquisition will be notified by
         a callback function."""
         if not self.sourceData:
-            self.OpenScanner()
+            self.openScanner()
         if not self.sourceData: return
         try:
             self.sourceData.SetCapability(twain.ICAP_YRESOLUTION, twain.TWTY_FIX32, 100.0)
+            self.sourceData.RequestAcquire(1, 1)
         except:
+            self.closeScanner()
             pass
-        self.sourceData.RequestAcquire(1, 1)
                 
 #-------------------------------------------------------------------------
 #
-    def OnTwainEvent(self, event):
+    def onTwainEvent(self, event):
         """This is an event handler for the twain event. It is called
         by the thread that set up the callback in the first place.
         """
         try:
             if event == twain.MSG_XFERREADY:
-                self.StartTransfer()
+                self.startTransfer()
             elif event == twain.MSG_CLOSEDSREQ:
                 self.sourceData = None
         except:
@@ -84,7 +116,7 @@ class TwainAccess(object):
             ei = sys.exc_info()
             traceback.print_exception(ei[0], ei[1], ei[2])
     
-    def StartTransfer(self):
+    def startTransfer(self):
         """Get the list of images from the scanner"""
         more_to_come = True
         handle = None
