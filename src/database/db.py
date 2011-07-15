@@ -781,7 +781,7 @@ class Base(object):
     # folders_add_child_under(name,ID) : add a child named name under folder ID
     #===========================================================================
     def folders_add_child_under(self,name,ID):
-        Q = 'INSERT INTO %s (?,?)' % self.folders_tableName 
+        Q = 'INSERT INTO %s VALUES (?,?)' % self.folders_tableName 
         try:
             cur = self.connexion.execute(Q, [name,ID])
             self.connexion.commit()
@@ -852,7 +852,7 @@ class Base(object):
     #===========================================================================
     def folders_add_doc_to(self,docID,folderID):
         try:
-            Q = 'INSERT INTO %s (?,?)' % self.folderDoc_tableName
+            Q = 'INSERT INTO %s VALUES (?,?)' % self.folderDoc_tableName
             cur = self.connexion.execute(Q, [docID,folderID])
             self.connexion.commit()
             return True
