@@ -767,4 +767,106 @@ class Base(object):
             return cur
         except:
             return ()
-        
+    #===========================================================================
+    # folders_childs_of(ID) : retrieve all folders whose parent is ID
+    #===========================================================================
+    def folders_childs_of(self,ID):
+        Q = 'select rowID,name from %s where parentID==?' % self.folders_tableName 
+        try:
+            cur = self.connexion.execute(Q, [ID,])
+            return cur
+        except:
+            return ()
+    #===========================================================================
+    # folders_add_child_under(name,ID) : add a child named name under folder ID
+    #===========================================================================
+    def folders_add_child_under(self,name,ID):
+        Q = 'INSERT INTO %s (?,?)' % self.folders_tableName 
+        try:
+            cur = self.connexion.execute(Q, [name,ID])
+            self.connexion.commit()
+            return True
+        except:
+            return False
+    #===========================================================================
+    # folders_remove(ID) : remove a folder from database 
+    #===========================================================================
+    def folders_remove(self,ID):
+        try:
+            Q = 'DELETE FROM %s WHERE folderID=?' % self.folderDoc_tableName
+            self.connexion.execute(Q, [ID,])
+            Q = 'DELETE FROM %s WHERE rowID=?' % self.folders_tableName 
+            cur = self.connexion.execute(Q, [ID,])
+            self.connexion.commit()
+            return True
+        except:
+            return False
+    #===========================================================================
+    # folders_rename(ID,name) : rename the folder ID with name <name> 
+    #===========================================================================
+    def folders_rename(self,ID,name):
+        try:
+            Q = 'UPDATE %s SET name=? WHERE rowID=?' % self.folders_tableName 
+            cur = self.connexion.execute(Q, [name,ID])
+            self.connexion.commit()
+            return True
+        except:
+            return False
+    #===========================================================================
+    # folders_genealogy_of(folderID) : return the parent, grandparent, grand-grand parents,... of a folder
+    #===========================================================================
+    def folders_genealogy_of(self,folderID):
+        genealogy = []
+        try:
+            cont=True
+            while cont:
+                Q = 'SELECT parentID FROM %s WHERE rowID=?' % self.folderDoc_tableName 
+                cur = self.connexion.execute(Q, [folderID,])
+                parent = cur[0][0]
+                genealogy.append(parent)
+                cont = (parent != 0)
+        except:
+            return []
+    #===========================================================================
+    # folders_is_descendant_of(folderID,baseID) : does folder folderID in the descendant of parentID
+    #===========================================================================
+    def folders_is_descendant_of(self,folderID,baseID):
+        genealogy = self.folders_genealogy_of(folderID)
+        return folderID in genealogy
+    #===========================================================================
+    # folders_does_doc_descendant_from(docID,baseID) : does doc docID in the descendant of parentID
+    #===========================================================================
+    def folders_does_doc_descendant_from(self,docID,baseID):
+        try:
+            Q = 'SELECT folderID FROM %s WHERE docID =?' % self.folderDoc_tableName
+            cur = self.connexion.execute(Q, [docID])
+            folderIDs = [row[0] for row in cur]
+        except:
+            foldersID=[]
+        for folderID in folderIDs:
+            genealogy = self.folders_genealogy_of(folderID)
+            if (folderID in genealogy) : return True
+        return False
+    #===========================================================================
+    # folders_add_doc_to(docID,folderID) : add the document docID under the folder ID 
+    #===========================================================================
+    def folders_add_doc_to(self,docID,folderID):
+        try:
+            Q = 'INSERT INTO %s (?,?)' % self.folderDoc_tableName
+            cur = self.connexion.execute(Q, [docID,folderID])
+            self.connexion.commit()
+            return True
+        except:
+            return False
+    #===========================================================================
+    # folders_rem_doc_from(docID,folderID) : remove the document docID under the folder ID 
+    #===========================================================================
+    def folders_add_doc_to(self,docID,folderID):
+        try:
+            Q = 'DELETE FROM %s WHERE docID=? AND folderID=?' % self.folderDoc_tableName 
+            cur = self.connexion.execute(Q, [docID,folderID])
+            self.connexion.commit()
+            return True
+        except:
+            return False
+            
