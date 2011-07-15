@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-07-08 13:37+0300\n"
-"PO-Revision-Date: 2011-07-08 13:38+0200\n"
+"POT-Creation-Date: 2011-07-15 16:43+0300\n"
+"PO-Revision-Date: 2011-07-15 16:44+0200\n"
 "Last-Translator: David guez <guezdav@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -31,6 +31,7 @@ msgstr "Ne peut se connecter à la base de donnée"
 #: database/db.py:245
 #: database/db.py:255
 #: database/db.py:343
+#: database/db.py:340
 msgid "Unstable state: Your database version is newer than the program itself..."
 msgstr "Etat instable : La version de votre base de données est plus récente que le programme lui-même"
 
@@ -39,6 +40,7 @@ msgstr "Etat instable : La version de votre base de données est plus récente q
 #: database/db.py:312
 #: database/db.py:322
 #: database/db.py:410
+#: database/db.py:430
 msgid "Unable to assign the registering person"
 msgstr "Impossible d'assigner la personne "
 
@@ -47,6 +49,7 @@ msgstr "Impossible d'assigner la personne "
 #: database/db.py:321
 #: database/db.py:331
 #: database/db.py:419
+#: database/db.py:439
 msgid "Unable to add the document"
 msgstr "Impossible d'ajouter le document"
 
@@ -55,6 +58,7 @@ msgstr "Impossible d'ajouter le document"
 #: database/db.py:487
 #: database/db.py:498
 #: database/db.py:590
+#: database/db.py:613
 msgid "Unable to remove documents/word associations"
 msgstr "Impossible de supprimer une association mot/document"
 
@@ -63,6 +67,7 @@ msgstr "Impossible de supprimer une association mot/document"
 #: database/db.py:495
 #: database/db.py:506
 #: database/db.py:598
+#: database/db.py:621
 msgid "Unable to remove documents entries"
 msgstr "Impossible de supprimer les documents"
 
@@ -71,6 +76,7 @@ msgstr "Impossible de supprimer les documents"
 #: database/db.py:509
 #: database/db.py:520
 #: database/db.py:619
+#: database/db.py:642
 msgid "Unable to remove doc/word association"
 msgstr "Impossible de supprimer une association mot/document"
 
@@ -79,6 +85,7 @@ msgstr "Impossible de supprimer une association mot/document"
 #: database/db.py:522
 #: database/db.py:536
 #: database/db.py:635
+#: database/db.py:658
 msgid "Unable to insert new keywords : "
 msgstr "Impossible d'inserer un nouveau mot-clé"
 
@@ -87,6 +94,7 @@ msgstr "Impossible d'inserer un nouveau mot-clé"
 #: database/db.py:531
 #: database/db.py:545
 #: database/db.py:644
+#: database/db.py:667
 msgid "Unable to search for keywords"
 msgstr "Recherche de mot-clé impossible"
 
@@ -95,6 +103,7 @@ msgstr "Recherche de mot-clé impossible"
 #: database/db.py:540
 #: database/db.py:555
 #: database/db.py:654
+#: database/db.py:677
 msgid "Unable to insert new document/word association"
 msgstr "Impossible d'inserer une association mot/document"
 
@@ -103,6 +112,7 @@ msgstr "Impossible d'inserer une association mot/document"
 #: database/db.py:557
 #: database/db.py:572
 #: database/db.py:671
+#: database/db.py:694
 msgid "Unable to update document into database"
 msgstr "Impossible de mettre à jours le document dans la base de données"
 
@@ -111,6 +121,7 @@ msgstr "Impossible de mettre à jours le document dans la base de données"
 #: database/db.py:570
 #: database/db.py:585
 #: database/db.py:684
+#: database/db.py:707
 msgid "Unable to reassign checksum into database entry"
 msgstr "Impossible de mettre à jours la signature dans la base de données"
 
@@ -141,6 +152,7 @@ msgstr "Nom du fichier du document à ajouter"
 #: gui/addFileWindow.py:43
 #: gui/Preferences.py:214
 #: gui/scanWindow.py:125
+#: gui/Preferences.py:213
 msgid "Ok"
 msgstr "Confirmer"
 
@@ -156,6 +168,7 @@ msgstr "Confirmer"
 #: gui/addFileWindow.py:44
 #: gui/Preferences.py:215
 #: gui/scanWindow.py:127
+#: gui/Preferences.py:214
 msgid "Cancel"
 msgstr "Annuler"
 
@@ -228,6 +241,7 @@ msgstr "Le contenu du fichier à été modifié! Voulez vous mettre à jours sa 
 #: gui/mainBoard.py:190
 #: gui/mainBoard.py:232
 #: gui/RecordWidget.py:211
+#: gui/RecordWidget.py:235
 msgid "Unable to update the database"
 msgstr "Impossible de mettre à jours la base de données"
 
@@ -284,6 +298,8 @@ msgstr "Impossible d'imprimer le document"
 #: gui/Preferences.py:202
 #: gui/Preferences.py:97
 #: gui/Preferences.py:211
+#: gui/Preferences.py:96
+#: gui/Preferences.py:210
 msgid "Change"
 msgstr "Modifier"
 
@@ -294,6 +310,7 @@ msgstr "Modifier"
 #: gui/Preferences.py:90
 #: gui/Preferences.py:91
 #: gui/Preferences.py:100
+#: gui/Preferences.py:99
 msgid "Scanner source : "
 msgstr "Scanner source : "
 
@@ -307,6 +324,7 @@ msgstr "Scanner source : "
 #: gui/Preferences.py:151
 #: gui/Preferences.py:160
 #: gui/survey.py:365
+#: gui/Preferences.py:159
 msgid "Add"
 msgstr "Ajouter"
 
@@ -317,6 +335,7 @@ msgstr "Ajouter"
 #: gui/Preferences.py:151
 #: gui/Preferences.py:152
 #: gui/Preferences.py:161
+#: gui/Preferences.py:160
 msgid "Remove"
 msgstr "Supprimer"
 
@@ -327,6 +346,7 @@ msgstr "Supprimer"
 #: gui/Preferences.py:153
 #: gui/Preferences.py:154
 #: gui/Preferences.py:163
+#: gui/Preferences.py:162
 msgid "Survey directories"
 msgstr "Surveillance de répertoires"
 
@@ -337,6 +357,7 @@ msgstr "Surveillance de répertoires"
 #: gui/Preferences.py:156
 #: gui/Preferences.py:157
 #: gui/Preferences.py:166
+#: gui/Preferences.py:165
 msgid "(check directories which have to be recursively surveyed)"
 msgstr "Cocher les répertoires à surveiller récursivement"
 
@@ -347,6 +368,7 @@ msgstr "Cocher les répertoires à surveiller récursivement"
 #: gui/Preferences.py:158
 #: gui/Preferences.py:159
 #: gui/Preferences.py:168
+#: gui/Preferences.py:167
 msgid "Survey extensions"
 msgstr "Extensions surveillées"
 
@@ -357,6 +379,7 @@ msgstr "Extensions surveillées"
 #: gui/Preferences.py:194
 #: gui/Preferences.py:195
 #: gui/Preferences.py:204
+#: gui/Preferences.py:203
 msgid "Preference window"
 msgstr "Fenêtre de préférences"
 
@@ -367,6 +390,7 @@ msgstr "Fenêtre de préférences"
 #: gui/Preferences.py:209
 #: gui/Preferences.py:210
 #: gui/Preferences.py:219
+#: gui/Preferences.py:218
 msgid "Database name :"
 msgstr "Nom de la base de données"
 
@@ -382,6 +406,7 @@ msgstr "Langue"
 #: gui/Preferences.py:216
 #: gui/Preferences.py:217
 #: gui/Preferences.py:226
+#: gui/Preferences.py:225
 msgid "Dir. survey"
 msgstr "Surv. de rep."
 
@@ -392,6 +417,7 @@ msgstr "Surv. de rep."
 #: gui/Preferences.py:217
 #: gui/Preferences.py:218
 #: gui/Preferences.py:227
+#: gui/Preferences.py:226
 msgid "Scanner"
 msgstr "Scanner"
 
@@ -402,6 +428,7 @@ msgstr "Scanner"
 #: gui/Preferences.py:264
 #: gui/Preferences.py:265
 #: gui/Preferences.py:274
+#: gui/Preferences.py:273
 msgid "Problem : Unable to write the configuration file."
 msgstr "Problème : Impossible d'ecrire le fichier de configuration"
 
@@ -410,6 +437,7 @@ msgstr "Problème : Impossible d'ecrire le fichier de configuration"
 #: gui/RecordWidget.py:30
 #: gui/RecordWidget.py:31
 #: gui/RecordWidget.py:34
+#: gui/RecordWidget.py:38
 msgid "Filename"
 msgstr "Nom du fichier"
 
@@ -418,6 +446,7 @@ msgstr "Nom du fichier"
 #: gui/RecordWidget.py:35
 #: gui/RecordWidget.py:36
 #: gui/RecordWidget.py:39
+#: gui/RecordWidget.py:43
 msgid "Title"
 msgstr "Titre"
 
@@ -426,6 +455,7 @@ msgstr "Titre"
 #: gui/RecordWidget.py:43
 #: gui/RecordWidget.py:44
 #: gui/RecordWidget.py:47
+#: gui/RecordWidget.py:51
 msgid "Description"
 msgstr "Description"
 
@@ -434,6 +464,7 @@ msgstr "Description"
 #: gui/RecordWidget.py:48
 #: gui/RecordWidget.py:49
 #: gui/RecordWidget.py:52
+#: gui/RecordWidget.py:56
 msgid "Tags"
 msgstr "Balises"
 
@@ -442,6 +473,7 @@ msgstr "Balises"
 #: gui/RecordWidget.py:58
 #: gui/RecordWidget.py:59
 #: gui/RecordWidget.py:62
+#: gui/RecordWidget.py:66
 msgid "document date"
 msgstr "Date du document"
 
@@ -572,6 +604,8 @@ msgstr "Demarrage de l'acquisition"
 #: database/db.py:71
 #: database/db.py:51
 #: database/db.py:55
+#: database/db.py:52
+#: database/db.py:56
 msgid "Configuration not found"
 msgstr "Fichier de configuration non trouvé"
 
@@ -579,6 +613,7 @@ msgstr "Fichier de configuration non trouvé"
 #: database/db.py:351
 #: database/db.py:361
 #: database/db.py:449
+#: database/db.py:469
 msgid "Unable to search keywords"
 msgstr "Impossible de recherche le mot-clé"
 
@@ -587,6 +622,8 @@ msgstr "Impossible de recherche le mot-clé"
 #: database/db.py:440
 #: database/db.py:528
 #: database/db.py:576
+#: database/db.py:551
+#: database/db.py:599
 msgid "Keyword search failed"
 msgstr "La recherche de mot-clé à échouée"
 
@@ -594,6 +631,7 @@ msgstr "La recherche de mot-clé à échouée"
 #: database/db.py:438
 #: database/db.py:449
 #: database/db.py:537
+#: database/db.py:560
 msgid "Document search failed"
 msgstr "La recherche dans le document à échouée"
 
@@ -624,6 +662,7 @@ msgstr "Le contenu du fichier à été modifié! Voulez vous mettre à jours sa 
 #: gui/Preferences.py:86
 #: gui/Preferences.py:87
 #: gui/Preferences.py:96
+#: gui/Preferences.py:95
 msgid "None"
 msgstr "Aucun"
 
@@ -712,6 +751,7 @@ msgstr "Appliquer à toutes les pages"
 #: gui/Preferences.py:89
 #: gui/Preferences.py:98
 #: gui/scanWindow.py:173
+#: gui/Preferences.py:97
 msgid "Options"
 msgstr "Options"
 
@@ -719,6 +759,7 @@ msgstr "Options"
 #: gui/Preferences.py:250
 #: gui/Preferences.py:251
 #: gui/Preferences.py:260
+#: gui/Preferences.py:259
 msgid "choose the database file"
 msgstr "Choix du fichier de base de données"
 
@@ -761,18 +802,21 @@ msgstr "Cocher pour scanner manuellement un document multipage"
 #: gui/Preferences.py:42
 #: gui/Preferences.py:43
 #: gui/Preferences.py:52
+#: gui/Preferences.py:51
 msgid "OCR programs to use"
 msgstr "Programmes pour la reconnaissance de caractère"
 
 #: gui/Preferences.py:43
 #: gui/Preferences.py:44
 #: gui/Preferences.py:53
+#: gui/Preferences.py:52
 msgid "OCR Checking languages"
 msgstr "Langues pour la reconnaissance de caractère"
 
 #: gui/Preferences.py:218
 #: gui/Preferences.py:219
 #: gui/Preferences.py:228
+#: gui/Preferences.py:227
 msgid "Content"
 msgstr "Contenu"
 
@@ -817,19 +861,24 @@ msgstr "Impossible de recupérer l'image au format %s dans la section %s"
 
 #: database/db.py:104
 #: database/db.py:121
+#: database/db.py:105
+#: database/db.py:122
 #, python-format
 msgid "Misformatted OCR configuration for section %s "
 msgstr "Configuration OCR mal formée dans la section %s"
 
 #: gui/Preferences.py:34
+#: gui/Preferences.py:33
 msgid "Automatically proceed to OCR when a new document is added to the database"
 msgstr "Utilisation automatique de la reconaissance de caractère lorsqu'un nouveau document est ajouté à la base de données"
 
 #: gui/RecordWidget.py:67
+#: gui/RecordWidget.py:72
 msgid "do OCR"
 msgstr "ROC"
 
 #: gui/RecordWidget.py:160
+#: gui/RecordWidget.py:184
 msgid "A valid filename is required"
 msgstr "Un nom de fichier valide est requis"
 
@@ -868,6 +917,15 @@ msgid "Unable to add/update the file to the database"
 msgstr "Impossible d'ajouter/mettre à jours le fichier dans la base de donnée"
 
 #: database/db.py:83
+#: database/db.py:84
 msgid "Unable to get the image in format %(needed_format) for section %(section) "
 msgstr "Impossible de récuperer l'image au format %(needed_format) dans la section %(section) "
+
+#: gui/virtualFolder.py:20
+msgid "Directory chooser"
+msgstr "Selecteur de répertoire"
+
+#: gui/virtualFolder.py:49
+msgid "ROOT"
+msgstr "BASE"
 

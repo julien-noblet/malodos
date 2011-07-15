@@ -16,6 +16,8 @@ def show_message(message):
 def ask(message):
     dlg =  wx.MessageDialog(None,message,_('Question'),wx.YES_NO)
     return dlg.ShowModal()
+def ask_string(message,caption=_('String expected'),defaultValue=''):
+    return wx.GetTextFromUser(message,caption,defaultValue)
 
 class ProgressDialog:
     def __init__(self,title='Progression',message=None):
