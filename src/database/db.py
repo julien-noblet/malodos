@@ -813,6 +813,17 @@ class Base(object):
         except:
             return False
     #===========================================================================
+    # folders_change_parent(ID,ID,parentID) : change the parentship of a folder 
+    #===========================================================================
+    def folders_change_parent(self,ID,parentID):
+        try:
+            Q = 'UPDATE %s SET parentID=? WHERE rowID=?' % self.folders_tableName 
+            cur = self.connexion.execute(Q, [parentID,ID])
+            self.connexion.commit()
+            return True
+        except:
+            return False
+    #===========================================================================
     # folders_genealogy_of(folderID) : return the parent, grandparent, grand-grand parents,... of a folder
     #===========================================================================
     def folders_genealogy_of(self,folderID):

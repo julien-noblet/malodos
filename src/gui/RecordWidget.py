@@ -20,6 +20,7 @@ import gui.virtualFolder
 
 #import pyPdf
 
+
 class RecordWidget(wx.Window):
     def __init__(self,parent,filename='',file_style = wx.FLP_OPEN | wx.FLP_FILE_MUST_EXIST | wx.FLP_USE_TEXTCTRL,):
         '''
@@ -76,26 +77,18 @@ class RecordWidget(wx.Window):
         self.totSizer.Add(self.txtFieldSizer,proportion=2,flag=wx.EXPAND)
         
         self.virtFolderSizer = wx.GridBagSizer(1)
+        self.vFold = gui.virtualFolder.FolderView(self.panel,True,False,[])
         self.lbFolders = wx.ListCtrl(self.panel,-1)
-        self.virtFolderSizer.Add(self.lbFolders,(0,0),span=(1,3),flag=wx.EXPAND)
-        self.btAdd = wx.Button(self.panel,-1,'add')
-        self.btChange = wx.Button(self.panel,-1,'change')
-        self.btRemove = wx.Button(self.panel,-1,'remove')
-        self.virtFolderSizer.Add(self.btAdd,(1,0),flag=wx.SHAPED|wx.ALIGN_LEFT)
-        self.virtFolderSizer.Add(self.btChange,(1,1),flag=wx.SHAPED|wx.ALIGN_CENTRE)
-        self.virtFolderSizer.Add(self.btRemove,(1,2),flag=wx.SHAPED|wx.ALIGN_RIGHT)
+        self.virtFolderSizer.Add(self.vFold,(0,0),flag=wx.EXPAND)
+        self.virtFolderSizer.Add(self.lbFolders,(1,0),flag=wx.EXPAND)
         self.virtFolderSizer.AddGrowableRow(0)
-        self.virtFolderSizer.AddGrowableCol(1)
+        self.virtFolderSizer.AddGrowableCol(0)
         self.totSizer.Add(self.virtFolderSizer,proportion=1,flag=wx.EXPAND)
         
         self.panel.SetSizerAndFit(self.totSizer)
         self.Bind(wx.EVT_SIZE,self.onResize)
         self.Bind(wx.EVT_FILEPICKER_CHANGED,self.checkFileName)
-        self.Bind(wx.EVT_BUTTON,self.actionAddInFolder,self.btAdd)
         
-    def actionAddInFolder(self,event):
-        folder = gui.virtualFolder.FolderView(self)
-        folder.Show()
     def checkFileName(self,event):
         filename = self.lbFileName.GetPath()
         if len(filename) == 0:

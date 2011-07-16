@@ -13,35 +13,91 @@ from database import theBase
 import utilities
 
 
-class FolderView (wx.Dialog):
-    def __init__(self, parent):
+class FolderView (wx.Panel):
+    ID_ADD=1
+    ID_RENAME=2
+    ID_DELETE=3
+    ID_SELECT=4
+    def __init__(self, parent,selector=True,editor=True,selectedList=set()):
         '''
         Constructor
         '''
-        wx.Dialog.__init__(self, parent, -1, _('Directory chooser'),style=wx.DEFAULT_DIALOG_STYLE|wx.RESIZE_BORDER)
-        self.panel = wx.Panel(self, -1)
-        self.totSizer = wx.GridBagSizer(3)
-        self.treeView = wx.TreeCtrl(self.panel,-1,style=wx.TR_DEFAULT_STYLE|wx.TR_FULL_ROW_HIGHLIGHT)
-        self.btSelect = wx.Button(self.panel,-1,'select')
-        self.btAdd = wx.Button(self.panel,-1,'add')
-        self.btDel = wx.Button(self.panel,-1,'del')
-        self.btRen = wx.Button(self.panel,-1,'ren')
-        self.totSizer.Add(self.treeView,(0,0),span=(1,5),flag=wx.EXPAND)
-        self.totSizer.Add(self.btSelect,(1,0),flag=wx.EXPAND)
-        self.totSizer.Add(self.btAdd,(1,1),flag=wx.EXPAND)
-        self.totSizer.Add(self.btDel,(1,2),flag=wx.EXPAND)
-        self.totSizer.Add(self.btRen,(1,3),flag=wx.EXPAND)
-        self.totSizer.AddGrowableRow(0)
-        self.totSizer.AddGrowableCol(4)
-        self.panel.SetSizerAndFit(self.totSizer)
+        wx.Panel.__init__(self, parent, -1,style=wx.DEFAULT_FRAME_STYLE)
+        self.totSizer = wx.BoxSizer(wx.HORIZONTAL)
+        self.treeView = wx.TreeCtrl(self,-1,style=wx.TR_DEFAULT_STYLE|wx.TR_FULL_ROW_HIGHLIGHT|wx.TR_EDIT_LABELS)
+        self.totSizer.Add(self.treeView,1,flag=wx.EXPAND)
+        self.SetSizerAndFit(self.totSizer)
+        self.editor=editor
+        self.selector=selector
+        self.selectedList=set(selectedList)
         self.fillDirectories()
+        self.treeView.Bind(wx.EVT_TREE_ITEM_MENU,self.action_context_menu)
+        self.treeView.Bind(wx.EVT_MENU,self.action_menu)
+        if editor :
+            self.treeView.Bind(wx.EVT_TREE_BEGIN_DRAG,self.action_drag_drop_begin)
+            self.treeView.Bind(wx.EVT_TREE_END_DRAG,self.action_drag_drop_end)
+            self.treeView.Bind(wx.EVT_TREE_BEGIN_LABEL_EDIT,self.action_want_changed_label)
+            self.treeView.Bind(wx.EVT_TREE_END_LABEL_EDIT,self.action_changed_label)
+        if selector:
+            self.treeView.Bind(wx.EVT_TREE_ITEM_ACTIVATED,self.action_double_click)
+
+    def action_menu(self,event):
+        item = self.itemMenu
+        action = event.GetId()
+        if action == self.ID_SELECT:
+            self.action_double_click(event, self.itemMenu)
+        elif action == self.ID_RENAME:
+            self.treeView.EditLabel(item)
+        elif action == self.ID_DELETE:
+            self.action_del_subfolder(item)
+        elif action == self.ID_ADD:
+            self.action_add_subfolder(item)
+    def action_want_changed_label(self,event):
+        item = self.treeView.GetPyData(event.GetItem())
+        if item==0 : event.Veto()
+    def action_changed_label(self,event):
+        if event.IsEditCancelled(): return
+        itemID = self.treeView.GetPyData(event.GetItem())
+        if itemID==0 : return
+        newName = event.GetLabel()
+        theBase.folders_rename(itemID,newName)
         
-        self.Bind(wx.EVT_BUTTON,self.action_add_subfolder,self.btAdd)
-        self.Bind(wx.EVT_BUTTON,self.action_del_subfolder,self.btDel)
-        self.Bind(wx.EVT_BUTTON,self.action_ren_subfolder,self.btRen)
-        self.treeView.Bind(wx.EVT_TREE_END_DRAG,self.action_drag_drop)
-    def action_drag_drop(self,event):
-        print event
+    def action_context_menu(self,event):
+        self.itemMenu = event.GetItem()
+        menu = wx.Menu()
+        if self.selector:
+            menu.Append(self.ID_SELECT,_('select'))
+        if self.editor :
+            menu.Append(self.ID_ADD,_('add sub-menu'))
+            if self.treeView.GetPyData(self.itemMenu) != 0:
+                menu.Append(self.ID_RENAME,_('rename'))
+                menu.Append(self.ID_DELETE,_('delete'))
+        self.treeView.PopupMenu(menu)
+
+    def action_double_click(self,event,item=None):
+        if item is None : item = event.GetItem()
+        folderID = self.treeView.GetPyData(item)
+        if folderID in self.selectedList:
+            self.treeView.SetItemBold(item,False)
+            self.selectedList.remove(folderID)
+        else:
+            self.treeView.SetItemBold(item,True)
+            self.selectedList.add(folderID)
+    def action_drag_drop_begin(self,event):
+        self.dragedItem = event.GetItem() 
+        event.Allow()
+    def action_drag_drop_end(self,event):
+        if self.dragedItem == event.GetItem() : return
+        oldItem = self.treeView.GetItemText(self.dragedItem)
+        newItem = self.treeView.GetItemText(event.GetItem())
+        do_move = utilities.ask(_('Do you really want to move the folder {src} and all its content under the folder {dst} ?').format(src=oldItem,dst=newItem))
+        if do_move != wx.ID_YES: return
+        iniFolderID = self.treeView.GetPyData(self.dragedItem)
+        dstFolderID = self.treeView.GetPyData(event.GetItem())
+        if not theBase.folders_change_parent(iniFolderID,dstFolderID):
+            utilities.message(_('Unable to move the folder {src} under {dst}').format(src=oldItem,dst=newItem))
+        else:
+            self.fillDirectories()
     def fillDirectories(self):
         def fillUnder(itemID):
             addedItems = []
@@ -51,23 +107,21 @@ class FolderView (wx.Dialog):
                 id = row[0]
                 name = row[1]
                 item = self.treeView.AppendItem(itemID,name,data=wx.TreeItemData(id))
+                if id in self.selectedList : self.treeView.SetItemBold(item)
                 addedItems.append(item)
             for item in addedItems : fillUnder(item)
         self.treeView.DeleteAllItems()
         itemID = self.treeView.AddRoot(_('ROOT'),data=wx.TreeItemData(0))
         fillUnder(itemID)
-        #self.treeView.ExpandAll()
-        #self.FitInside()
-    def action_add_subfolder(self,event):
+        self.treeView.ExpandAll()
+    def action_add_subfolder(self,item):
         name = utilities.ask_string(_('name :'),_('Give a sub-folder name'),_('folder'))
-        item = self.treeView.GetSelection()
         folderID = self.treeView.GetPyData(item)
         if theBase.folders_add_child_under(name,folderID):
             self.fillDirectories()
         else:
             utilities.message(_('unable to add the sub-folder {0}').format(name))
-    def action_del_subfolder(self,event):
-        item = self.treeView.GetSelection()
+    def action_del_subfolder(self,item):
         folderID = self.treeView.GetPyData(item)
         folderName = self.treeView.GetItemText(item)
         sure = utilities.ask(_('Are you sure that you want to delete the folder {0}'.format(folderName)))
@@ -76,8 +130,7 @@ class FolderView (wx.Dialog):
                 self.fillDirectories()
             else:
                 utilities.message(_('unable to remove the sub-folder {0}').format(folderName))
-    def action_ren_subfolder(self,event):
-        item = self.treeView.GetSelection()
+    def action_ren_subfolder(self,item):
         folderID = self.treeView.GetPyData(item)
         folderName = self.treeView.GetItemText(item)
         name = utilities.ask_string(_('name :'),_('Give a sub-folder name'),folderName)
