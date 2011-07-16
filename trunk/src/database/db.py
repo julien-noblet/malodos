@@ -826,17 +826,25 @@ class Base(object):
     #===========================================================================
     # folders_genealogy_of(folderID) : return the parent, grandparent, grand-grand parents,... of a folder
     #===========================================================================
-    def folders_genealogy_of(self,folderID):
+    def folders_genealogy_of(self,folderID,stringAnswer=True):
         genealogy = []
         try:
             cont=True
             while cont:
-                Q = 'SELECT parentID FROM %s WHERE rowID=?' % self.folderDoc_tableName 
+                Q = 'SELECT parentID,name FROM %s WHERE rowID=?' % self.folders_tableName 
                 cur = self.connexion.execute(Q, [folderID,])
-                parent = cur[0][0]
-                genealogy.append(parent)
+                V = cur.fetchone()
+                parent=V[0]
+                if stringAnswer:
+                    genealogy.append(V[1])
+                else:
+                    genealogy.append(parent)
+                folderID=parent
                 cont = (parent != 0)
-        except:
+            genealogy.reverse()
+            return genealogy
+        except Exception,E:
+            print E
             return []
     #===========================================================================
     # folders_is_descendant_of(folderID,baseID) : does folder folderID in the descendant of parentID

@@ -18,7 +18,7 @@ class FolderView (wx.Panel):
     ID_RENAME=2
     ID_DELETE=3
     ID_SELECT=4
-    def __init__(self, parent,selector=True,editor=True,selectedList=set()):
+    def __init__(self, parent,selector=True,editor=True,selectedList=set(),selectionChangeCallBack=None):
         '''
         Constructor
         '''
@@ -33,6 +33,7 @@ class FolderView (wx.Panel):
         self.fillDirectories()
         self.treeView.Bind(wx.EVT_TREE_ITEM_MENU,self.action_context_menu)
         self.treeView.Bind(wx.EVT_MENU,self.action_menu)
+        self.selectionChangeCallBack=selectionChangeCallBack
         if editor :
             self.treeView.Bind(wx.EVT_TREE_BEGIN_DRAG,self.action_drag_drop_begin)
             self.treeView.Bind(wx.EVT_TREE_END_DRAG,self.action_drag_drop_end)
@@ -41,6 +42,8 @@ class FolderView (wx.Panel):
         if selector:
             self.treeView.Bind(wx.EVT_TREE_ITEM_ACTIVATED,self.action_double_click)
 
+    def set_selectionChangeCallBack(self,selectionChangeCallBack=None):
+        self.selectionChangeCallBack=selectionChangeCallBack
     def action_menu(self,event):
         item = self.itemMenu
         action = event.GetId()
@@ -55,12 +58,16 @@ class FolderView (wx.Panel):
     def action_want_changed_label(self,event):
         item = self.treeView.GetPyData(event.GetItem())
         if item==0 : event.Veto()
+    def notify_selection(self):
+        if self.selectionChangeCallBack is None : return
+        self.selectionChangeCallBack(self.selectedList)
     def action_changed_label(self,event):
         if event.IsEditCancelled(): return
         itemID = self.treeView.GetPyData(event.GetItem())
         if itemID==0 : return
         newName = event.GetLabel()
         theBase.folders_rename(itemID,newName)
+        self.notify_selection()
         
     def action_context_menu(self,event):
         self.itemMenu = event.GetItem()
@@ -83,6 +90,7 @@ class FolderView (wx.Panel):
         else:
             self.treeView.SetItemBold(item,True)
             self.selectedList.add(folderID)
+        self.notify_selection()
     def action_drag_drop_begin(self,event):
         self.dragedItem = event.GetItem() 
         event.Allow()
@@ -98,6 +106,7 @@ class FolderView (wx.Panel):
             utilities.message(_('Unable to move the folder {src} under {dst}').format(src=oldItem,dst=newItem))
         else:
             self.fillDirectories()
+            self.notify_selection()
     def fillDirectories(self):
         def fillUnder(itemID):
             addedItems = []
@@ -119,6 +128,7 @@ class FolderView (wx.Panel):
         folderID = self.treeView.GetPyData(item)
         if theBase.folders_add_child_under(name,folderID):
             self.fillDirectories()
+            self.notify_selection()
         else:
             utilities.message(_('unable to add the sub-folder {0}').format(name))
     def action_del_subfolder(self,item):
@@ -128,6 +138,7 @@ class FolderView (wx.Panel):
         if sure==wx.ID_YES:
             if theBase.folders_remove(folderID):
                 self.fillDirectories()
+                self.notify_selection()
             else:
                 utilities.message(_('unable to remove the sub-folder {0}').format(folderName))
     def action_ren_subfolder(self,item):
@@ -138,5 +149,6 @@ class FolderView (wx.Panel):
         if sure==wx.ID_YES:
             if theBase.folders_rename(folderID,name):
                 self.fillDirectories()
+                self.notify_selection()
             else:
                 utilities.message(_('unable to remove the subfolder {0}').format(folderName))
