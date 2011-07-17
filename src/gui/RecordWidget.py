@@ -164,7 +164,8 @@ class RecordWidget(wx.Window):
         self.lbTitle.SetValue('')
         self.lbDescription.SetValue('')
         self.lbTags.SetValue('')
-    def SetFields(self,filename=None,title=None,description=None,date=None,tags=None,doOCR=None):
+        self.vFold.setSelectedList(set())
+    def SetFields(self,filename=None,title=None,description=None,date=None,tags=None,doOCR=None,selectedList=None):
         if not filename is None: self.lbFileName.SetPath(filename) 
         if not title is None : self.lbTitle.SetValue(title)
         if not description is None : self.lbDescription.SetValue(description)
@@ -176,6 +177,10 @@ class RecordWidget(wx.Window):
             dt.SetYear(date.year)
             self.lbDate.SetValue(dt)
         if not doOCR is None : self.cbOCR.SetValue(doOCR)
+        if not selectedList is None :
+            self.vFold.setSelectedList(selectedList)
+            self.updateSelection(selectedList)
+            
     def onResize(self,event):
         self.panel.Size = self.Size
     def do_save_record(self):
@@ -204,7 +209,7 @@ class RecordWidget(wx.Window):
         if fullText is None or len(fullText)==0 : fullText = {'NOTHING FOUND':1}
         # add the document to the database
         keywordsGroups = database.theBase.get_keywordsGroups_from(title, description, filename , tags, fullText)
-        return database.theBase.add_document(filename, title, description, None, documentDate, keywordsGroups,tags)
+        return database.theBase.add_document(filename, title, description, None, documentDate, keywordsGroups,tags,self.vFold.getSelectedList())
     def update_record(self,docID,redoOCR=None):
         filename = self.lbFileName.GetPath()
         title = self.lbTitle.Value
@@ -212,6 +217,7 @@ class RecordWidget(wx.Window):
         description = self.lbDescription.Value
         documentDate = self.lbDate.Value
         documentDate=datetime.date(year=documentDate.GetYear(),month=documentDate.GetMonth()+1,day=documentDate.GetDay())
+        folderIDList = self.vFold.getSelectedList()
         fullText=None
         if redoOCR is None : redoOCR = self.cbOCR.GetValue()
         if redoOCR:
@@ -227,11 +233,11 @@ class RecordWidget(wx.Window):
                     else:
                         fullText = None
                     if fullText is None or len(fullText)==0 : fullText = {'NOTHING FOUND':1}
-            except Exception, E:
+            except:
                 pass
         # add the document to the database
         #keywordsGroups = database.theBase.get_keywordsGroups_from(title, description, filename , tags, fullText)
-        if not database.theBase.update_doc(docID, title, description, documentDate, filename,tags,fullText):
+        if not database.theBase.update_doc(docID, title, description, documentDate, filename,tags,fullText,folderIDList):
             wx.MessageBox(_('Unable to update the database'))
             return False
         return True

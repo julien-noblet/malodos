@@ -181,6 +181,7 @@ class MainFrame(wx.Frame):
         description = row[database.theBase.IDX_DESCRIPTION]
         documentDate = row[database.theBase.IDX_DOCUMENT_DATE]
         tags = row[database.theBase.IDX_TAGS]
+        folderID_list = database.theBase.folders_list_for(docID)
         try:
             file_md5 = hashlib.md5(open(row[database.theBase.IDX_FILENAME], "rb").read()).hexdigest()
             if row[database.theBase.IDX_CHECKSUM] !=  file_md5:
@@ -190,8 +191,7 @@ class MainFrame(wx.Frame):
                         wx.MessageBox(_('Unable to update the database'))
         except:
             utilities.show_message(_('Unable to check the file signature...'))
-        
-        self.recordPart.SetFields(filename, title, description, documentDate,tags,False)
+        self.recordPart.SetFields(filename, title, description, documentDate,tags,False,folderID_list)
         #print row
         try:
             theData.load_file(filename)

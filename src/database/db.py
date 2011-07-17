@@ -400,7 +400,7 @@ class Base(object):
     # add a new document to the database
     #===============================================================================
     def add_document(self, fileName, title = 'untitled', description = '', registeringPerson = None\
-                     , documentDate = None, keywordsGroups = None , tags = ''):
+                     , documentDate = None, keywordsGroups = None , tags = '',folderID_list=None):
         '''(
         Add a new document to the database
         only the filename is mandatory
@@ -442,7 +442,7 @@ class Base(object):
         if keywordsGroups :
             # find the list of keyword not yet registered
             if not self.update_keywords_for(docID,keywordsGroups) : return False
-        return True # finishes if no keyword to register
+        return self.folders_set_doc_to(docID, folderID_list)
     #===============================================================================
     # finding keywords rows
     #===============================================================================
@@ -685,16 +685,17 @@ class Base(object):
     #===========================================================================
     # update_doc : replace the values for a given doc
     #===========================================================================
-    def update_doc(self,docID,title,description,documentDate,filename,tags,fullText=None):
+    def update_doc(self,docID,title,description,documentDate,filename,tags,fullText=None,folderID_list=None):
         Q = 'UPDATE ' + self.documents_tableName + ' SET title=? , description=?, documentDate=? ,tags=? , filename=? WHERE ROWID=?'
         try:
             self.connexion.execute(Q,(title,description,documentDate,tags,filename,docID))
             self.connexion.commit()
         except:
             gui.utilities.show_message(_('Unable to update document into database'))
-            return
+            return False
         keywordsGroups = self.get_keywordsGroups_from(title, description, filename,tags,fullText)
-        return self.update_keywords_for(docID,keywordsGroups)
+        if not self.update_keywords_for(docID,keywordsGroups) : return False
+        return self.folders_set_doc_to(docID, folderID_list)
     #===========================================================================
     # update_doc : replace the values for a given doc
     #===========================================================================
@@ -853,39 +854,56 @@ class Base(object):
         genealogy = self.folders_genealogy_of(folderID)
         return folderID in genealogy
     #===========================================================================
-    # folders_does_doc_descendant_from(docID,baseID) : does doc docID in the descendant of parentID
+    # folders_list_for(docID) : list of folderID owning docID
     #===========================================================================
-    def folders_does_doc_descendant_from(self,docID,baseID):
+    def folders_list_for(self,docID):
         try:
             Q = 'SELECT folderID FROM %s WHERE docID =?' % self.folderDoc_tableName
             cur = self.connexion.execute(Q, [docID])
-            folderIDs = [row[0] for row in cur]
+            folderID_list = [row[0] for row in cur]
         except:
-            foldersID=[]
-        for folderID in folderIDs:
-            genealogy = self.folders_genealogy_of(folderID)
+            folderID_list=[]
+        return folderID_list
+    #===========================================================================
+    # folders_does_doc_descendant_from(docID,baseID) : does doc docID in the descendant of parentID
+    #===========================================================================
+    def folders_does_doc_descendant_from(self,docID,baseID):
+        folderID_list = self.folder_list_for(docID)
+        for folderID in folderID_list:
+            genealogy = self.folders_genealogy_of(folderID,False)
             if (folderID in genealogy) : return True
         return False
     #===========================================================================
     # folders_add_doc_to(docID,folderID) : add the document docID under the folder ID 
     #===========================================================================
-    def folders_add_doc_to(self,docID,folderID):
+    def folders_set_doc_to(self,docID,folderID_list):
         try:
+            if not self.folders_remove_doc_from(docID) : return False
+            if folderID_list is None or len(folderID_list)<1 : return True
             Q = 'INSERT INTO %s VALUES (?,?)' % self.folderDoc_tableName
-            cur = self.connexion.execute(Q, [docID,folderID])
+            params = [[docID,folderID] for folderID in folderID_list]
+            self.connexion.executemany(Q, params)
             self.connexion.commit()
             return True
-        except:
+        except Exception,E:
+            print E
             return False
     #===========================================================================
     # folders_rem_doc_from(docID,folderID) : remove the document docID under the folder ID 
     #===========================================================================
-    def folders_add_doc_to(self,docID,folderID):
+    def folders_remove_doc_from(self,docID,folderID_list=None):
         try:
-            Q = 'DELETE FROM %s WHERE docID=? AND folderID=?' % self.folderDoc_tableName 
-            cur = self.connexion.execute(Q, [docID,folderID])
+            Q = 'DELETE FROM %s WHERE docID=?' % self.folderDoc_tableName
+            params=[docID,]
+            if (not folderID_list is None) and len(folderID_list)>0:
+                if not hasattr(folderID_list, '__iter__') : folderID_list=[folderID_list,]
+                QQ = 'AND folderID_list IN %s' %self.make_placeholder_list(len(folderID_list))
+                Q=Q+QQ
+                params.extend(folderID_list)
+            self.connexion.execute(Q, params)
             self.connexion.commit()
             return True
-        except:
+        except Exception,E:
+            print E
             return False
             
