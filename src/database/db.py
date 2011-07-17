@@ -112,7 +112,7 @@ class OCRConfiguration(ConfigReader):
             else:
                 to_place2.append(s)
         for s in to_place2:
-            no_placed=True
+            not_placed=True
             for i in range(len(placeHolder)) :
                 if placeHolder[i] == '' :
                     placeHolder[i] = s
@@ -784,7 +784,7 @@ class Base(object):
     def folders_add_child_under(self,name,ID):
         Q = 'INSERT INTO %s VALUES (?,?)' % self.folders_tableName 
         try:
-            cur = self.connexion.execute(Q, [name,ID])
+            self.connexion.execute(Q, [name,ID])
             self.connexion.commit()
             return True
         except:
@@ -797,7 +797,7 @@ class Base(object):
             Q = 'DELETE FROM %s WHERE folderID=?' % self.folderDoc_tableName
             self.connexion.execute(Q, [ID,])
             Q = 'DELETE FROM %s WHERE rowID=?' % self.folders_tableName 
-            cur = self.connexion.execute(Q, [ID,])
+            self.connexion.execute(Q, [ID,])
             self.connexion.commit()
             return True
         except:
@@ -808,7 +808,7 @@ class Base(object):
     def folders_rename(self,ID,name):
         try:
             Q = 'UPDATE %s SET name=? WHERE rowID=?' % self.folders_tableName 
-            cur = self.connexion.execute(Q, [name,ID])
+            self.connexion.execute(Q, [name,ID])
             self.connexion.commit()
             return True
         except:
@@ -819,7 +819,7 @@ class Base(object):
     def folders_change_parent(self,ID,parentID):
         try:
             Q = 'UPDATE %s SET parentID=? WHERE rowID=?' % self.folders_tableName 
-            cur = self.connexion.execute(Q, [parentID,ID])
+            self.connexion.execute(Q, [parentID,ID])
             self.connexion.commit()
             return True
         except:
