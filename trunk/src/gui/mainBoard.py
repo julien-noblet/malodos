@@ -7,7 +7,6 @@ attached to this project (LICENSE.txt file)
 =====================================================================
 GUI frame of the main application board
 '''
-import datetime
 import wx
 import addFileWindow
 import RecordWidget
@@ -26,8 +25,35 @@ from gui import Preferences
 import Resources
 import algorithms.stringFunctions
 import data
-import enchant
 
+class FlatView(wx.NotebookPage):
+    def __init__(self,parent,id,name):
+        wx.NotebookPage.__init__(self,parent,id,name=name)
+        self.totSizer = wx.BoxSizer(wx.VERTICAL)
+        self.panel = wx.Panel(self, -1)
+        self.lbDocuments = wx.ListBox(self.panel, -1,style=wx.LB_SORT | wx.LB_EXTENDED )
+        self.totSizer.Add(self.lbDocuments,1,wx.EXPAND)
+        self.panel.SetSizerAndFit(self.totSizer)
+    def fillWith(self,docList):
+        self.lbDocuments.Clear()
+        if docList is None : return
+        for row in docList:
+            self.lbDocuments.Append(row[database.theBase.IDX_TITLE] , row)
+class FolderView(wx.NotebookPage):
+    def __init__(self,parent,id,name):
+        wx.NotebookPage.__init__(self,parent,id,name=name)
+        self.totSizer = wx.BoxSizer(wx.VERTICAL)
+        self.panel = wx.Panel(self, -1)
+        self.trFolders = wx.TreeCtrl(self.panel, -1,style=wx.TR_DEFAULT_STYLE|wx.TR_FULL_ROW_HIGHLIGHT )
+        self.totSizer.Add(self.trFolders,1,wx.EXPAND)
+        self.panel.SetSizerAndFit(self.totSizer)
+    def fillWith(self,docList):
+        self.trFolders.DeleteAllItems()
+        if docList is None : return
+        item=self.trFolders.AddRoot(_('ROOT'),data=wx.TreeItemData(0))
+        for row in docList:
+            title=row[database.theBase.IDX_TITLE]
+            self.trFolders.AppendItem(item,title,data=wx.TreeItemData(row))
 class MainFrame(wx.Frame):
     ID_ADD_FILE=1
     ID_ADD_SCAN=2
@@ -44,7 +70,6 @@ class MainFrame(wx.Frame):
         wx.Frame.__init__(self, parent, -1, _('MALODOS Main panel'), wx.DefaultPosition, (576, 721), style=wx.CLOSE_BOX | wx.SYSTEM_MENU | wx.CAPTION | wx.RESIZE_BORDER | 0 | 0 | wx.MAXIMIZE_BOX | wx.MINIMIZE_BOX)
         self.panel = wx.Panel(self, -1)
         
-
         self.docPart = wx.SplitterWindow(self.panel,-1,style=wx.SP_3D | wx.SP_LIVE_UPDATE)
         self.docPart.SetSashGravity(0.5)
         
@@ -85,7 +110,13 @@ class MainFrame(wx.Frame):
         self.recordSizer.Add(self.recordButtonSizer)
         self.docViewPanel.SetSizerAndFit(self.docViewSizer)
 
-        self.lbDocuments = wx.ListBox(self.docPart, -1,size= (387, 124),style=wx.LB_SORT | wx.LB_EXTENDED )
+        #self.lbDocuments = wx.ListBox(self.docPart, -1,size= (387, 124),style=wx.LB_SORT | wx.LB_EXTENDED )
+        self.leftPane = wx.Notebook(self.docPart,-1)
+        self.flatViewFrame = FlatView(self.leftPane,-1,name=_("Flat view"))       
+        self.leftPane.AddPage(self.flatViewFrame,self.flatViewFrame.GetName())
+        self.folderViewFrame = FolderView(self.leftPane,-1,name=_("Folder view"))       
+        self.leftPane.AddPage(self.folderViewFrame,self.folderViewFrame.GetName())
+        
         self.label2 = wx.StaticText(self.panel, -1, _('filter :'))
         self.tbFilter = wx.TextCtrl(self.panel, -1, '',style=wx.TE_PROCESS_ENTER)
         self.btBuildFilter = wx.Button(self.panel, -1, _('advanced'))
@@ -96,7 +127,7 @@ class MainFrame(wx.Frame):
         self.totalWin = wx.BoxSizer(wx.VERTICAL)
         self.upPart = wx.BoxSizer(wx.HORIZONTAL)
         self.searchPart = wx.BoxSizer(wx.HORIZONTAL)
-        self.docPart.SplitVertically(self.lbDocuments,self.docViewPanel)
+        self.docPart.SplitVertically(self.leftPane,self.docViewPanel)
 
         # adding widgets into sizers (--> creating layout)
         self.searchPart.Add(self.label2,0,wx.ALIGN_LEFT)
@@ -112,7 +143,7 @@ class MainFrame(wx.Frame):
         self.totalWin.Layout()
 
         self.Bind(wx.EVT_TEXT_ENTER, self.actionSearch, self.tbFilter)
-        self.Bind(wx.EVT_LISTBOX,self.actionDocSelect,self.lbDocuments)
+        self.Bind(wx.EVT_LISTBOX,self.actionDocSelect,self.flatViewFrame.lbDocuments)
         self.Bind(wx.EVT_TOOL, self.actionAddFile, id=self.ID_ADD_FILE)
         self.Bind(wx.EVT_TOOL, self.actionAddScan, id=self.ID_ADD_SCAN)
         self.Bind(wx.EVT_TOOL, self.actionDoPrint, id=self.ID_PRINT_DOC)
@@ -155,25 +186,28 @@ class MainFrame(wx.Frame):
     #===========================================================================
     def actionSearch(self,event):
         # clear the listbox
-        self.lbDocuments.Clear()
+        #self.flatViewFrame.lbDocuments.Clear()
         sFilter = self.tbFilter.Value
         if len(sFilter)==0:
             docList = database.theBase.find_documents(None)
         else:
             [request,pars] = algorithms.stringFunctions.req_to_sql(self.tbFilter.Value)
             docList = database.theBase.find_sql(request,pars)
-        if not docList: return
+        #if not docList: return
         # otherwise show them in the listbox
-        for row in docList:
-            self.lbDocuments.Append(row[database.theBase.IDX_TITLE] , row)
+        docList=[row for row in docList]
+        self.flatViewFrame.fillWith(docList)
+        self.folderViewFrame.fillWith(docList)
+#        for row in docList:
+#            self.flatViewFrame.lbDocuments.Append(row[database.theBase.IDX_TITLE] , row)
     #===========================================================================
     # actionDocSelect : show the selected item on the doc part
     #===========================================================================
     def actionDocSelect(self,event):
-        sel = self.lbDocuments.GetSelections()
+        sel = self.flatViewFrame.lbDocuments.GetSelections()
         if sel == wx.NOT_FOUND or len(sel)!=1: return
         sel = sel[0]
-        row = self.lbDocuments.GetClientData(sel)
+        row = self.flatViewFrame.lbDocuments.GetClientData(sel)
         
         docID = row[database.theBase.IDX_ROWID]
         filename = row[database.theBase.IDX_FILENAME]
@@ -204,10 +238,10 @@ class MainFrame(wx.Frame):
     # actionStartExternalApp : start the system default application associated with the file
     #===========================================================================
     def actionStartExternalApp(self,event):
-        sel = self.lbDocuments.GetSelections()
+        sel = self.flatViewFrame.lbDocuments.GetSelections()
         if sel == wx.NOT_FOUND or len(sel)!=1: return
         sel = sel[0]
-        row = self.lbDocuments.GetClientData(sel)
+        row = self.flatViewFrame.lbDocuments.GetClientData(sel)
         filename = row[database.theBase.IDX_FILENAME]
         if os.name == 'posix' :
             subprocess.Popen(['xdg-open', filename])
@@ -217,21 +251,21 @@ class MainFrame(wx.Frame):
     # actionUpdateRecord : update the current record
     #===========================================================================
     def actionUpdateRecord(self,event):
-        sel = self.lbDocuments.GetSelections()
+        sel = self.flatViewFrame.lbDocuments.GetSelections()
         if sel == wx.NOT_FOUND or len(sel)!=1: return
         sel = sel[0]
-        row = self.lbDocuments.GetClientData(sel)
+        row = self.flatViewFrame.lbDocuments.GetClientData(sel)
         docID = row[database.theBase.IDX_ROWID]
         if self.recordPart.update_record(docID) : self.actionSearch(event)
     #===========================================================================
     # actionRemoveRecord : remove the selected items
     #===========================================================================
     def actionRemoveRecord(self,event):
-        sel = self.lbDocuments.GetSelections()
+        sel = self.flatViewFrame.lbDocuments.GetSelections()
         if sel == wx.NOT_FOUND : return
         docID = []
         for i in sel:
-            row = self.lbDocuments.GetClientData(i)
+            row = self.flatViewFrame.lbDocuments.GetClientData(i)
             docID.append(row[database.theBase.IDX_ROWID])
         if len(docID)==1:
             msg = _('do you really want to delete this record (') + row[database.theBase.IDX_TITLE] + ')'        
