@@ -107,6 +107,7 @@ class SurveyWindow(wx.Dialog):
                 return
             #fname = self.docList.GetClientData(sel)
             #if not fname : return
+            self.baseWin.recordPart.clear_all()
             self.baseWin.recordPart.SetFields(filename = fname,doOCR=str_to_bool( database.theConfig.get_param('OCR', 'autoStart','1') ))
             try:
                 data.theData.load_file(fname)
@@ -226,11 +227,13 @@ class SurveyWindow(wx.Dialog):
             description = row[database.theBase.IDX_DESCRIPTION]
             documentDate = row[database.theBase.IDX_DOCUMENT_DATE]
             tags = row[database.theBase.IDX_TAGS]
+            folderID_list = database.theBase.folders_list_for(docID)
             md5_cs  = row[database.db.Base.IDX_CHECKSUM]
             if not os.path.exists(filename):
                 filename = self.tryToFind(os.path.splitext(filename)[1],md5_cs)
             if filename is None : filename=''
-            self.baseWin.recordPart.SetFields(filename, title, description, documentDate,tags,str_to_bool(theConfig.get_param('OCR', 'autoStart','1')))
+            doOCR = str_to_bool(theConfig.get_param('OCR', 'autoStart','1'))
+            self.baseWin.recordPart.SetFields(filename, title, description, documentDate,tags,doOCR,folderID_list)
             try:
                 data.theData.load_file(filename)
                 self.baseWin.docWin.resetView()
@@ -277,6 +280,7 @@ class SurveyWindow(wx.Dialog):
             documentDate = row[database.theBase.IDX_DOCUMENT_DATE]
             tags = row[database.theBase.IDX_TAGS]
             md5_cs  = row[database.db.Base.IDX_CHECKSUM]
+            folderIDList = database.theBase.folders_list_for(docID)
             if not os.path.exists(filename):
                 filename = self.tryToFind(os.path.splitext(filename)[1],md5_cs)
                 #filename = self.tryToFind(os.path.split(filename)[1],md5_cs)
@@ -286,7 +290,7 @@ class SurveyWindow(wx.Dialog):
                     database.theBase.remove_documents((docID,))
                 else:
                     #print "updating with" + filename 
-                    database.theBase.update_doc(docID, title, description, documentDate, filename, tags)
+                    database.theBase.update_doc(docID, title, description, documentDate, filename, tags,folderID_list=folderIDList)
                 return
             new_md5_cs = hashlib.md5(open(filename, "rb").read()).hexdigest()
             database.theBase.update_doc_signature(docID, new_md5_cs)

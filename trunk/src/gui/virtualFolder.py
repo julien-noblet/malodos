@@ -103,7 +103,7 @@ class FolderView (wx.Panel):
         iniFolderID = self.treeView.GetPyData(self.dragedItem)
         dstFolderID = self.treeView.GetPyData(event.GetItem())
         if not theBase.folders_change_parent(iniFolderID,dstFolderID):
-            utilities.message(_('Unable to move the folder {src} under {dst}').format(src=oldItem,dst=newItem))
+            utilities.show_message(_('Unable to move the folder {src} under {dst}').format(src=oldItem,dst=newItem))
         else:
             self.fillDirectories()
             self.notify_selection()
@@ -123,6 +123,11 @@ class FolderView (wx.Panel):
         itemID = self.treeView.AddRoot(_('ROOT'),data=wx.TreeItemData(0))
         fillUnder(itemID)
         self.treeView.ExpandAll()
+    def setSelectedList(self,selectedList):
+        self.selectedList=set(selectedList)
+        self.fillDirectories()
+    def getSelectedList(self):
+        return self.selectedList
     def action_add_subfolder(self,item):
         name = utilities.ask_string(_('name :'),_('Give a sub-folder name'),_('folder'))
         folderID = self.treeView.GetPyData(item)
@@ -130,7 +135,7 @@ class FolderView (wx.Panel):
             self.fillDirectories()
             self.notify_selection()
         else:
-            utilities.message(_('unable to add the sub-folder {0}').format(name))
+            utilities.show_message(_('unable to add the sub-folder {0}').format(name))
     def action_del_subfolder(self,item):
         folderID = self.treeView.GetPyData(item)
         folderName = self.treeView.GetItemText(item)
@@ -140,7 +145,7 @@ class FolderView (wx.Panel):
                 self.fillDirectories()
                 self.notify_selection()
             else:
-                utilities.message(_('unable to remove the sub-folder {0}').format(folderName))
+                utilities.show_message(_('unable to remove the sub-folder {0}').format(folderName))
     def action_ren_subfolder(self,item):
         folderID = self.treeView.GetPyData(item)
         folderName = self.treeView.GetItemText(item)
@@ -151,4 +156,4 @@ class FolderView (wx.Panel):
                 self.fillDirectories()
                 self.notify_selection()
             else:
-                utilities.message(_('unable to remove the subfolder {0}').format(folderName))
+                utilities.show_message(_('unable to remove the subfolder {0}').format(folderName))
