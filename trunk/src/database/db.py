@@ -839,7 +839,7 @@ class Base(object):
                 if stringAnswer:
                     genealogy.append(V[1])
                 else:
-                    genealogy.append(parent)
+                    genealogy.append((folderID,V[1]))
                 folderID=parent
                 cont = (parent != 0)
             genealogy.reverse()
@@ -851,8 +851,8 @@ class Base(object):
     # folders_is_descendant_of(folderID,baseID) : does folder folderID in the descendant of parentID
     #===========================================================================
     def folders_is_descendant_of(self,folderID,baseID):
-        genealogy = self.folders_genealogy_of(folderID)
-        return folderID in genealogy
+        genealogy = self.folders_genealogy_of(folderID,False)
+        return folderID in [g(0) for g in genealogy]
     #===========================================================================
     # folders_list_for(docID) : list of folderID owning docID
     #===========================================================================
@@ -871,7 +871,7 @@ class Base(object):
         folderID_list = self.folder_list_for(docID)
         for folderID in folderID_list:
             genealogy = self.folders_genealogy_of(folderID,False)
-            if (folderID in genealogy) : return True
+            if (folderID in [g(0) for g in genealogy]) : return True
         return False
     #===========================================================================
     # folders_add_doc_to(docID,folderID) : add the document docID under the folder ID 
