@@ -26,6 +26,7 @@ class RecordWidget(wx.Window):
         '''
         Constructor
         '''
+        self.row=None
         wx.Window.__init__(self, parent)
         self.panel = wx.Panel(self, -1)
         
@@ -165,6 +166,10 @@ class RecordWidget(wx.Window):
         self.lbDescription.SetValue('')
         self.lbTags.SetValue('')
         self.vFold.setSelectedList(set())
+    def setRow(self,row):
+        self.row=row
+    def getRow(self):
+        return self.row
     def SetFields(self,filename=None,title=None,description=None,date=None,tags=None,doOCR=None,selectedList=None):
         if not filename is None: self.lbFileName.SetPath(filename) 
         if not title is None : self.lbTitle.SetValue(title)

@@ -27,33 +27,64 @@ import algorithms.stringFunctions
 import data
 
 class FlatView(wx.NotebookPage):
-    def __init__(self,parent,id,name):
+    def __init__(self,parent,id,name,board):
         wx.NotebookPage.__init__(self,parent,id,name=name)
+        self.board = board
         self.totSizer = wx.BoxSizer(wx.VERTICAL)
         self.panel = wx.Panel(self, -1)
         self.lbDocuments = wx.ListBox(self.panel, -1,style=wx.LB_SORT | wx.LB_EXTENDED )
         self.totSizer.Add(self.lbDocuments,1,wx.EXPAND)
         self.panel.SetSizerAndFit(self.totSizer)
+        self.Bind(wx.EVT_LISTBOX,self.action_select,self.lbDocuments)
     def fillWith(self,docList):
         self.lbDocuments.Clear()
         if docList is None : return
         for row in docList:
             self.lbDocuments.Append(row[database.theBase.IDX_TITLE] , row)
+    def action_select(self,event):
+        sel = self.flatViewFrame.lbDocuments.GetSelections()
+        if sel == wx.NOT_FOUND or len(sel)!=1: return
+        sel = sel[0]
+        row = self.flatViewFrame.lbDocuments.GetClientData(sel)
+        self.board.action_doc_select(row)
 class FolderView(wx.NotebookPage):
-    def __init__(self,parent,id,name):
+    def __init__(self,parent,id,name,board):
         wx.NotebookPage.__init__(self,parent,id,name=name)
+        self.board = board
         self.totSizer = wx.BoxSizer(wx.VERTICAL)
         self.panel = wx.Panel(self, -1)
-        self.trFolders = wx.TreeCtrl(self.panel, -1,style=wx.TR_DEFAULT_STYLE|wx.TR_FULL_ROW_HIGHLIGHT )
+        self.trFolders = wx.TreeCtrl(self.panel, -1,style=wx.TR_DEFAULT_STYLE|wx.TR_FULL_ROW_HIGHLIGHT|wx.TR_HIDE_ROOT )
         self.totSizer.Add(self.trFolders,1,wx.EXPAND)
         self.panel.SetSizerAndFit(self.totSizer)
+        self.Bind(wx.EVT_TREE_SEL_CHANGED,self.action_select,self.trFolders)
     def fillWith(self,docList):
         self.trFolders.DeleteAllItems()
         if docList is None : return
-        item=self.trFolders.AddRoot(_('ROOT'),data=wx.TreeItemData(0))
+        rootItem=self.trFolders.AddRoot(_('ROOT'),data=wx.TreeItemData(0))
+        unclassified = self.trFolders.AppendItem(rootItem,_('Unclassified'))
+        itemDict={}
         for row in docList:
             title=row[database.theBase.IDX_TITLE]
-            self.trFolders.AppendItem(item,title,data=wx.TreeItemData(row))
+            docID = row[database.theBase.IDX_ROWID]
+            folderID_list = database.theBase.folders_list_for(docID)
+            if len(folderID_list)<1:
+                self.trFolders.AppendItem(unclassified,title,data=wx.TreeItemData(row))
+            for folderID in folderID_list:
+                genealogy = database.theBase.folders_genealogy_of(folderID, False)
+                item = self.trFolders.GetRootItem()
+                for (fID,fName) in genealogy:
+                    if itemDict.has_key(fID):
+                        item = itemDict[fID]
+                    else:
+                        item = self.trFolders.AppendItem(item,fName)
+                        itemDict[fID] = item
+                self.trFolders.AppendItem(item,title,data=wx.TreeItemData(row))
+        #self.trFolders.Expand(rootItem)
+    def action_select(self,event):
+        item = self.trFolders.GetSelection()
+        row  = self.trFolders.GetPyData(item)
+        if row is None : return
+        self.board.actionDocSelect(row)
 class MainFrame(wx.Frame):
     ID_ADD_FILE=1
     ID_ADD_SCAN=2
@@ -112,9 +143,9 @@ class MainFrame(wx.Frame):
 
         #self.lbDocuments = wx.ListBox(self.docPart, -1,size= (387, 124),style=wx.LB_SORT | wx.LB_EXTENDED )
         self.leftPane = wx.Notebook(self.docPart,-1)
-        self.flatViewFrame = FlatView(self.leftPane,-1,name=_("Flat view"))       
+        self.flatViewFrame = FlatView(self.leftPane,-1,_("Flat view"),self)       
         self.leftPane.AddPage(self.flatViewFrame,self.flatViewFrame.GetName())
-        self.folderViewFrame = FolderView(self.leftPane,-1,name=_("Folder view"))       
+        self.folderViewFrame = FolderView(self.leftPane,-1,_("Folder view"),self)       
         self.leftPane.AddPage(self.folderViewFrame,self.folderViewFrame.GetName())
         
         self.label2 = wx.StaticText(self.panel, -1, _('filter :'))
@@ -143,7 +174,6 @@ class MainFrame(wx.Frame):
         self.totalWin.Layout()
 
         self.Bind(wx.EVT_TEXT_ENTER, self.actionSearch, self.tbFilter)
-        self.Bind(wx.EVT_LISTBOX,self.actionDocSelect,self.flatViewFrame.lbDocuments)
         self.Bind(wx.EVT_TOOL, self.actionAddFile, id=self.ID_ADD_FILE)
         self.Bind(wx.EVT_TOOL, self.actionAddScan, id=self.ID_ADD_SCAN)
         self.Bind(wx.EVT_TOOL, self.actionDoPrint, id=self.ID_PRINT_DOC)
@@ -203,12 +233,7 @@ class MainFrame(wx.Frame):
     #===========================================================================
     # actionDocSelect : show the selected item on the doc part
     #===========================================================================
-    def actionDocSelect(self,event):
-        sel = self.flatViewFrame.lbDocuments.GetSelections()
-        if sel == wx.NOT_FOUND or len(sel)!=1: return
-        sel = sel[0]
-        row = self.flatViewFrame.lbDocuments.GetClientData(sel)
-        
+    def actionDocSelect(self,row):
         docID = row[database.theBase.IDX_ROWID]
         filename = row[database.theBase.IDX_FILENAME]
         title = row[database.theBase.IDX_TITLE]
@@ -226,6 +251,7 @@ class MainFrame(wx.Frame):
         except:
             utilities.show_message(_('Unable to check the file signature...'))
         self.recordPart.SetFields(filename, title, description, documentDate,tags,False,folderID_list)
+        self.recordPart.setRow(row)
         #print row
         try:
             theData.load_file(filename)
@@ -238,10 +264,12 @@ class MainFrame(wx.Frame):
     # actionStartExternalApp : start the system default application associated with the file
     #===========================================================================
     def actionStartExternalApp(self,event):
-        sel = self.flatViewFrame.lbDocuments.GetSelections()
-        if sel == wx.NOT_FOUND or len(sel)!=1: return
-        sel = sel[0]
-        row = self.flatViewFrame.lbDocuments.GetClientData(sel)
+#        sel = self.flatViewFrame.lbDocuments.GetSelections()
+#        if sel == wx.NOT_FOUND or len(sel)!=1: return
+#        sel = sel[0]
+#        row = self.flatViewFrame.lbDocuments.GetClientData(sel)
+        row = self.recordPart.getRow()
+        if row is None : return
         filename = row[database.theBase.IDX_FILENAME]
         if os.name == 'posix' :
             subprocess.Popen(['xdg-open', filename])
@@ -251,10 +279,12 @@ class MainFrame(wx.Frame):
     # actionUpdateRecord : update the current record
     #===========================================================================
     def actionUpdateRecord(self,event):
-        sel = self.flatViewFrame.lbDocuments.GetSelections()
-        if sel == wx.NOT_FOUND or len(sel)!=1: return
-        sel = sel[0]
-        row = self.flatViewFrame.lbDocuments.GetClientData(sel)
+#        sel = self.flatViewFrame.lbDocuments.GetSelections()
+#        if sel == wx.NOT_FOUND or len(sel)!=1: return
+#        sel = sel[0]
+#        row = self.flatViewFrame.lbDocuments.GetClientData(sel)
+        row = self.recordPart.getRow()
+        if row is None : return
         docID = row[database.theBase.IDX_ROWID]
         if self.recordPart.update_record(docID) : self.actionSearch(event)
     #===========================================================================

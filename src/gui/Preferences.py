@@ -24,7 +24,16 @@ from database import theConfig
 
 from algorithms.general import str_to_bool
 from algorithms.words import get_available_languages
+import virtualFolder
 
+class PrefFolders(wx.NotebookPage):
+    def __init__(self,parent,id,name):
+        wx.NotebookPage.__init__(self,parent,id,name=name)
+        self.panel = wx.Panel(self, -1)
+        self.sizer = wx.BoxSizer(wx.HORIZONTAL)
+        self.vFold = virtualFolder.FolderView(self.panel,False,True)
+        self.sizer.Add(self.vFold,1,flag=wx.ALL|wx.EXPAND)
+        self.panel.SetSizerAndFit(self.sizer)
 class PrefContent(wx.NotebookPage):
     def __init__(self,parent,id,name):
         wx.NotebookPage.__init__(self,parent,id,name=name)
@@ -225,10 +234,12 @@ class PrefGui(wx.Dialog):
         self.dirSurveyFrame = PrefSurveyDir(self.tabFrame,-1,name=_("Dir. survey"))
         self.scannerFrame = PrefScanner(self.tabFrame,-1,name=_("Scanner"))
         self.contentFrame = PrefContent(self.tabFrame,-1,name=_("Content"))
+        self.folderFrame = PrefFolders(self.tabFrame,-1,name=_("Folders"))
         
         self.tabFrame.AddPage(self.dirSurveyFrame,self.dirSurveyFrame.GetName())
         self.tabFrame.AddPage(self.scannerFrame,self.scannerFrame.GetName())
         self.tabFrame.AddPage(self.contentFrame,self.contentFrame.GetName())
+        self.tabFrame.AddPage(self.folderFrame,self.folderFrame.GetName())
         
         self.prefSizer.Add(self.tabFrame,(1,0),span=(1,3),flag=wx.EXPAND|wx.ALL)
         self.prefSizer.Add(self.btOk,(2,0),flag=wx.EXPAND|wx.ALL)
