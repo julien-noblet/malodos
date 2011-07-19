@@ -42,18 +42,17 @@ class FlatView(wx.NotebookPage):
         for row in docList:
             self.lbDocuments.Append(row[database.theBase.IDX_TITLE] , row)
     def action_select(self,event):
-        sel = self.flatViewFrame.lbDocuments.GetSelections()
-        if sel == wx.NOT_FOUND or len(sel)!=1: return
-        sel = sel[0]
-        row = self.flatViewFrame.lbDocuments.GetClientData(sel)
-        self.board.action_doc_select(row)
+        sel = self.lbDocuments.GetSelections()
+        if sel == wx.NOT_FOUND: return
+        row = [self.lbDocuments.GetClientData(s) for s in sel]
+        self.board.actionDocSelect(row)
 class FolderView(wx.NotebookPage):
     def __init__(self,parent,id,name,board):
         wx.NotebookPage.__init__(self,parent,id,name=name)
         self.board = board
         self.totSizer = wx.BoxSizer(wx.VERTICAL)
         self.panel = wx.Panel(self, -1)
-        self.trFolders = wx.TreeCtrl(self.panel, -1,style=wx.TR_DEFAULT_STYLE|wx.TR_FULL_ROW_HIGHLIGHT|wx.TR_HIDE_ROOT )
+        self.trFolders = wx.TreeCtrl(self.panel, -1,style=wx.TR_DEFAULT_STYLE|wx.TR_FULL_ROW_HIGHLIGHT|wx.TR_HIDE_ROOT|wx.TR_MULTIPLE )
         self.totSizer.Add(self.trFolders,1,wx.EXPAND)
         self.panel.SetSizerAndFit(self.totSizer)
         self.Bind(wx.EVT_TREE_SEL_CHANGED,self.action_select,self.trFolders)
@@ -81,9 +80,8 @@ class FolderView(wx.NotebookPage):
                 self.trFolders.AppendItem(item,title,data=wx.TreeItemData(row))
         #self.trFolders.Expand(rootItem)
     def action_select(self,event):
-        item = self.trFolders.GetSelection()
-        row  = self.trFolders.GetPyData(item)
-        if row is None : return
+        items = self.trFolders.GetSelections()
+        row  = [self.trFolders.GetPyData(item) for item in items]
         self.board.actionDocSelect(row)
 class MainFrame(wx.Frame):
     ID_ADD_FILE=1
@@ -234,6 +232,9 @@ class MainFrame(wx.Frame):
     # actionDocSelect : show the selected item on the doc part
     #===========================================================================
     def actionDocSelect(self,row):
+        self.recordPart.setRow(row)
+        if len(row)!=1  or row[0] is None: return
+        row=row[0]
         docID = row[database.theBase.IDX_ROWID]
         filename = row[database.theBase.IDX_FILENAME]
         title = row[database.theBase.IDX_TITLE]
@@ -251,7 +252,6 @@ class MainFrame(wx.Frame):
         except:
             utilities.show_message(_('Unable to check the file signature...'))
         self.recordPart.SetFields(filename, title, description, documentDate,tags,False,folderID_list)
-        self.recordPart.setRow(row)
         #print row
         try:
             theData.load_file(filename)
@@ -269,7 +269,8 @@ class MainFrame(wx.Frame):
 #        sel = sel[0]
 #        row = self.flatViewFrame.lbDocuments.GetClientData(sel)
         row = self.recordPart.getRow()
-        if row is None : return
+        if row is None or len(row)!=1 or row[0] is None: return
+        row=row[0]
         filename = row[database.theBase.IDX_FILENAME]
         if os.name == 'posix' :
             subprocess.Popen(['xdg-open', filename])
@@ -279,26 +280,24 @@ class MainFrame(wx.Frame):
     # actionUpdateRecord : update the current record
     #===========================================================================
     def actionUpdateRecord(self,event):
-#        sel = self.flatViewFrame.lbDocuments.GetSelections()
-#        if sel == wx.NOT_FOUND or len(sel)!=1: return
-#        sel = sel[0]
-#        row = self.flatViewFrame.lbDocuments.GetClientData(sel)
         row = self.recordPart.getRow()
-        if row is None : return
+        if row is None  or len(row)!=1 or row[0] is None: return
+        row=row[0]
         docID = row[database.theBase.IDX_ROWID]
         if self.recordPart.update_record(docID) : self.actionSearch(event)
     #===========================================================================
     # actionRemoveRecord : remove the selected items
     #===========================================================================
     def actionRemoveRecord(self,event):
-        sel = self.flatViewFrame.lbDocuments.GetSelections()
-        if sel == wx.NOT_FOUND : return
-        docID = []
-        for i in sel:
-            row = self.flatViewFrame.lbDocuments.GetClientData(i)
-            docID.append(row[database.theBase.IDX_ROWID])
+        rows = self.recordPart.getRow()
+#        sel = self.flatViewFrame.lbDocuments.GetSelections()
+#        if sel == wx.NOT_FOUND : return
+        docID = [row[database.theBase.IDX_ROWID] for row in rows if row is not None]
+#        for i in sel:
+#            row = self.flatViewFrame.lbDocuments.GetClientData(i)
+#            docID.append(row[database.theBase.IDX_ROWID])
         if len(docID)==1:
-            msg = _('do you really want to delete this record (') + row[database.theBase.IDX_TITLE] + ')'        
+            msg = _('do you really want to delete this record (') + rows[0][database.theBase.IDX_TITLE] + ')'        
         else:
             msg = _('do you really want to delete these ') + str(len(docID)) + _(' records')
         confirmation = wx.MessageDialog(self,msg,style=wx.OK|wx.CANCEL | wx.CENTRE)
