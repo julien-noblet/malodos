@@ -9,7 +9,7 @@ These programs must be installed separately. I'm currently using tesseract which
 Once installed (the program itself must be in your PATH) , you will have to tell *MALODOS* to use it, by using the preference window / content tab. A more detailed documentation will come later.
 
 Note also that this version adds a new dependenciy : [http://packages.python.org/pyenchant/ pyenchant].
-You will also have to install it, but the easyest way to to it is to use pil or easy_install :
+You will also have to install it, but the easyest way to to it is to use pip or easy_install :
 {{{
 easy_install pyenchant
 }}}
