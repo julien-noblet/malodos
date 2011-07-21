@@ -779,6 +779,16 @@ class Base(object):
         except:
             return ()
     #===========================================================================
+    # folders_doc_childs_of(ID) : retrieve all docs whose parent is ID
+    #===========================================================================
+    def folders_doc_childs_of(self,ID):
+        Q = 'select docID from %s where folderID==?' % self.folderDoc_tableName
+        try:
+            cur = self.connexion.execute(Q, [ID,])
+            return [row[0] for row in cur]
+        except:
+            return ()
+    #===========================================================================
     # folders_add_child_under(name,ID) : add a child named name under folder ID
     #===========================================================================
     def folders_add_child_under(self,name,ID):
@@ -792,16 +802,34 @@ class Base(object):
     #===========================================================================
     # folders_remove(ID) : remove a folder from database 
     #===========================================================================
-    def folders_remove(self,ID):
+    def folders_remove(self,ID,recursiveRemove=False):
+        docList = self.folders_doc_childs_of(ID)
+        foldList = self.folders_childs_of(ID)
+        foldList = [row[0] for row in foldList]
+        if not recursiveRemove and (len(docList)+len(foldList)>0):
+            actionList=[_('Remove content') , _('Set to parent folder'),_('cancel')]
+            action = gui.utilities.multichoice(actionList, _('This folder is not empty, please choose the action to take'))
+            if action==0 : recursiveRemove=True
+            if action==1 :
+                parentID = self.folders_genealogy_of(ID, False, 2)
+                if len(parentID)<1 : return False
+                parentID=parentID[0][0]
+                self.folders_change_folder_parent(ID, parentID)
+                self.folders_change_doc_parent(ID, parentID)
+            if action==2 : return True
+        if recursiveRemove:
+            for folderID in foldList : self.folders_remove(folderID, True)
         try:
-            Q = 'DELETE FROM %s WHERE folderID=?' % self.folderDoc_tableName
-            self.connexion.execute(Q, [ID,])
+            if recursiveRemove:
+                Q = 'DELETE FROM %s WHERE folderID=?' % self.folderDoc_tableName
+                self.connexion.execute(Q, [ID,])
             Q = 'DELETE FROM %s WHERE rowID=?' % self.folders_tableName 
             self.connexion.execute(Q, [ID,])
             self.connexion.commit()
             return True
         except:
             return False
+    
     #===========================================================================
     # folders_rename(ID,name) : rename the folder ID with name <name> 
     #===========================================================================
@@ -814,12 +842,39 @@ class Base(object):
         except:
             return False
     #===========================================================================
-    # folders_change_parent(ID,ID,parentID) : change the parentship of a folder 
+    # folders_change_doc_parent(ID,ID,parentID) : change the parentship of a folder 
     #===========================================================================
-    def folders_change_parent(self,ID,parentID):
+    def folders_change_doc_parent(self,oldParentID,newParentID,docID=None):
+        try:
+            Q = 'UPDATE %s SET folderID=? WHERE folderID=?' % self.folderDoc_tableName
+            P=[newParentID,oldParentID]
+            if docID is not None :
+                Q=Q+' AND docID=?'
+                P.append(docID)
+            self.connexion.execute(Q, P)
+            self.connexion.commit()
+            return True
+        except:
+            return False
+    #===========================================================================
+    # folders_change_doc_parent(ID,ID,parentID) : change the parentship of a folder 
+    #===========================================================================
+    def folders_change_folder_parent(self,oldParentID,newParentID):
+        try:
+            Q = 'UPDATE %s SET parentID=? WHERE parentID=?' % self.folders_tableName
+            P=[newParentID,oldParentID]
+            self.connexion.execute(Q, P)
+            self.connexion.commit()
+            return True
+        except:
+            return False
+    #===========================================================================
+    # folders_change_parent(folderID,newParentID) : change the parentship of a folder 
+    #===========================================================================
+    def folders_change_parent(self,folderID,newParentID):
         try:
             Q = 'UPDATE %s SET parentID=? WHERE rowID=?' % self.folders_tableName 
-            self.connexion.execute(Q, [parentID,ID])
+            self.connexion.execute(Q, [newParentID,folderID])
             self.connexion.commit()
             return True
         except:
@@ -827,8 +882,9 @@ class Base(object):
     #===========================================================================
     # folders_genealogy_of(folderID) : return the parent, grandparent, grand-grand parents,... of a folder
     #===========================================================================
-    def folders_genealogy_of(self,folderID,stringAnswer=True):
+    def folders_genealogy_of(self,folderID,stringAnswer=True,level=None):
         genealogy = []
+        currentLevel=0
         try:
             cont=True
             while cont:
@@ -841,6 +897,8 @@ class Base(object):
                 else:
                     genealogy.append((folderID,V[1]))
                 folderID=parent
+                currentLevel+=1
+                if level is not None and currentLevel>=level : break
                 cont = (parent != 0)
             genealogy.reverse()
             return genealogy
@@ -874,11 +932,11 @@ class Base(object):
             if (folderID in [g(0) for g in genealogy]) : return True
         return False
     #===========================================================================
-    # folders_add_doc_to(docID,folderID) : add the document docID under the folder ID 
+    # folders_set_doc_to(docID,folderID_list) : set the list of folders to which docID belongs
     #===========================================================================
-    def folders_set_doc_to(self,docID,folderID_list):
+    def folders_set_doc_to(self,docID,folderID_list=None,clear_before=True):
         try:
-            if not self.folders_remove_doc_from(docID) : return False
+            if clear_before and not self.folders_remove_doc_from(docID) : return False
             if folderID_list is None or len(folderID_list)<1 : return True
             Q = 'INSERT INTO %s VALUES (?,?)' % self.folderDoc_tableName
             params = [[docID,folderID] for folderID in folderID_list]
