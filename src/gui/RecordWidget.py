@@ -167,7 +167,7 @@ class RecordWidget(wx.Window):
         self.lbTags.SetValue('')
         self.vFold.setSelectedList(set())
     def setRow(self,row):
-        self.row=row
+        self.row=[r for r in row if r is not None] 
     def getRow(self):
         return self.row
     def SetFields(self,filename=None,title=None,description=None,date=None,tags=None,doOCR=None,selectedList=None):

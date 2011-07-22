@@ -83,8 +83,6 @@ class SurveyWindow(wx.Dialog):
                     fname = os.path.join(dr,f)
                     self.docList.AppendItem(currentItem,f,data=wx.TreeItemData('*'+fname))
             
-            
-            
             self.docList.DeleteAllItems() #self.docList.Clear()# 
             rootItem = self.docList.AddRoot(_('Files not in database'),data=wx.TreeItemData("root"))
             (dir_list,recursiveIdx) = database.theConfig.get_survey_directory_list()
