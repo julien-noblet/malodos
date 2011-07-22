@@ -305,7 +305,7 @@ class Base(object):
         database structures:
         documents = title,description,filename,registerDate,registerPersonId,documentDate,tags,checksum
         keywords = keyword(primary_key) , soundex_word (indexed)
-        docWords = keyID,docID,field
+        docWords = keyID,docID,field,count
         persons = name
         params = name , value
         folders = name,parentID
@@ -469,7 +469,7 @@ class Base(object):
             gui.utilities.show_message(_('Unable to search keywords'))
             return None
 
-
+    
     #===============================================================================
     # find documents corresponding to the sql request
     #===============================================================================
@@ -482,6 +482,20 @@ class Base(object):
             rowIDList = self.rows_to_str(cur,0,'')
             sql_command = "SELECT *,ROWID FROM "+ self.documents_tableName + ' WHERE ROWID IN ' + str(rowIDList)
             cur = self.connexion.execute(sql_command)
+            return cur
+        except Exception as E:
+            gui.utilities.show_message('SQL search failed ' + str(E))
+            #print E 
+            return None
+    #===============================================================================
+    # find documents corresponding to the row list
+    #===============================================================================
+    def get_by_doc_id(self,docIDlist):
+        if len(docIDlist)<1 : return None
+        try:
+            sql_command = "SELECT *,ROWID FROM %s WHERE rowID IN %s" %(self.documents_tableName,self.make_placeholder_list(len(docIDlist))) 
+#            print sql_command,pars
+            cur = self.connexion.execute(sql_command,docIDlist)
             return cur
         except Exception as E:
             gui.utilities.show_message('SQL search failed ' + str(E))
@@ -744,7 +758,7 @@ class Base(object):
             return cur
         except:
             #gui.utilities.show_message('Unable to get file list from database')
-            return ()
+            return None
     #===========================================================================
     # get_all_keywords : retrieve all the recorded keywords
     #===========================================================================
@@ -767,7 +781,7 @@ class Base(object):
             cur = self.connexion.execute(sql_command)
             return cur
         except:
-            return ()
+            return None
     #===========================================================================
     # folders_childs_of(ID) : retrieve all folders whose parent is ID
     #===========================================================================
@@ -777,7 +791,7 @@ class Base(object):
             cur = self.connexion.execute(Q, [ID,])
             return cur
         except:
-            return ()
+            return None
     #===========================================================================
     # folders_doc_childs_of(ID) : retrieve all docs whose parent is ID
     #===========================================================================
@@ -812,8 +826,11 @@ class Base(object):
             if action==0 : recursiveRemove=True
             if action==1 :
                 parentID = self.folders_genealogy_of(ID, False, 2)
-                if len(parentID)<1 : return False
-                parentID=parentID[0][0]
+                if len(parentID)==0 : return False
+                if len(parentID)==1 :
+                    parentID=0
+                else:
+                    parentID=parentID[0][0]
                 self.folders_change_folder_parent(ID, parentID)
                 self.folders_change_doc_parent(ID, parentID)
             if action==2 : return True
@@ -964,4 +981,37 @@ class Base(object):
         except Exception,E:
             print E
             return False
-            
+    #===========================================================================
+    # get_list_of_tags_for(docList) : list of tags used into the list of docs, ordered by number of occurence 
+    #===========================================================================
+    def get_list_of_tags_for(self,docID,refusedKeys=None,onlyTags=True):
+        try:
+            added_cond=''
+            params = docID[:]
+            if refusedKeys is not None and len(refusedKeys)>0:
+                added_cond=' AND keyID NOT IN %s' %self.make_placeholder_list(len(refusedKeys))
+                params.extend(refusedKeys)
+            if onlyTags : added_cond += ' AND DK.field={0}'.format(self.ID_TAG)
+            Q = 'SELECT K.keyword,sum(count) as total,DK.keyID FROM %s as K,%s as DK WHERE DK.keyID==K.rowID AND DK.docID in %s %s GROUP BY keyID ORDER BY total DESC' % (self.keywords_tableName,self.docWords_tableName,self.make_placeholder_list(len(docID)),added_cond)
+            #print Q
+            cur = self.connexion.execute(Q, params)
+            return cur
+        except Exception,E:
+            print '*',E
+            return None
+    #===========================================================================
+    # get_list_of_docs_with_all_keys(keyList) : list of docs containing all the given keys 
+    #===========================================================================
+    def get_list_of_docs_with_all_keys(self,keys,onlyTags=True):
+        try:
+            if onlyTags :
+                added_cond = ' AND field={0}'.format(self.ID_TAG)
+            else:
+                added_cond =''
+            Q = 'SELECT DISTINCT docID from %s WHERE keyID in %s %s GROUP BY docID HAVING COUNT(docID)=%d ' % (self.docWords_tableName,self.make_placeholder_list(len(keys)),added_cond,len(keys))
+            #print Q
+            cur = self.connexion.execute(Q,keys)
+            return [row[0] for row in cur]
+        except Exception,E:
+            print '+',E
+            return []

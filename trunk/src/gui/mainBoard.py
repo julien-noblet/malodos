@@ -83,6 +83,58 @@ class FolderView(wx.NotebookPage):
         items = self.trFolders.GetSelections()
         row  = [self.trFolders.GetPyData(item) for item in items]
         self.board.actionDocSelect(row)
+
+
+
+class TagFolderView(FolderView):
+    def __init__(self,parent,id,name,board):
+        FolderView.__init__(self,parent,id,name,board)
+    def recursiveFill(self,baseItem,docList,refusedKeys,onlyTags):
+        usedDoc=[]
+        while len(docList)>0:
+            currentKeys = refusedKeys[:]
+            tags = database.theBase.get_list_of_tags_for(docList,currentKeys,onlyTags)
+            if tags is not None:
+                tag=tag=tags.fetchone()
+            else:
+                tag=None
+            if tag is not None:
+                title=tag[0]
+                #nb   =tag[1]
+                key  =tag[2]
+                #item = self.trFolders.AppendItem(baseItem,'{0} ({1} occurences)'.format(title,nb))
+                item = self.trFolders.AppendItem(baseItem,title)
+                currentKeys.append(key)
+                #print title,currentKeys
+                docList2 = database.theBase.get_list_of_docs_with_all_keys(currentKeys,onlyTags)
+                docList2 = list(set.intersection(set(docList),set(docList2)))
+                if docList2 is None : docList2=[]
+                if len(docList2)>5:
+                    docListUnder = self.recursiveFill(item, docList2, currentKeys, onlyTags)
+                    toShow = list(set.difference(set(docList2),set(docListUnder)))
+                else:
+                    toShow = docList2[:]
+            else:
+                docList2 = docList[:]
+                toShow = docList[:]
+                item = baseItem
+            cur = database.theBase.get_by_doc_id(toShow)
+            if cur is None : cur=[]
+            for row in cur:
+                self.trFolders.AppendItem(item,row[database.theBase.IDX_TITLE],data=wx.TreeItemData(row))
+                usedDoc.append(row[database.theBase.IDX_ROWID])
+            docList3 = list(set.difference(set(docList),set(docList2)))
+            if len(docList3)==len(docList) :
+                return usedDoc
+            docList=docList3[:]
+        return usedDoc
+    def fillWith(self,docList):
+        self.trFolders.DeleteAllItems()
+        if docList is None : return
+        rootItem=self.trFolders.AddRoot(_('ROOT'),data=wx.TreeItemData(0))
+        self.recursiveFill(rootItem, [row[database.theBase.IDX_ROWID] for row in docList],[],True)
+
+
 class MainFrame(wx.Frame):
     ID_ADD_FILE=1
     ID_ADD_SCAN=2
@@ -145,6 +197,8 @@ class MainFrame(wx.Frame):
         self.leftPane.AddPage(self.flatViewFrame,self.flatViewFrame.GetName())
         self.folderViewFrame = FolderView(self.leftPane,-1,_("Folder view"),self)       
         self.leftPane.AddPage(self.folderViewFrame,self.folderViewFrame.GetName())
+        self.tagFolderViewFrame = TagFolderView(self.leftPane,-1,_("Tag Folder view"),self)       
+        self.leftPane.AddPage(self.tagFolderViewFrame,self.tagFolderViewFrame.GetName())
         
         self.label2 = wx.StaticText(self.panel, -1, _('filter :'))
         self.tbFilter = wx.TextCtrl(self.panel, -1, '',style=wx.TE_PROCESS_ENTER)
@@ -226,6 +280,7 @@ class MainFrame(wx.Frame):
         docList=[row for row in docList]
         self.flatViewFrame.fillWith(docList)
         self.folderViewFrame.fillWith(docList)
+        self.tagFolderViewFrame.fillWith(docList)
 #        for row in docList:
 #            self.flatViewFrame.lbDocuments.Append(row[database.theBase.IDX_TITLE] , row)
     #===========================================================================
