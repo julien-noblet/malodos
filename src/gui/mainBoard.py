@@ -98,26 +98,26 @@ class TagFolderView(FolderView):
                 tag=tag=tags.fetchone()
             else:
                 tag=None
+            docList2 = docList[:]
+            toShow = docList[:]
+            item = baseItem
             if tag is not None:
                 title=tag[0]
-                #nb   =tag[1]
+                nb   =tag[1]
                 key  =tag[2]
-                #item = self.trFolders.AppendItem(baseItem,'{0} ({1} occurences)'.format(title,nb))
-                item = self.trFolders.AppendItem(baseItem,title)
-                currentKeys.append(key)
-                #print title,currentKeys
-                docList2 = database.theBase.get_list_of_docs_with_all_keys(currentKeys,onlyTags)
-                docList2 = list(set.intersection(set(docList),set(docList2)))
-                if docList2 is None : docList2=[]
-                if len(docList2)>5:
-                    docListUnder = self.recursiveFill(item, docList2, currentKeys, onlyTags)
-                    toShow = list(set.difference(set(docList2),set(docListUnder)))
-                else:
-                    toShow = docList2[:]
-            else:
-                docList2 = docList[:]
-                toShow = docList[:]
-                item = baseItem
+                if nb>5:
+                    #item = self.trFolders.AppendItem(baseItem,'{0} ({1} occurences)'.format(title,nb))
+                    item = self.trFolders.AppendItem(baseItem,title)
+                    currentKeys.append(key)
+                    #print title,currentKeys
+                    docList2 = database.theBase.get_list_of_docs_with_all_keys(currentKeys,onlyTags)
+                    docList2 = list(set.intersection(set(docList),set(docList2)))
+                    if docList2 is None : docList2=[]
+                    if len(docList2)>5:
+                        docListUnder = self.recursiveFill(item, docList2, currentKeys, onlyTags)
+                        toShow = list(set.difference(set(docList2),set(docListUnder)))
+                    else:
+                        toShow = docList2[:]
             cur = database.theBase.get_by_doc_id(toShow)
             if cur is None : cur=[]
             for row in cur:
