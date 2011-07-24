@@ -52,6 +52,7 @@ class MyApp(wx.App):
     def OnInit(self):
         if not database.theBase.buildDB():
             return False
+        #database.theBase.replicate_in('/home/david/replica.db')
         frame = mainWindow.MainFrame(None, 'MALODOS')
         frame.Show(True)
         self.SetTopWindow(frame)

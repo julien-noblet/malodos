@@ -166,7 +166,7 @@ class MainFrame(wx.Frame):
         self.tbMainBar.AddLabelTool(self.ID_ADD_SCAN,'',wx.Bitmap(Resources.get_icon_filename('ADD_SCAN')),shortHelp=_('Scanning a new document'))
         self.tbMainBar.AddLabelTool(self.ID_REMOVE_SEL,'',wx.Bitmap(Resources.get_icon_filename('REMOVE_SELECTION')),shortHelp=_('Remove the current selection from the database'))
         self.tbMainBar.AddLabelTool(self.ID_PRINT_DOC,'',wx.Bitmap(Resources.get_icon_filename('DOC_PRINT')),shortHelp=_('Print the selected document'))
-        #self.tbMainBar.AddLabelTool(self.ID_DOCTOGO,'',wx.Bitmap(Resources.get_icon_filename('DOC_ZIP')),shortHelp=Resources.get_message('DOC_ZIP'))
+        self.tbMainBar.AddLabelTool(self.ID_DOCTOGO,'',wx.Bitmap(Resources.get_icon_filename('DOC_ZIP')),shortHelp=Resources.get_message('DOC_ZIP'))
         self.tbMainBar.AddLabelTool(self.ID_SURVEY,'',wx.Bitmap(Resources.get_icon_filename('SURVEY_WIN')),shortHelp=_('Open the directory survey window'))
         self.tbMainBar.AddLabelTool(self.ID_PREFS,'',wx.Bitmap(Resources.get_icon_filename('PREFS')),shortHelp=_('Set preferences'))
         self.tbMainBar.AddLabelTool(self.ID_CREDITS,'',wx.Bitmap(Resources.get_icon_filename('CREDITS')),shortHelp=_('Credits'))
@@ -231,6 +231,7 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_TOOL, self.actionDoPrint, id=self.ID_PRINT_DOC)
         self.Bind(wx.EVT_TOOL,self.actionStartSurvey,id=self.ID_SURVEY)
         self.Bind(wx.EVT_TOOL,self.actionShowPrefs,id=self.ID_PREFS)
+        self.Bind(wx.EVT_TOOL,self.actionDocToGo,id=self.ID_DOCTOGO)
         self.Bind(wx.EVT_TOOL,self.actionRemoveRecord,id=self.ID_REMOVE_SEL)
         self.Bind(wx.EVT_TOOL,self.actionAbout,id=self.ID_CREDITS)
         self.Bind(wx.EVT_BUTTON,self.actionStartExternalApp,self.btShowExternal)
@@ -275,6 +276,7 @@ class MainFrame(wx.Frame):
         else:
             [request,pars] = algorithms.stringFunctions.req_to_sql(self.tbFilter.Value)
             docList = database.theBase.find_sql(request,pars)
+        if docList is None : docList=[]
         #if not docList: return
         # otherwise show them in the listbox
         docList=[row for row in docList]
@@ -392,6 +394,13 @@ class MainFrame(wx.Frame):
         pr = docPrinter.docPrinter()
         if not P.Print(self , pr) :
             wx.MessageBox(_("Unable to print the document"))
+    def actionDocToGo(self,event):
+        dlg = wx.FileDialog(self,style=wx.FD_SAVE,message=_('Archive to create'))
+        if dlg.ShowModal():
+            filename = os.path.join(dlg.Directory,dlg.Filename)
+        else:
+            return
+        utilities.show_message('will create the archive file {0} . To be implemented'.format(filename))
     #===========================================================================
     # actionAbout : show the about dialog box
     #===========================================================================
@@ -403,7 +412,12 @@ It is written in python and mainly merges numerous external libraries to \
 give a fast and simple way to scan and numerically record your personal documents (such \
 as invoices, taxes declaration, etc...).
 Being written in python, it is portable (works on windows and linux at least, not tested \
-on other systems)."""
+on other systems).
+
+The complete documentation can be found here : http://sites.google.com/site/malodospage/
+The last version can be downloaded from here : http://code.google.com/p/malodos/
+If you like and use this software, please consider to donate to support its development.
+"""
 
         licence = """MALODOS is free software; you can redistribute it and/or modify it 
 under the terms of the GNU General Public License as published by the Free Software Foundation; 
@@ -420,10 +434,10 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
 
         info.SetIcon(wx.Icon(Resources.get_icon_filename('APPLICATION'), wx.BITMAP_TYPE_PNG))
         info.SetName('MALODOS')
-        info.SetVersion('1.0')
+        info.SetVersion('1.2')
         info.SetDescription(description)
         info.SetCopyright('(C) 2010 David GUEZ')
-        info.SetWebSite('http://code.google.com/p/malodos/')
+        info.SetWebSite('http://sites.google.com/site/malodospage')
         info.AddArtist('http://icones.pro')
         info.SetLicence(licence)
         wx.AboutBox(info)

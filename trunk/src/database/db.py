@@ -20,6 +20,7 @@ import os.path
 import ConfigParser
 import algorithms.words
 import Resources
+import shutil
 
 class ConfigReader(object):
     def __init__(self,conf_file=None):
@@ -241,7 +242,7 @@ class Base(object):
     folderDoc_tableName='folderDocs'
     
     param_DB_VERSION='DB_VERSION'
-    DB_VERSION=1.2
+    DB_VERSION=1.21
     
     IDX_TITLE=0
     IDX_DESCRIPTION=1
@@ -303,28 +304,30 @@ class Base(object):
         '''( 
         create the database (all the tables)
         database structures:
-        documents = title,description,filename,registerDate,registerPersonId,documentDate,tags,checksum
-        keywords = keyword(primary_key) , soundex_word (indexed)
+        documents = title,description,filename,registerDate,registeringPersonID,documentDate,tags,checksum
+        keywords = keyword , soundex_word (indexed)
         docWords = keyID,docID,field,count
         persons = name
         params = name , value
         folders = name,parentID
         foldDocs = docID,folderID
         )'''
-        self.create_table(self.documents_tableName, 'title TEXT(64), description TEXT(256), filename TEXT(256), registerDate DATE, registeringPersonID INTEGER, documentDate DATE,tags TEXT,checksum TEXT')
-        self.create_table(self.keywords_tableName, 'keyword TEXT PRIMARY KEY , soundex_word TEXT ')
+        self.__doc_fields__ = 'title,description,filename,registerDate,registeringPersonID,documentDate,tags,checksum'
+        self.__doc_nbfields__ = 8
+        self.create_table(self.documents_tableName, 'documentID INTEGER PRIMARY KEY AUTOINCREMENT ,title TEXT(64), description TEXT(256), filename TEXT(256), registerDate DATE, registeringPersonID INTEGER, documentDate DATE,tags TEXT,checksum TEXT')
+        self.create_table(self.keywords_tableName, 'keywordID INTEGER PRIMARY KEY AUTOINCREMENT ,keyword TEXT , soundex_word TEXT ')
         sql_statement = "CREATE INDEX IF NOT EXISTS SOUNDEX ON " + self.keywords_tableName + "(soundex_word)"
         try:
             self.connexion.execute(sql_statement)
-        except:
-            gui.utilities.show_message('Error during database index creation')
+        except Exception,E:
+            gui.utilities.show_message('Error during database index creation : ' + str(E))
             
         #self.create_table(self.docWords_tableName, 'keyID INTEGER references ' + self.keywords_tableName + '(ROWID) ,docID INTEGER references ' + self.documents_tableName + '(ROWID)')
-        self.create_table(self.docWords_tableName, 'keyID INTEGER  ,docID INTEGER, field INT,count INT default 1')
-        self.create_table(self.persons_tableName, 'name TEXT')
+        self.create_table(self.docWords_tableName, 'keyID INTEGER references {0}(rowID) ,docID INTEGER references {1}(rowID), field INT,count INT default 1'.format(self.keywords_tableName,self.documents_tableName))
+        self.create_table(self.persons_tableName, 'persID INTEGER PRIMARY KEY AUTOINCREMENT ,name TEXT')
         self.create_table(self.params_tableName, 'name TEXT , value TEXT')
-        self.create_table(self.folders_tableName, 'name TEXT , parentID INT')
-        self.create_table(self.folderDoc_tableName, 'docID INT , folderID INT')
+        self.create_table(self.folders_tableName, 'foldID INTEGER PRIMARY KEY AUTOINCREMENT ,name TEXT , parentID INT references {0}(rowID)'.format(self.folders_tableName))
+        self.create_table(self.folderDoc_tableName, 'docID INT  references {0}(rowID), folderID INT references {1}(rowID)'.format(self.documents_tableName,self.folders_tableName))
         if os.name == 'nt' or os.name == 'win32' :
             self.connexion.create_function("IS_IN_DIR", 2, lambda fname,dirname : self.win32_samefile(os.path.dirname(fname), dirname))
         else:
@@ -334,7 +337,7 @@ class Base(object):
         db_version = self.get_parameter(self.param_DB_VERSION)
         if not db_version:
             self.set_parameter(self.param_DB_VERSION, self.DB_VERSION)
-            db_version = self.get_parameter(self.param_DB_VERSION)
+            db_version = self.DB_VERSION
         db_version = float(db_version)
         if db_version > self.DB_VERSION:
             gui.utilities.show_message(_('Unstable state: Your database version is newer than the program itself...'))
@@ -360,7 +363,30 @@ class Base(object):
         except Exception,E:
             gui.utilities.show_message('Error during database view creation :' + str(E))
             return False
-        
+        if db_version<1.21 :
+            it=1
+            while 1:
+                save_name = self.base_name+'.bak' + str(it)
+                if not os.path.exists(save_name) : break
+                it+=1
+            try:
+                shutil.copy(self.base_name, save_name)
+                if not os.path.exists(save_name) : raise _('unable to backup the database')
+                it=1
+                while 1:
+                    tmp_name = self.base_name+'.tmp' + str(it)
+                    if not os.path.exists(tmp_name) : break
+                    it+=1
+                self.replicate_in(tmp_name)
+                if not os.path.exists(tmp_name) : raise _('unable to upgrade the database')
+                self.connexion.close()
+                os.remove(self.base_name)
+                os.rename(tmp_name, self.base_name)
+                if not os.path.exists(self.base_name): raise _('unable to upgrade the database')
+                self.use_base(self.base_name)
+            except:
+                return False
+            
         self.set_parameter(self.param_DB_VERSION, self.DB_VERSION)
         return True
     
@@ -421,7 +447,7 @@ class Base(object):
                 row = cur.fetchone()
                 # if not found --> create the person in the database
                 if not row:
-                    sql_statement = "INSERT INTO " + self.persons_tableName + " VALUES (?)"
+                    sql_statement = "INSERT INTO " + self.persons_tableName + "(name) VALUES (?)"
                     cur = self.connexion.execute(sql_statement,(registeringPerson,))
                     personID = cur.lastrowid
                 else:
@@ -432,7 +458,7 @@ class Base(object):
         try:
             # add the document entry in the database
             #sql_statement = 'INSERT INTO ' + self.documents_tableName + " VALUES ('" + title + "','" + description + "','" + fileName + "','" + str(registeringDate) + "'," + str(personID) + ",'" + str(documentDate) + "','" + str(file_md5) + "')"
-            sql_statement = 'INSERT INTO ' + self.documents_tableName + " VALUES (?,?,?,?,?,?,?,?)"
+            sql_statement = 'INSERT INTO ' + self.documents_tableName + " (title,description,filename,registerDate,registeringPersonID,documentDate,tags,checksum) VALUES (?,?,?,?,?,?,?,?)"
             cur = self.connexion.execute(sql_statement,(title,description,fileName,registeringDate,personID,documentDate,tags,str(file_md5)))
             docID = cur.lastrowid
         except:
@@ -480,7 +506,7 @@ class Base(object):
 #            print sql_command,pars
             cur = self.connexion.execute(sql_command,pars)
             rowIDList = self.rows_to_str(cur,0,'')
-            sql_command = "SELECT *,ROWID FROM "+ self.documents_tableName + ' WHERE ROWID IN ' + str(rowIDList)
+            sql_command = "SELECT title,description,filename,registerDate,registeringPersonID,documentDate,tags,checksum,ROWID FROM "+ self.documents_tableName + ' WHERE ROWID IN ' + str(rowIDList)
             cur = self.connexion.execute(sql_command)
             return cur
         except Exception as E:
@@ -493,7 +519,7 @@ class Base(object):
     def get_by_doc_id(self,docIDlist):
         if len(docIDlist)<1 : return None
         try:
-            sql_command = "SELECT *,ROWID FROM %s WHERE rowID IN %s" %(self.documents_tableName,self.make_placeholder_list(len(docIDlist))) 
+            sql_command = "SELECT title,description,filename,registerDate,registeringPersonID,documentDate,tags,checksum,ROWID FROM %s WHERE rowID IN %s" %(self.documents_tableName,self.make_placeholder_list(len(docIDlist))) 
 #            print sql_command,pars
             cur = self.connexion.execute(sql_command,docIDlist)
             return cur
@@ -545,7 +571,7 @@ class Base(object):
         )'''
        
         cur = None
-        sql_statement = 'SELECT *,ROWID FROM ' + self.documents_tableName
+        sql_statement = 'SELECT title,description,filename,registerDate,registeringPersonID,documentDate,tags,checksum,ROWID FROM ' + self.documents_tableName
         if keywords:
             # first : find the keyword in the keyword table
             cur = self.find_keywords(keywords)
@@ -570,7 +596,8 @@ class Base(object):
                 sql_statement += ' WHERE ROWID IN ' + str(rowIDList)
         try:
             cur = self.connexion.execute(sql_statement)
-        except:
+        except Exception,E:
+            print E
             gui.utilities.show_message(_('Document search failed'))
             return None
         return cur
@@ -626,6 +653,13 @@ class Base(object):
         except:
             gui.utilities.show_message(_('Unable to remove documents/word associations'))
             return
+        # second find and delete all the corresponding lines in folders index
+        Q = 'DELETE FROM ' + self.folderDoc_tableName + ' WHERE docID IN ' + self.make_placeholder_list(len(docID))
+        try:
+            self.connexion.execute(Q,docID)
+        except:
+            gui.utilities.show_message(_('Unable to remove documents/word associations'))
+            return
         # then delete the documents entries themselves
         Q = 'DELETE FROM ' + self.documents_tableName + ' WHERE ROWID IN ' + self.make_placeholder_list(len(docID))
         try:
@@ -665,7 +699,7 @@ class Base(object):
                 all_keywords = dict([ (item.lower(),weight) for item,weight in keyGroup[1].items() ])
             absents = self.find_absent_keywords(all_keywords.keys())
             absents = map(lambda x:(x,algorithms.words.phonex(x)) , absents)
-            Q = 'INSERT INTO ' + self.keywords_tableName + ' VALUES (?,?)'
+            Q = 'INSERT INTO ' + self.keywords_tableName + ' (keyword,soundex_word) VALUES (?,?)'
             try:
                 self.connexion.executemany(Q,absents)
             except  Exception,E:
@@ -777,7 +811,7 @@ class Base(object):
         try:
             cur = self.connexion.execute(Q)
             rowIDList = self.rows_to_str(cur,0,'')
-            sql_command = "SELECT *,ROWID FROM "+ self.documents_tableName + ' WHERE ROWID IN ' + str(rowIDList)
+            sql_command = "SELECT title,description,filename,registerDate,registeringPersonID,documentDate,tags,checksum,ROWID FROM "+ self.documents_tableName + ' WHERE ROWID IN ' + str(rowIDList)
             cur = self.connexion.execute(sql_command)
             return cur
         except:
@@ -806,7 +840,7 @@ class Base(object):
     # folders_add_child_under(name,ID) : add a child named name under folder ID
     #===========================================================================
     def folders_add_child_under(self,name,ID):
-        Q = 'INSERT INTO %s VALUES (?,?)' % self.folders_tableName 
+        Q = 'INSERT INTO %s (name,parentID) VALUES (?,?)' % self.folders_tableName 
         try:
             self.connexion.execute(Q, [name,ID])
             self.connexion.commit()
@@ -1015,3 +1049,123 @@ class Base(object):
         except Exception,E:
             print '+',E
             return []
+    #===========================================================================
+    # replicate_in(new_base_name,docList) 
+    #===========================================================================
+    def replicate_in(self,new_base_name,docList=None):
+        try:
+            # creation of the new database
+            newDB = Base(new_base_name)
+            if not newDB.buildDB(): return False
+            # replicate the whole folder structure
+            Q='SELECT name,parentID,rowID FROM %s' %self.folders_tableName
+            cur = self.connexion.execute(Q)
+            Q='INSERT INTO %s (name,parentID,rowID) VALUES (?,?,?)'% self.folders_tableName
+            newDB.connexion.executemany(Q,cur)
+
+            # replicate the whole person structure
+            Q='SELECT name,rowID FROM %s' %self.persons_tableName
+            cur = self.connexion.execute(Q)
+            Q='INSERT INTO %s (name,rowID) VALUES (?,?)'% self.persons_tableName
+            newDB.connexion.executemany(Q,cur)
+            
+            # replicate the whole keyword structure            
+            #     first : find the keywords used
+            Q0='SELECT keyID FROM %s' % self.docWords_tableName
+            cont=True
+            keyIDlist=set()
+            pos=0
+            while cont:
+                if docList is not None:
+                    pos2=min(pos+900,len(docList))
+                    Q=Q0+' WHERE docID IN %s' % self.make_placeholder_list(pos2-pos)
+                    P=docList[pos:pos2]
+                else:
+                    pos2=0
+                    Q=Q0
+                    P=[]
+                cur = self.connexion.execute(Q,P)
+                keyIDlist = set.union(keyIDlist,set([row[0] for row in cur]))
+                pos=pos2
+                if docList is None or pos>=len(docList) : cont=False
+            keyIDlist=list(keyIDlist)
+            #    then copy these keywords
+            Q0='SELECT keyword,soundex_word,rowid FROM %s' % self.keywords_tableName
+            cont=True
+            pos=0
+            while cont:
+                pos2=min(pos+900,len(keyIDlist))
+                Q=Q0+' WHERE RowID IN %s' % self.make_placeholder_list(pos2-pos)
+                P=keyIDlist[pos:pos2]
+                cur = self.connexion.execute(Q,P)
+                Q='INSERT INTO %s (keyword,soundex_word,rowid) VALUES (?,?,?)'% self.keywords_tableName
+                newDB.connexion.executemany(Q,cur)
+                pos=pos2
+                if pos>=len(keyIDlist) : cont=False
+
+            # replicate the whole params structure
+            Q='SELECT name,value FROM %s' %self.params_tableName
+            cur = self.connexion.execute(Q)
+            Q='INSERT INTO %s (name,value) VALUES (?,?)'% self.params_tableName
+            newDB.connexion.executemany(Q,cur)
+            
+            # replicate the documents structure (only with docID if specified, all otherwise)
+            Q0='SELECT %s FROM %s' % (self.__doc_fields__ + ',rowID',self.documents_tableName)
+            cont=True
+            pos=0
+            while cont:
+                if docList is not None:
+                    pos2=min(pos+900,len(docList))
+                    Q=Q0+' WHERE rowID IN %s' % self.make_placeholder_list(pos2-pos)
+                    P=docList[pos:pos2]
+                else:
+                    pos2=0
+                    Q=Q0
+                    P=[]
+                cur = self.connexion.execute(Q,P)
+                Q='INSERT INTO %s (%s) VALUES %s'% (self.documents_tableName,self.__doc_fields__ + ',rowID',self.make_placeholder_list(self.__doc_nbfields__+1))
+                newDB.connexion.executemany(Q,cur)
+                pos=pos2
+                if docList is None or pos>=len(docList) : cont=False
+            # replicate the docWords structure (only with docID if specified, all otherwise)
+            Q0='SELECT keyID,docID,field,count FROM %s' % self.docWords_tableName
+            cont=True
+            pos=0
+            while cont:
+                if docList is not None:
+                    pos2=min(pos+900,len(docList))
+                    Q=Q0+' WHERE docID IN %s' % self.make_placeholder_list(pos2-pos)
+                    P=docList[pos:pos2]
+                else:
+                    pos2=0
+                    Q=Q0
+                    P=[]
+                cur = self.connexion.execute(Q,P)
+                Q='INSERT INTO %s (keyID,docID,field,count) VALUES (?,?,?,?)'% (self.docWords_tableName)
+                newDB.connexion.executemany(Q,cur)
+                pos=pos2
+                if docList is None or pos>=len(docList) : cont=False
+            # replicate the folderDoc structure (only with docID if specified, all otherwise)
+            Q0='SELECT docID,folderID FROM %s' % (self.folderDoc_tableName)
+            cont=True
+            pos=0
+            while cont:
+                if docList is not None:
+                    pos2=min(pos+900,len(docList))
+                    Q=Q0+' WHERE docID IN %s' % self.make_placeholder_list(pos2-pos)
+                    P=docList[pos:pos2]
+                else:
+                    pos2=0
+                    Q=Q0
+                    P=[]
+                cur = self.connexion.execute(Q,P)
+                Q='INSERT INTO %s (docID,folderID) VALUES (?,?)'% (self.folderDoc_tableName)
+                newDB.connexion.executemany(Q,cur)
+                pos=pos2
+                if docList is None or pos>=len(docList) : cont=False
+
+            newDB.connexion.commit()
+            return True
+        except Exception,E:
+            gui.utilities.show_message(_('Unable to create the database {name} : {err}'.format(name=new_base_name,err=str(E))))
+            return False
