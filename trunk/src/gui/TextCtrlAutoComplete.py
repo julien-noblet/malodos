@@ -210,10 +210,13 @@ class TextCtrlAutoComplete (wx.TextCtrl, listmix.ColumnSorterMixin ):
             choices = self._choices
 
         for numCh, choice in enumerate(choices):
-            if self._matchFunction and self._matchFunction(text, choice):
-                found = True
-            elif choice.lower().startswith(text.lower()) :
-                found = True
+            try:
+                if self._matchFunction and self._matchFunction(text, choice):
+                    found = True
+                elif choice.lower().startswith(text.lower()) :
+                    found = True
+            except:
+                found=False
             if found:
                 self._showDropDown(True)
                 item = self.dropdownlistbox.GetItem(numCh)

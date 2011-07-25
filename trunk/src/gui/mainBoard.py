@@ -25,6 +25,8 @@ from gui import Preferences
 import Resources
 import algorithms.stringFunctions
 import data
+import zipfile
+
 
 class FlatView(wx.NotebookPage):
     def __init__(self,parent,id,name,board):
@@ -149,6 +151,10 @@ class MainFrame(wx.Frame):
     #===========================================================================
     def __init__(self, parent, title):
         wx.Frame.__init__(self, parent, -1, _('MALODOS Main panel'), wx.DefaultPosition, (576, 721), style=wx.CLOSE_BOX | wx.SYSTEM_MENU | wx.CAPTION | wx.RESIZE_BORDER | 0 | 0 | wx.MAXIMIZE_BOX | wx.MINIMIZE_BOX)
+        fname = Resources.get_icon_filename('APPLICATION')
+        appIcon = wx.Icon(fname,wx.BITMAP_TYPE_ANY)
+        #appIcon.LoadFile(Resources.get_icon_filename('APPLICATION'),wx.BITMAP_TYPE_ANY)
+        self.SetIcon(appIcon)
         self.panel = wx.Panel(self, -1)
         
         self.docPart = wx.SplitterWindow(self.panel,-1,style=wx.SP_3D | wx.SP_LIVE_UPDATE)
@@ -279,10 +285,10 @@ class MainFrame(wx.Frame):
         if docList is None : docList=[]
         #if not docList: return
         # otherwise show them in the listbox
-        docList=[row for row in docList]
-        self.flatViewFrame.fillWith(docList)
-        self.folderViewFrame.fillWith(docList)
-        self.tagFolderViewFrame.fillWith(docList)
+        self.docList=[row for row in docList]
+        self.flatViewFrame.fillWith(self.docList)
+        self.folderViewFrame.fillWith(self.docList)
+        self.tagFolderViewFrame.fillWith(self.docList)
 #        for row in docList:
 #            self.flatViewFrame.lbDocuments.Append(row[database.theBase.IDX_TITLE] , row)
     #===========================================================================
@@ -394,13 +400,41 @@ class MainFrame(wx.Frame):
         pr = docPrinter.docPrinter()
         if not P.Print(self , pr) :
             wx.MessageBox(_("Unable to print the document"))
+    #===========================================================================
+    # actionDocToGo :start the doc to go wizard
+    #===========================================================================
     def actionDocToGo(self,event):
         dlg = wx.FileDialog(self,style=wx.FD_SAVE,message=_('Archive to create'))
         if dlg.ShowModal():
             filename = os.path.join(dlg.Directory,dlg.Filename)
         else:
             return
-        utilities.show_message('will create the archive file {0} . To be implemented'.format(filename))
+        rows = self.recordPart.getRow()
+        if rows is None or len(rows)<1 :
+            rows = self.docList
+        docIDlist = [row[database.theBase.IDX_ROWID] for row in rows]
+        (name,ext) =  os.path.splitext(filename)
+        if ext.lower() == '.db':
+            database.theBase.replicate_in(filename, docIDlist)
+        elif ext.lower() == '.zip':
+            zf = zipfile.ZipFile(filename,'w')
+            fileDict = dict()
+            for f in [row[database.theBase.IDX_FILENAME] for row in rows] :
+                arcname = os.path.basename(f)
+                if arcname in fileDict.values():
+                    (name,ext) = os.path.splitext(arcname)
+                    nn=1
+                    while arcname in fileDict.values():
+                        nn+=1
+                        arcname=name+str(nn)+ext
+                fileDict[f] = arcname
+                zf.write(f, arcname, zipfile.ZIP_DEFLATED)
+            tmpFile = os.tmpnam()
+            database.theBase.replicate_in(tmpFile,docIDlist,file_replacer = lambda f:  fileDict[f])
+            zf.write(tmpFile, 'database.db', zipfile.ZIP_DEFLATED)
+            zf.close()
+        else:
+            utilities.show_message('will create the archive file {0} . To be implemented'.format(filename))
     #===========================================================================
     # actionAbout : show the about dialog box
     #===========================================================================

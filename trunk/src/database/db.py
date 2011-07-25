@@ -1052,7 +1052,7 @@ class Base(object):
     #===========================================================================
     # replicate_in(new_base_name,docList) 
     #===========================================================================
-    def replicate_in(self,new_base_name,docList=None):
+    def replicate_in(self,new_base_name,docList=None,file_replacer=None):
         try:
             # creation of the new database
             newDB = Base(new_base_name)
@@ -1124,7 +1124,18 @@ class Base(object):
                     P=[]
                 cur = self.connexion.execute(Q,P)
                 Q='INSERT INTO %s (%s) VALUES %s'% (self.documents_tableName,self.__doc_fields__ + ',rowID',self.make_placeholder_list(self.__doc_nbfields__+1))
-                newDB.connexion.executemany(Q,cur)
+                if file_replacer is None:
+                    newDB.connexion.executemany(Q,cur)
+                else:
+                    for row in cur:
+                        try:
+                            # print "replacing %s by %s" %(row[self.IDX_FILENAME] , str(file_replacer(row[self.IDX_FILENAME])))
+                            r=list(row)
+                            r[self.IDX_FILENAME] = file_replacer(row[self.IDX_FILENAME])
+                            if r[self.IDX_FILENAME] is not None and r[self.IDX_FILENAME] != '': newDB.connexion.execute(Q,r)
+                        except Exception,E:
+                            print str(E)
+                        
                 pos=pos2
                 if docList is None or pos>=len(docList) : cont=False
             # replicate the docWords structure (only with docID if specified, all otherwise)
