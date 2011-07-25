@@ -50,9 +50,10 @@ import database
 #---------------------------------------------------------------------------
 class MyApp(wx.App):
     def OnInit(self):
+        self.SetAppName('MALODOS')
         if not database.theBase.buildDB():
             return False
-        #database.theBase.replicate_in('/home/david/replica.db')
+        if len(sys.argv)>1 and os.path.exists(sys.argv[1]): database.theBase.use_base(sys.argv[1])
         frame = mainWindow.MainFrame(None, 'MALODOS')
         frame.Show(True)
         self.SetTopWindow(frame)
