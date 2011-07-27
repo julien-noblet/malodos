@@ -394,15 +394,11 @@ class Base(object):
     # set a parameter
     #===========================================================================
     def set_parameter(self,parameter_name,parameter_value):
-        Q = 'SELECT value FROM ' + self.params_tableName +' WHERE name=?'
         try:
-            cur = self.connexion.execute(Q,(parameter_name,))
-            if not cur or not cur.fetchone():
-                Q = 'INSERT INTO ' + self.params_tableName +' VALUES (?,?)'
-                cur = self.connexion.execute(Q,(parameter_name,str(parameter_value)))
-            else:
-                Q = 'UPDATE ' + self.params_tableName +' SET value=? WHERE name=?'
-                cur = self.connexion.execute(Q,(str(parameter_value),parameter_name))
+            Q = 'DELETE FROM %s WHERE name=?' %self.params_tableName
+            self.connexion.execute(Q,(parameter_name,))
+            Q = 'INSERT INTO ' + self.params_tableName +' VALUES (?,?)'
+            self.connexion.execute(Q,(parameter_name,str(parameter_value)))
             self.connexion.commit()
             return True
         except:
