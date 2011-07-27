@@ -47,7 +47,9 @@ class PageActionDatabaseExport (wx.wizard.PyWizardPage):
     def __init__(self,parent):
         wx.wizard.PyWizardPage.__init__(self,parent)
         self.sizer = wx.BoxSizer(wx.VERTICAL)
-        self.fcFileChooser =  wx.FilePickerCtrl(self,message=_('Path of exported database'),wildcard='*.db')
+        s = _('Path of exported database')
+        self.sizer.Add(wx.StaticText(self,label=s))
+        self.fcFileChooser =  wx.FilePickerCtrl(self,message=s,wildcard='*.db',style=wx.FLP_SAVE|wx.FLP_OVERWRITE_PROMPT|wx.FLP_USE_TEXTCTRL)
         self.sizer.Add(self.fcFileChooser,0,flag=wx.EXPAND|wx.CENTER)
         self.SetSizer(self.sizer)
     def GetNext(self):
@@ -59,7 +61,9 @@ class PageActionArchiveCreation (wx.wizard.PyWizardPage):
     def __init__(self,parent):
         wx.wizard.PyWizardPage.__init__(self,parent)
         self.sizer = wx.BoxSizer(wx.VERTICAL)
-        self.fcFileChooser =  wx.FilePickerCtrl(self,message=_('Path of exported archive'),wildcard='*.zip')
+        s = _('Path of exported archive')
+        self.sizer.Add(wx.StaticText(self,label=s))
+        self.fcFileChooser =  wx.FilePickerCtrl(self,message=s,wildcard='*.zip',style=wx.FLP_SAVE|wx.FLP_OVERWRITE_PROMPT|wx.FLP_USE_TEXTCTRL)
         self.sizer.Add(self.fcFileChooser,0,flag=wx.EXPAND|wx.CENTER)
         self.SetSizer(self.sizer)
     def GetNext(self):
@@ -70,7 +74,9 @@ class PageActionArchiveOpening (wx.wizard.PyWizardPage):
     def __init__(self,parent):
         wx.wizard.PyWizardPage.__init__(self,parent)
         self.sizer = wx.BoxSizer(wx.VERTICAL)
-        self.fcFileChooser =  wx.FilePickerCtrl(self,message=_('Path of archive to import'),wildcard='*.zip')
+        s = _('Path of archive to import')
+        self.sizer.Add(wx.StaticText(self,label=s))
+        self.fcFileChooser =  wx.FilePickerCtrl(self,message=s,wildcard='*.zip',style=wx.FLP_OPEN|wx.FLP_FILE_MUST_EXIST|wx.FLP_USE_TEXTCTRL)
         self.sizer.Add(self.fcFileChooser,0,flag=wx.EXPAND|wx.CENTER)
         self.SetSizer(self.sizer)
     def GetNext(self):
