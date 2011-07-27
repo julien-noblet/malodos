@@ -26,7 +26,7 @@ import Resources
 import algorithms.stringFunctions
 import data
 import zipfile
-
+import documentToGo
 
 class FlatView(wx.NotebookPage):
     def __init__(self,parent,id,name,board):
@@ -404,6 +404,9 @@ class MainFrame(wx.Frame):
     # actionDocToGo :start the doc to go wizard
     #===========================================================================
     def actionDocToGo(self,event):
+        docToGo = documentToGo.DocToGoWizard(self)
+        docToGo.RunWizard(docToGo.page_chooser)
+        return
         dlg = wx.FileDialog(self,style=wx.FD_SAVE,message=_('Archive to create'))
         if dlg.ShowModal():
             filename = os.path.join(dlg.Directory,dlg.Filename)
