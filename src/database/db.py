@@ -21,6 +21,7 @@ import ConfigParser
 import algorithms.words
 import Resources
 import shutil
+import zipfile
 
 class ConfigReader(object):
     def __init__(self,conf_file=None):
@@ -269,6 +270,13 @@ class Base(object):
     def use_base(self,base_name):
         self.connexion = sqlite3.connect(base_name, detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
         self.base_name = base_name
+        if os.name == 'nt' or os.name == 'win32' :
+            self.connexion.create_function("IS_IN_DIR", 2, lambda fname,dirname : self.win32_samefile(os.path.dirname(fname), dirname))
+        else:
+            self.connexion.create_function("IS_IN_DIR", 2, lambda fname,dirname : os.path.samefile(os.path.dirname(fname), dirname))
+        self.connexion.create_function("EXTENSION", 1, lambda fname : os.path.splitext(fname)[1])
+        self.connexion.create_function("PHONEX", 1, lambda word : algorithms.words.phonex(word))
+        self.connexion.create_function("MAKE_FULL_PATH", 2, self.make_full_name)
 
     #===========================================================================
     # test if a table exists
@@ -328,12 +336,6 @@ class Base(object):
         self.create_table(self.params_tableName, 'name TEXT , value TEXT')
         self.create_table(self.folders_tableName, 'foldID INTEGER PRIMARY KEY AUTOINCREMENT ,name TEXT , parentID INT references {0}(rowID)'.format(self.folders_tableName))
         self.create_table(self.folderDoc_tableName, 'docID INT  references {0}(rowID), folderID INT references {1}(rowID)'.format(self.documents_tableName,self.folders_tableName))
-        if os.name == 'nt' or os.name == 'win32' :
-            self.connexion.create_function("IS_IN_DIR", 2, lambda fname,dirname : self.win32_samefile(os.path.dirname(fname), dirname))
-        else:
-            self.connexion.create_function("IS_IN_DIR", 2, lambda fname,dirname : os.path.samefile(os.path.dirname(fname), dirname))
-        self.connexion.create_function("EXTENSION", 1, lambda fname : os.path.splitext(fname)[1])
-        self.connexion.create_function("PHONEX", 1, lambda word : algorithms.words.phonex(word))
         db_version = self.get_parameter(self.param_DB_VERSION)
         if not db_version:
             self.set_parameter(self.param_DB_VERSION, self.DB_VERSION)
@@ -1176,3 +1178,45 @@ class Base(object):
         except Exception,E:
             gui.utilities.show_message(_('Unable to create the database {name} : {err}'.format(name=new_base_name,err=str(E))))
             return False
+        
+    def export_database(self,filename,rows):
+        docIDlist = [row[self.IDX_ROWID] for row in rows]
+        self.replicate_in(filename, docIDlist)
+    def export_archive(self,filename,rows):
+        docIDlist = [row[self.IDX_ROWID] for row in rows]
+        (name,ext) =  os.path.splitext(filename)
+        self.replicate_in(filename, docIDlist)
+        zf = zipfile.ZipFile(filename,'w')
+        fileDict = dict()
+        for f in [row[self.IDX_FILENAME] for row in rows] :
+            arcname = os.path.basename(f)
+            if arcname in fileDict.values():
+                (name,ext) = os.path.splitext(arcname)
+                nn=1
+                while arcname in fileDict.values():
+                    nn+=1
+                    arcname=name+'_'+str(nn)+ext
+            fileDict[f] = arcname
+            zf.write(f, arcname, zipfile.ZIP_DEFLATED)
+        tmpFile = os.tmpnam()
+        self.replicate_in(tmpFile,docIDlist,file_replacer = lambda f:  fileDict[f])
+        zf.write(tmpFile, 'database.db', zipfile.ZIP_DEFLATED)
+        zf.close()
+    def import_archive(self,filename,dirname):
+        zf = zipfile.ZipFile(filename,'r')
+        zf.extractall(dirname)
+        self.use_base(os.path.join(dirname,'database.db'))
+        self.set_directory(dirname)
+    def make_full_name(self,fname,dirname):
+        if os.path.isabs(fname) :
+            return fname
+        else:
+            return os.path.abspath(os.path.join(dirname,fname))
+    def set_directory(self,dirname):
+        try:
+            Q = "UPDATE %s SET filename=MAKE_FULL_PATH(filename,'%s')" %(self.documents_tableName,dirname)
+            print Q
+            self.connexion.execute(Q)
+            self.connexion.commit()
+        except Exception,E:
+            print "Unable to change directory in the database entries : " + str(E)

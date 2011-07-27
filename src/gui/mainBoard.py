@@ -25,7 +25,6 @@ from gui import Preferences
 import Resources
 import algorithms.stringFunctions
 import data
-import zipfile
 import documentToGo
 
 class FlatView(wx.NotebookPage):
@@ -404,40 +403,11 @@ class MainFrame(wx.Frame):
     # actionDocToGo :start the doc to go wizard
     #===========================================================================
     def actionDocToGo(self,event):
-        docToGo = documentToGo.DocToGoWizard(self)
-        docToGo.RunWizard(docToGo.page_chooser)
-        return
-        dlg = wx.FileDialog(self,style=wx.FD_SAVE,message=_('Archive to create'))
-        if dlg.ShowModal():
-            filename = os.path.join(dlg.Directory,dlg.Filename)
-        else:
-            return
         rows = self.recordPart.getRow()
         if rows is None or len(rows)<1 :
             rows = self.docList
-        docIDlist = [row[database.theBase.IDX_ROWID] for row in rows]
-        (name,ext) =  os.path.splitext(filename)
-        if ext.lower() == '.db':
-            database.theBase.replicate_in(filename, docIDlist)
-        elif ext.lower() == '.zip':
-            zf = zipfile.ZipFile(filename,'w')
-            fileDict = dict()
-            for f in [row[database.theBase.IDX_FILENAME] for row in rows] :
-                arcname = os.path.basename(f)
-                if arcname in fileDict.values():
-                    (name,ext) = os.path.splitext(arcname)
-                    nn=1
-                    while arcname in fileDict.values():
-                        nn+=1
-                        arcname=name+str(nn)+ext
-                fileDict[f] = arcname
-                zf.write(f, arcname, zipfile.ZIP_DEFLATED)
-            tmpFile = os.tmpnam()
-            database.theBase.replicate_in(tmpFile,docIDlist,file_replacer = lambda f:  fileDict[f])
-            zf.write(tmpFile, 'database.db', zipfile.ZIP_DEFLATED)
-            zf.close()
-        else:
-            utilities.show_message('will create the archive file {0} . To be implemented'.format(filename))
+        docToGo = documentToGo.DocToGoWizard(self,rows)
+        docToGo.RunWizard(docToGo.page_chooser)
     #===========================================================================
     # actionAbout : show the about dialog box
     #===========================================================================

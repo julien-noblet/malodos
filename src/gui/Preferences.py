@@ -267,7 +267,7 @@ class PrefGui(wx.Dialog):
         self.Bind(wx.EVT_BUTTON, lambda x : self.Close(), self.btCancel)
     def actionChangeDataBase(self,event):        
         filename=None
-        dlg = wx.FileDialog(self,style=wx.FD_OPEN,message=_('choose the database file'))
+        dlg = wx.FileDialog(self,style=wx.FD_OPEN|wx.FD_FILE_MUST_EXIST,message=_('choose the database file'),wildcard='*.db')
         if dlg.ShowModal():
             filename = os.path.join(dlg.Directory,dlg.Filename)
         if not filename : return
