@@ -32,7 +32,6 @@ if not exe_name :
         pass
 if not exe_name: exe_name = '.'
 ld = os.path.join(exe_name ,'locale')
-
 # code bellow copied from http://www.journaldunet.com/developpeur/tutoriel/pyt/070607-python-traduction/2.shtml 
 if os.name == 'nt':
     lang = locale.getdefaultlocale()[0][:2]

@@ -254,6 +254,7 @@ class Base(object):
     IDX_TAGS=6
     IDX_CHECKSUM=7
     IDX_ROWID=8
+    IDX_COUNT=9
     
     ID_TAG=0
     ID_TITLE=1
@@ -1215,7 +1216,6 @@ class Base(object):
     def set_directory(self,dirname):
         try:
             Q = "UPDATE %s SET filename=MAKE_FULL_PATH(filename,'%s')" %(self.documents_tableName,dirname)
-            print Q
             self.connexion.execute(Q)
             self.connexion.commit()
         except Exception,E:
