@@ -46,6 +46,7 @@ class FlatView(wx.NotebookPage):
         self.totSizer.Add(self.cbOrder,(0,1),flag=wx.EXPAND)
         self.totSizer.Add(self.lbDocuments,(1,0),span=(1,2),flag=wx.EXPAND)
         self.totSizer.AddGrowableRow(1)
+        self.totSizer.AddGrowableCol(1)
         self.panel.SetSizerAndFit(self.totSizer)
         self.Bind(wx.EVT_LISTBOX,self.action_select,self.lbDocuments)
         self.Bind(wx.EVT_COMBOBOX,self.show_content,self.cbOrder)
