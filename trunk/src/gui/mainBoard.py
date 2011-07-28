@@ -28,19 +28,46 @@ import data
 import documentToGo
 
 class FlatView(wx.NotebookPage):
+    ID_ALPHABETICAL=(1,_('Alphabetical'))
+    ID_CHRONO_DOC=(2,_('Chronological (document)'))
+    ID_CHRONO_REG=(3,_('Chronological (registering date)'))
+    ID_PERTINENCE=(4,_('Relevance'))
+    CHOICES=[ID_ALPHABETICAL,ID_CHRONO_DOC,ID_CHRONO_REG,]#ID_PERTINENCE]#
     def __init__(self,parent,id,name,board):
         wx.NotebookPage.__init__(self,parent,id,name=name)
         self.board = board
-        self.totSizer = wx.BoxSizer(wx.VERTICAL)
+        self.totSizer = wx.GridBagSizer()
         self.panel = wx.Panel(self, -1)
-        self.lbDocuments = wx.ListBox(self.panel, -1,style=wx.LB_SORT | wx.LB_EXTENDED )
-        self.totSizer.Add(self.lbDocuments,1,wx.EXPAND)
+        self.lbDocuments = wx.ListBox(self.panel, -1,style=wx.LB_EXTENDED )
+        listChoices = [c[1] for c in self.CHOICES]
+        self.cbOrder = wx.ComboBox(self.panel,-1,choices=listChoices)
+        self.cbOrder.SetSelection(0)
+        self.totSizer.Add(wx.StaticText(self.panel,label=_('Classification')),(0,0),flag=wx.EXPAND)
+        self.totSizer.Add(self.cbOrder,(0,1),flag=wx.EXPAND)
+        self.totSizer.Add(self.lbDocuments,(1,0),span=(1,2),flag=wx.EXPAND)
+        self.totSizer.AddGrowableRow(1)
         self.panel.SetSizerAndFit(self.totSizer)
         self.Bind(wx.EVT_LISTBOX,self.action_select,self.lbDocuments)
+        self.Bind(wx.EVT_COMBOBOX,self.show_content,self.cbOrder)
+        self.docList=None
     def fillWith(self,docList):
+        self.docList = docList
+        self.show_content()
+    def show_content(self,event=None):
         self.lbDocuments.Clear()
-        if docList is None : return
-        for row in docList:
+        if self.docList is None or len(self.docList)==0: return
+        sel = self.cbOrder.GetSelection()
+        if sel is None : return
+        sel = self.CHOICES[sel][0]
+        if sel == self.ID_ALPHABETICAL[0]:
+            self.docList.sort(key=lambda row:row[database.theBase.IDX_TITLE].lower())
+        elif sel == self.ID_CHRONO_DOC[0]:
+            self.docList.sort(key=lambda row:row[database.theBase.IDX_DOCUMENT_DATE])
+        elif sel == self.ID_CHRONO_REG[0]:
+            self.docList.sort(key=lambda row:row[database.theBase.IDX_REGISTER_DATE])
+        elif sel == self.ID_PERTINENCE[0] and database.theBase.IDX_COUNT<len(self.docList[0]):
+            self.docList.sort(key=lambda row:row[database.theBase.IDX_COUNT])
+        for row in self.docList:
             self.lbDocuments.Append(row[database.theBase.IDX_TITLE] , row)
     def action_select(self,event):
         sel = self.lbDocuments.GetSelections()
@@ -408,6 +435,7 @@ class MainFrame(wx.Frame):
             rows = self.docList
         docToGo = documentToGo.DocToGoWizard(self,rows)
         docToGo.RunWizard(docToGo.page_chooser)
+        self.actionSearch(None)
     #===========================================================================
     # actionAbout : show the about dialog box
     #===========================================================================
