@@ -387,7 +387,8 @@ class Base(object):
                 os.rename(tmp_name, self.base_name)
                 if not os.path.exists(self.base_name): raise _('unable to upgrade the database')
                 self.use_base(self.base_name)
-            except:
+            except Exception,E:
+                print E
                 return False
             
         self.set_parameter(self.param_DB_VERSION, self.DB_VERSION)
@@ -1175,6 +1176,7 @@ class Base(object):
                 if docList is None or pos>=len(docList) : cont=False
 
             newDB.connexion.commit()
+            newDB.connexion.close()
             return True
         except Exception,E:
             gui.utilities.show_message(_('Unable to create the database {name} : {err}'.format(name=new_base_name,err=str(E))))
