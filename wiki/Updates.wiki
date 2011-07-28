@@ -8,9 +8,24 @@ This version add support for external OCR programs, such as [http://code.google.
 These programs must be installed separately. I'm currently using tesseract which seems to give quite good results. Please have a look on the tesseract website for installation instruction.
 Once installed (the program itself must be in your PATH) , you will have to tell *MALODOS* to use it, by using the preference window / content tab. A more detailed documentation will come later.
 
-Note also that this version adds a new dependenciy : [http://packages.python.org/pyenchant/ pyenchant].
+Note also that this version adds a new dependency : [http://packages.python.org/pyenchant/ pyenchant].
 You will also have to install it, but the easyest way to to it is to use pip or easy_install :
 {{{
 easy_install pyenchant
 }}}
 This package is used for OCR to check the validity of found terms. So you also need to specify which has to be used for spellchecking, also via the preferences/content tab.
+
+
+== Notes on version 1.2  ==
+
+Several new features added.
+  * Allows to create a virtual folder hierarchy and to attach each document to any number of folders.
+  * Add two new view mode for the list of documents: 
+    # Folder view : documents classified according to the folder(s) they belong to
+    # Tag folder view : a pseudo folder hierarchy is built, based on the tag of documents
+  * Possibility to reorder the flat view alphabetically or chronologically (according to document date or date of registration).
+  * Possibility to export all of part of the documents into a new database (also useful for backup of the database).
+  * Document to go : allows to create a zip file with a free selection of documents, as well as a database to browse these documents.
+
+Beside these new features, the  database format was enforced and modified. An automatic upgrade of the database format is made on the first start-up of this version, but a backup is performed before any irreversible operation.
+
