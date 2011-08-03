@@ -499,10 +499,12 @@ class Base(object):
     #===============================================================================
     # find documents corresponding to the sql request
     #===============================================================================
-    def find_sql(self,request,pars):
+    def find_sql(self,request='',pars=[]):
         if request=='': return self.find_documents(None)     
         try:
-            sql_command = "SELECT docID FROM fullDoc WHERE " + request + " GROUP BY docID" 
+            sql_command = "SELECT docID FROM fullDoc "
+            if request!='' : sql_command +=' WHERE '+ request
+            sql_command += " GROUP BY docID" 
 #            print sql_command,pars
             cur = self.connexion.execute(sql_command,pars)
             rowIDList = self.rows_to_str(cur,0,'')
@@ -1207,9 +1209,12 @@ class Base(object):
         zf.close()
     def import_archive(self,filename,dirname):
         zf = zipfile.ZipFile(filename,'r')
-        zf.extractall(dirname)
-        self.use_base(os.path.join(dirname,'database.db'))
-        self.set_directory(dirname)
+        try:
+            zf.extractall(dirname)
+            self.use_base(os.path.join(dirname,'database.db'))
+            self.set_directory(dirname)
+        except:
+            gui.utilities.show_message(_('Unable to open the archive {0}'.format(filename)))
     def make_full_name(self,fname,dirname):
         if os.path.isabs(fname) :
             return fname
