@@ -434,7 +434,7 @@ class MainFrame(wx.Frame):
         rows = self.recordPart.getRow()
         if rows is None or len(rows)<1 :
             rows = self.docList
-        docToGo = documentToGo.DocToGoWizard(self,rows)
+        docToGo = documentToGo.DocToGoWizard(self,self.docList,rows)
         docToGo.RunWizard(docToGo.page_chooser)
         self.actionSearch(None)
     #===========================================================================

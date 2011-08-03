@@ -12,13 +12,14 @@ import wx.wizard
 import database
 import utilities
 class DocToGoWizard (wx.wizard.Wizard):
-    def __init__(self,parent,row_list):
+    def __init__(self,parent,doc_list,row_list):
         wx.wizard.Wizard.__init__(self,parent,-1,_('Document to go wizard'))
         self.page_chooser = PageActionChooser(self)
         self.page_database_export = PageActionDatabaseExport(self)
         self.page_archive_export = PageActionArchiveCreation(self)
         self.page_archive_import = PageActionArchiveOpening(self)
         self.row_list=row_list
+        self.doc_list=doc_list
         self.Bind(wx.wizard.EVT_WIZARD_FINISHED, self.on_finished)
         self.Bind(wx.wizard.EVT_WIZARD_CANCEL, self.on_cancel)
         self.GetPageAreaSizer().Add(self.page_chooser)
@@ -27,20 +28,32 @@ class DocToGoWizard (wx.wizard.Wizard):
     def on_finished(self,event):
         sel = self.page_chooser.rbContent.GetSelection()
         sel = self.page_chooser.choice_list.keys()[sel]
+        what = self.page_chooser.rbDocToSave.GetSelection()
+        what =  self.page_chooser.sel_list.keys()[what]
+        if what==self.page_chooser.ALL_DOCUMENTS:
+            cur = database.theBase.find_sql()
+            if cur is None :
+                rowL=[]
+            else:
+                rowL = [row for row in cur] 
+        elif what == self.page_chooser.SELECTED_DOCS:
+            rowL = self.row_list
+        elif what == self.page_chooser.FILTER_RESULT:
+            rowL = self.doc_list
         if sel == self.page_chooser.EXPORT_DATABASE:
             filename = self.page_database_export.fcFileChooser.GetPath()
             if filename=='' : 
                 utilities.show_message(_("The filename can't be empty"))
                 event.Veto()
             else:
-                database.theBase.export_database(filename, self.row_list)
+                database.theBase.export_database(filename, rowL)
         elif sel==self.page_chooser.EXPORT_ARCHIVE:
             filename = self.page_archive_export.fcFileChooser.GetPath()
             if filename=='' : 
                 utilities.show_message(_("The filename can't be empty"))
                 event.Veto()
             else:
-                database.theBase.export_archive(filename, self.row_list)
+                database.theBase.export_archive(filename, rowL)
         elif sel==self.page_chooser.IMPORT_ARCHIVE :
             filename = self.page_archive_import.fcFileChooser.GetPath()
             dirname = self.page_archive_import.dcDirChooser.GetPath()
@@ -54,6 +67,10 @@ class PageActionChooser (wx.wizard.PyWizardPage):
     EXPORT_DATABASE=1
     EXPORT_ARCHIVE=2
     IMPORT_ARCHIVE=3
+    
+    ALL_DOCUMENTS=1
+    FILTER_RESULT=2
+    SELECTED_DOCS=3
     def __init__(self,parent):
         wx.wizard.PyWizardPage.__init__(self,parent)
         self.sizer = wx.BoxSizer(wx.VERTICAL)
@@ -61,8 +78,22 @@ class PageActionChooser (wx.wizard.PyWizardPage):
                              self.EXPORT_ARCHIVE :_('Create an archive with some or all of your documents, along with a database to browse into.'),
                              self.IMPORT_ARCHIVE :_('Open an existing archive.')   }
         self.rbContent =  wx.RadioBox(self,label=_('What action do you want to take'),choices=self.choice_list.values(),style=wx.RA_VERTICAL)
+        self.sel_list = { self.ALL_DOCUMENTS:_('Export all the documents') ,
+                             self.FILTER_RESULT :_('Export only the result of the current search.'),
+                             self.SELECTED_DOCS :_('Export only the result of the current selection.')   }
+        self.rbDocToSave =  wx.RadioBox(self,label=_('Which documents would you like to save'),choices=self.sel_list.values(),style=wx.RA_VERTICAL)
         self.sizer.Add(self.rbContent,0,flag=wx.EXPAND|wx.ALIGN_CENTER_VERTICAL)
+        self.sizer.Add(self.rbDocToSave,0,flag=wx.EXPAND|wx.ALIGN_CENTER_VERTICAL)
         self.SetSizer(self.sizer)
+        self.Bind(wx.EVT_RADIOBOX, self.on_choose_content , self.rbContent)
+    def on_choose_content(self,event):
+        sel = self.rbContent.GetSelection()
+        sel = self.choice_list.keys()[sel]
+        if sel == self.EXPORT_DATABASE or sel==self.EXPORT_ARCHIVE:
+            self.rbDocToSave.Show()
+        else:
+            self.rbDocToSave.Hide()
+        
     def GetNext(self):
         sel = self.rbContent.GetSelection()
         sel = self.choice_list.keys()[sel]

@@ -204,7 +204,7 @@ class RecordWidget(wx.Window):
             else:  
                 imData = data.imageData.imageData()
                 imData.load_file(filename)
-                doOCR = str_to_bool( database.theConfig.get_param('OCR', 'autoStart','1') )
+                doOCR = self.cbOCR.GetValue()#str_to_bool( database.theConfig.get_param('OCR', 'autoStart','1') )
                 if doOCR :
                     fullText = imData.get_content()
                 else:
