@@ -250,7 +250,7 @@ class FPDF:
 		self.n=2;
 		self.buffer='';
 		self.pages={}; #python: array() => {}
-		self.OrientationChanges=array();
+		self.OrientationChanges={}; #python: array() => {}array();
 		self.state=0;
 		self.fonts={} #python: array() => {} 
 		self.FontFiles=array();
@@ -1745,10 +1745,13 @@ class FPDF:
 		#Page orientation
 		if(not orientation):
 			orientation=self.DefOrientation;
+			self.OrientationChanges[self.page]=False
 		else:#{
 			orientation=strtoupper(orientation[0]);
 			if(orientation!=self.DefOrientation):
-				self.OrientationChanges[self.page]=true;
+				self.OrientationChanges[self.page]=True
+			else:
+				self.OrientationChanges[self.page]=False
 		#}
 		
 		if(orientation!=self.CurOrientation):#{

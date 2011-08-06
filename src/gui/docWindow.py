@@ -210,7 +210,7 @@ class docWindow(wx.Window) :
     def actionRotate90(self,event):
         if not data.theData.pil_images : return
         if self.btAllDocs.GetValue():
-            data.theData.rotate(image_num = None, nbRot = 1)
+            data.theData.rotate(image_num = None, nbRot = 3)
         else:
             data.theData.rotate(image_num = data.theData.current_image, nbRot = 1)
         self.showCurrentImage(wx.IMAGE_QUALITY_HIGH)
@@ -220,7 +220,7 @@ class docWindow(wx.Window) :
     def actionRotate270(self,event):
         if not data.theData.pil_images : return
         if self.btAllDocs.GetValue():
-            data.theData.rotate(image_num = None, nbRot = 3)
+            data.theData.rotate(image_num = None, nbRot = 1)
         else:
             data.theData.rotate(image_num = data.theData.current_image, nbRot = 3)
         self.showCurrentImage(wx.IMAGE_QUALITY_HIGH)
