@@ -11,7 +11,6 @@ import sane
 import gui.utilities as GUI
 import data
 from scannerAccess import scannerOption
-
 class SaneAccess(object):
     # DATA MEMBERS
     sourceData = None
@@ -82,7 +81,6 @@ class SaneAccess(object):
             self.openScanner()
         if not self.sourceData: return
         if not options is None : self.useOptions(options)
-        
         src = self.get_options('source',False)
         if not (src is None) and (len(src)==1) and (src[0].value.lower() == 'automatic document feeder') :
             try:
