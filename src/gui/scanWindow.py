@@ -253,7 +253,7 @@ class ScanWindow(wx.Dialog):
 			wx.MessageBox(_('You must give a valid filename to record the document'))
 			return
 		try:
-			if not data.theData.save_file(fname) : raise _('Unable to add the file to the disk')
+			if not data.theData.save_file(fname,self.recordPart.lbTitle.Value,self.recordPart.lbDescription.Value,self.recordPart.lbTags.Value) : raise _('Unable to add the file to the disk')
 		except:
 			wx.MessageBox(_('Unable to add the file to the disk'))
 			return
