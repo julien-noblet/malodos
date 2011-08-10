@@ -106,7 +106,7 @@ class SurveyWindow(wx.Dialog):
             #fname = self.docList.GetClientData(sel)
             #if not fname : return
             self.baseWin.recordPart.clear_all()
-            self.baseWin.recordPart.SetFields(filename = fname,doOCR=str_to_bool( database.theConfig.get_param('OCR', 'autoStart','1') ))
+            self.baseWin.recordPart.SetFields(filename = fname,doOCR=str_to_bool( database.theConfig.get_param('OCR', 'autoStart','1') ),selectedList=[],title='',description='',tags='')
             try:
                 data.theData.load_file(fname)
                 self.baseWin.docWin.resetView()
