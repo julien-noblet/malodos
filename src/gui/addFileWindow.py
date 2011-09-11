@@ -12,6 +12,7 @@ import os
 import RecordWidget
 from database import theConfig
 from algorithms.general import str_to_bool
+import docWindow
 
 class AddFileWindow(wx.Dialog):
     '''
@@ -36,6 +37,8 @@ class AddFileWindow(wx.Dialog):
         if not filename : return
         
         self.totSizer = wx.BoxSizer(wx.VERTICAL)
+        self.horSizer = wx.BoxSizer(wx.HORIZONTAL)
+        self.docWin = docWindow.docWindow(self.panel,-1)
         self.recordPart = RecordWidget.RecordWidget(self.panel,filename)
         self.recordPart.cbOCR.SetValue(str_to_bool(theConfig.get_param('OCR', 'autoStart','1')))
         self.btSizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -46,7 +49,9 @@ class AddFileWindow(wx.Dialog):
         self.btSizer.Add(self.btOk,1,wx.EXPAND)
         self.btSizer.Add(self.btCancel,1,wx.EXPAND)
         
-        self.totSizer.Add(self.recordPart,1,wx.EXPAND)
+        self.horSizer.Add(self.recordPart,1,wx.EXPAND)
+        self.horSizer.Add(self.docWin,1,wx.EXPAND)
+        self.totSizer.Add(self.horSizer,1,wx.EXPAND)
         self.totSizer.Add(self.btSizer,0,wx.EXPAND)
 
         self.panel.SetSizerAndFit(self.totSizer)

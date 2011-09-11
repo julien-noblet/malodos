@@ -35,6 +35,9 @@ class imageData(object):
     image_changed = True
     current_file=None
     nb_pages=0
+    title=None
+    subject=None
+    keywords=None
     def __init__(self):
         void_file = os.path.join(os.path.dirname(sys.argv[0]),'../resources','no_preview.png')
         self.image_void = Image.open(void_file)
@@ -88,6 +91,9 @@ class imageData(object):
         self.pil_images=[]
         self.image_changed = True
         self.current_file=None
+        self.title=None
+        self.subject=None
+        self.keywords=None
     def add_image(self,img):
         "add an image to the cache"
         if img: self.pil_images.append(img)
@@ -176,6 +182,9 @@ class imageData(object):
         # This is executed only is try_pdf is TRUE --> loading file was not possible via wx
         try:
             doc = gfx.open("pdf", filename)
+            self.title=doc.getInfo("title")
+            self.title=doc.getInfo("subject")
+            self.title=doc.getInfo("keywords")
             nmax = doc.pages
             if page:
                 if page>=nmax: return
@@ -189,5 +198,5 @@ class imageData(object):
                 self.nb_pages = nmax
                 self.add_image(I)
             self.current_image=0
-        except:
-            pass
+        except Exception,E:
+            print "Unable to open the file %s due to %s" % (filename,str(E))
