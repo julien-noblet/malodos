@@ -18,6 +18,11 @@ import os.path
 import gui.utilities
 import gui.virtualFolder
 
+#try:
+#    import gfx
+#except:
+#    pass
+
 #import pyPdf
 
 
@@ -101,9 +106,11 @@ class RecordWidget(wx.Window):
         filename = self.lbFileName.GetPath()
         if len(filename) == 0:
             return
-        if filename[-4:].lower()!='.pdf':
-            filename = filename  +'.pdf'
-            self.lbFileName.SetPath(filename)       
+        (name,ext)=os.path.splitext(filename)
+        if ext.lower()=='':
+            filename = name  + '.pdf'
+            self.lbFileName.SetPath(filename)
+
     def getCurrentPart(self,pos,text): 
         pos1 = text.rfind(',',0,pos+1)
         pos2 = text.find(',',pos+1)
