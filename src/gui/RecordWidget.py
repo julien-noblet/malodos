@@ -27,7 +27,7 @@ import gui.virtualFolder
 
 
 class RecordWidget(wx.Window):
-    def __init__(self,parent,filename='',file_style = wx.FLP_OPEN | wx.FLP_FILE_MUST_EXIST | wx.FLP_USE_TEXTCTRL,):
+    def __init__(self,parent,filename='',file_style = wx.FLP_OPEN | wx.FLP_FILE_MUST_EXIST | wx.FLP_USE_TEXTCTRL):
         '''
         Constructor
         '''
@@ -94,7 +94,8 @@ class RecordWidget(wx.Window):
         
         self.panel.SetSizerAndFit(self.totSizer)
         self.Bind(wx.EVT_SIZE,self.onResize)
-        self.Bind(wx.EVT_FILEPICKER_CHANGED,self.checkFileName)
+        #self.Bind(wx.EVT_FILEPICKER_CHANGED,self.checkFileName,self.lbFileName)
+        self.lbFileName.Bind(wx.EVT_FILEPICKER_CHANGED, self.checkFileName)
     def updateSelection(self,selection):
         self.lbFolders.Clear()
         for folderID in selection:
@@ -110,6 +111,7 @@ class RecordWidget(wx.Window):
         if ext.lower()=='':
             filename = name  + '.pdf'
             self.lbFileName.SetPath(filename)
+        print filename
 
     def getCurrentPart(self,pos,text): 
         pos1 = text.rfind(',',0,pos+1)
@@ -178,7 +180,7 @@ class RecordWidget(wx.Window):
     def getRow(self):
         return self.row
     def SetFields(self,filename=None,title=None,description=None,date=None,tags=None,doOCR=None,selectedList=None):
-        if not filename is None: self.lbFileName.SetPath(filename) 
+        if not filename is None: self.lbFileName.SetPath(filename)
         if not title is None : self.lbTitle.SetValue(title)
         if not description is None : self.lbDescription.SetValue(description)
         if not tags is None : self.lbTags.SetValue(tags)
