@@ -17,7 +17,7 @@ from  algorithms.general import str_to_bool
 import os.path
 import gui.utilities
 import gui.virtualFolder
-
+import logging
 #try:
 #    import gfx
 #except:
@@ -218,7 +218,8 @@ class RecordWidget(wx.Window):
                     fullText = imData.get_content()
                 else:
                     fullText = None
-        except:
+        except Exception,E:
+            logging.debug('Saving record error ' + str(E))
             fullText=None
         if fullText is None or len(fullText)==0 : fullText = {'NOTHING FOUND':1}
         # add the document to the database

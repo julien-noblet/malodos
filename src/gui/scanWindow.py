@@ -14,7 +14,7 @@ from gui import utilities
 from wx.lib.intctrl import IntCtrl
 from wx.lib.agw.floatspin import FloatSpin
 from scannerAccess import scannerOption
-from scannerAccess.scannerOption import TYPE_BUTTON
+#from scannerAccess.scannerOption import TYPE_BUTTON
 if os.name == 'posix' :
 	from scannerAccess import saneAccess
 else:
@@ -23,10 +23,11 @@ import gui.docWindow as docWindow
 import data
 import RecordWidget
 import database
-import wx.lib.intctrl
-import wx.lib.agw.floatspin
+#import wx.lib.intctrl
+#import wx.lib.agw.floatspin
 from database import theConfig
 from algorithms.general import str_to_bool
+import logging
 
 class OptionsWindow(wx.Dialog):
 	def __init__(self, parent, optList,defaultValues=None):
@@ -237,16 +238,16 @@ class ScanWindow(wx.Dialog):
 		data.theData.clear_all()
 		while cont:
 			try:
+				self.scanner.useOptions(self.currentOptions)
 				self.scanner.startAcquisition()
 			except Exception as E:
-				print str(E)
+				logging.debug('Scan acquisition error ' + str(E))
 			if auto_cont:
 				x = utilities.ask(_('Do you want to add new page(s) ?'))
 				if x != wx.ID_YES:
 					cont=False
 			else:
 				cont=False
-			
 	def actionSaveRecord(self,event):
 		fname = self.recordPart.lbFileName.GetPath()
 		if fname == '' :
@@ -254,7 +255,8 @@ class ScanWindow(wx.Dialog):
 			return
 		try:
 			if not data.theData.save_file(fname,self.recordPart.lbTitle.Value,self.recordPart.lbDescription.Value,self.recordPart.lbTags.Value) : raise _('Unable to add the file to the disk')
-		except:
+		except Exception as E:
+			logging.debug('Saving reecord ' + str(E))
 			wx.MessageBox(_('Unable to add the file to the disk'))
 			return
 		if not self.recordPart.do_save_record():

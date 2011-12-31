@@ -28,6 +28,14 @@ class TwainAccess(object):
         self.tmpFileName=tempfile.NamedTemporaryFile().name
         self.sourceName= None
     # METHODS
+    def listSources(self):
+        if not self.sourceManager:
+            self.sourceManager = twain.SourceManager(self.imageContainer, ProductName="MALODOS")
+        if not self.sourceManager:
+            self.sourceName= None
+            return []
+        return self.sourceManager.GetSourceList()
+        
     def chooseSource(self,sourceName=None):
         if not self.sourceManager:
             self.sourceManager = twain.SourceManager(self.imageContainer, ProductName="MALODOS")

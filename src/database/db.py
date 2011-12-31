@@ -22,6 +22,7 @@ import algorithms.words
 import Resources
 import shutil
 import zipfile
+import logging
 
 class ConfigReader(object):
     def __init__(self,conf_file=None):
@@ -96,6 +97,7 @@ class OCRConfiguration(ConfigReader):
             otherOpts = self.get_param(ocr_section, 'otherOptions', '', False)
             if otherOpts != '' : to_place.append(otherOpts)
         except:
+            logging.debug('Unable to build the call sequence for the OCR %s') %ocr_section
             return []
         to_place2=[]
         outF=None
@@ -290,6 +292,7 @@ class Base(object):
             cur = self.connexion.execute("SELECT name FROM sqlite_master WHERE name = '" + base_name + "' AND type='table' ;")
             return (cur and cur.arraysize>0)
         except:
+            logging.debug('SQL ERROR')
             return False
     #===========================================================================
     # create the table
@@ -303,6 +306,7 @@ class Base(object):
             self.connexion.execute(sql_statement)
             return True
         except:
+            logging.debug('SQL ERROR')
             return False
     def win32_samefile(self,p1,p2):
         return os.path.abspath(p1).lower() == os.path.abspath(p2).lower()
@@ -329,6 +333,7 @@ class Base(object):
         try:
             self.connexion.execute(sql_statement)
         except Exception,E:
+            logging.debug('SQL ERROR')
             gui.utilities.show_message('Error during database index creation : ' + str(E))
             
         #self.create_table(self.docWords_tableName, 'keyID INTEGER references ' + self.keywords_tableName + '(ROWID) ,docID INTEGER references ' + self.documents_tableName + '(ROWID)')
@@ -350,6 +355,7 @@ class Base(object):
             try:
                 self.connexion.execute(sql_statement)
             except Exception as E:
+                logging.debug('SQL ERROR ' + str(E))
                 gui.utilities.show_message('Error during database view creation : ' + str(E))
             sql_statement = 'DROP VIEW fullDoc'
             try:
@@ -365,6 +371,7 @@ class Base(object):
             self.connexion.execute(sql_statement)
         except Exception,E:
             gui.utilities.show_message('Error during database view creation :' + str(E))
+            logging.debug('SQL ERROR ' + str(E))
             return False
         if db_version<1.21 :
             it=1
@@ -388,7 +395,7 @@ class Base(object):
                 if not os.path.exists(self.base_name): raise _('unable to upgrade the database')
                 self.use_base(self.base_name)
             except Exception,E:
-                print E
+                logging.debug('SQL ERROR ' + str(E))
                 return False
             
         self.set_parameter(self.param_DB_VERSION, self.DB_VERSION)
@@ -405,7 +412,8 @@ class Base(object):
             self.connexion.execute(Q,(parameter_name,str(parameter_value)))
             self.connexion.commit()
             return True
-        except:
+        except Exception,E:
+            logging.debug('SQL ERROR ' + str(E))
             return False
     #===========================================================================
     # get a parameter
@@ -419,7 +427,8 @@ class Base(object):
                 return row[0]
             else:
                 return None
-        except :
+        except Exception,E:
+            logging.debug('SQL ERROR ' + str(E))
             return None
          
     #===============================================================================
@@ -452,16 +461,17 @@ class Base(object):
                     personID = cur.lastrowid
                 else:
                     personID = row[0]
-            except:
+            except Exception,E:
                 gui.utilities.show_message(_('Unable to assign the registering person'))
-                pass
+                logging.debug('SQL ERROR ' + str(E))
         try:
             # add the document entry in the database
             #sql_statement = 'INSERT INTO ' + self.documents_tableName + " VALUES ('" + title + "','" + description + "','" + fileName + "','" + str(registeringDate) + "'," + str(personID) + ",'" + str(documentDate) + "','" + str(file_md5) + "')"
             sql_statement = 'INSERT INTO ' + self.documents_tableName + " (title,description,filename,registerDate,registeringPersonID,documentDate,tags,checksum) VALUES (?,?,?,?,?,?,?,?)"
             cur = self.connexion.execute(sql_statement,(title,description,fileName,registeringDate,personID,documentDate,tags,str(file_md5)))
             docID = cur.lastrowid
-        except:
+        except Exception,E:
+            logging.debug('SQL ERROR ' + str(E))
             gui.utilities.show_message(_('Unable to add the document'))
             return False
         self.connexion.commit()
@@ -491,7 +501,8 @@ class Base(object):
             #print "finding keys via " + Q
             cur = self.connexion.execute(Q , keywords)
             return cur
-        except:
+        except Exception,E:
+            logging.debug('SQL ERROR ' + str(E))
             gui.utilities.show_message(_('Unable to search keywords'))
             return None
 
@@ -512,6 +523,7 @@ class Base(object):
             cur = self.connexion.execute(sql_command)
             return cur
         except Exception as E:
+            logging.debug('SQL ERROR ' + str(E))
             gui.utilities.show_message('SQL search failed ' + str(E))
             #print E 
             return None
@@ -526,6 +538,7 @@ class Base(object):
             cur = self.connexion.execute(sql_command,docIDlist)
             return cur
         except Exception as E:
+            logging.debug('SQL ERROR ' + str(E))
             gui.utilities.show_message('SQL search failed ' + str(E))
             #print E 
             return None
@@ -546,6 +559,7 @@ class Base(object):
                 cur = self.connexion.execute(sql_command)
                 return [ row[0].encode('utf-8') for row in cur]
         except Exception as E:
+            logging.debug('SQL ERROR ' + str(E))
             gui.utilities.show_message('SQL search failed ' + str(E) )
             return None
     #===============================================================================
@@ -558,6 +572,7 @@ class Base(object):
             cur = self.connexion.execute(sql_command,(p,))
             return [ row[0].encode('utf-8') for row in cur]
         except Exception as E:
+            logging.debug('SQL ERROR ' + str(E))
             gui.utilities.show_message('SQL search failed ' + str(E) )
             return None
     
@@ -589,7 +604,8 @@ class Base(object):
                     cur = self.connexion.execute(Q , fields)
                 else:  
                     cur = self.connexion.execute(Q)
-            except:
+            except Exception as E:
+                logging.debug('SQL ERROR ' + str(E))
                 gui.utilities.show_message(_('Keyword search failed'))
                 return None
             # cur now contain the docID to take
@@ -599,7 +615,7 @@ class Base(object):
         try:
             cur = self.connexion.execute(sql_statement)
         except Exception,E:
-            print E
+            logging.debug('SQL ERROR ' + str(E))
             gui.utilities.show_message(_('Document search failed'))
             return None
         return cur
@@ -638,7 +654,8 @@ class Base(object):
         try:
             cur = self.connexion.execute(Q,keywords)
             already_present = [ i[0] for i in cur]
-        except:
+        except Exception as E:
+            logging.debug('SQL ERROR ' + str(E))
             gui.utilities.show_message(_('Keyword search failed'))
             already_present = [ ]
         absents = [ s for s in keywords if s not in already_present]
@@ -652,14 +669,16 @@ class Base(object):
         Q = 'DELETE FROM ' + self.docWords_tableName + ' WHERE docID IN ' + self.make_placeholder_list(len(docID))
         try:
             self.connexion.execute(Q,docID)
-        except:
+        except Exception as E:
+            logging.debug('SQL ERROR ' + str(E))
             gui.utilities.show_message(_('Unable to remove documents/word associations'))
             return
         # second find and delete all the corresponding lines in folders index
         Q = 'DELETE FROM ' + self.folderDoc_tableName + ' WHERE docID IN ' + self.make_placeholder_list(len(docID))
         try:
             self.connexion.execute(Q,docID)
-        except:
+        except Exception as E:
+            logging.debug('SQL ERROR ' + str(E))
             gui.utilities.show_message(_('Unable to remove documents/word associations'))
             return
         # then delete the documents entries themselves
@@ -667,7 +686,8 @@ class Base(object):
         try:
             self.connexion.execute(Q,docID)
             self.connexion.commit()
-        except:
+        except Exception as E:
+            logging.debug('SQL ERROR ' + str(E))
             gui.utilities.show_message(_('Unable to remove documents entries'))
             return
     #===========================================================================
@@ -688,7 +708,8 @@ class Base(object):
         try:
             #print Q
             self.connexion.execute(Q,docID)
-        except:
+        except Exception as E:
+            logging.debug('SQL ERROR ' + str(E))
             gui.utilities.show_message(_('Unable to remove doc/word association'))
             return False
         for iField in range(len(keywordsGroups)) :
@@ -705,6 +726,7 @@ class Base(object):
             try:
                 self.connexion.executemany(Q,absents)
             except  Exception,E:
+                logging.debug('SQL ERROR ' + str(E))
                 gui.utilities.show_message(_('Unable to insert new keywords : ') + str(E))
                 return False
             # get back all the keyword IDs for the current field
@@ -713,7 +735,8 @@ class Base(object):
             try:
                 cur = self.connexion.execute(Q,all_keywords.keys())
                 addedKeys = [ (row[0],all_keywords[row[1].lower()]) for row in cur]
-            except:
+            except Exception as E:
+                logging.debug('SQL ERROR ' + str(E))
                 gui.utilities.show_message(_('Unable to search for keywords'))
                 return False
             # add the new keyID to the table
@@ -723,12 +746,14 @@ class Base(object):
                 Q = 'INSERT INTO ' + self.docWords_tableName + ' VALUES (?,' +  str(adoc_i) + ',' + str(field) + ',?)'
                 try:
                     self.connexion.executemany(Q , addedKeys)
-                except:
+                except Exception as E:
+                    logging.debug('SQL ERROR ' + str(E))
                     gui.utilities.show_message(_('Unable to insert new document/word association'))
                     return False
             try:
                 self.connexion.commit()
-            except:
+            except Exception as E:
+                logging.debug('SQL ERROR ' + str(E))
                 return False
         return True
     
@@ -740,7 +765,8 @@ class Base(object):
         try:
             self.connexion.execute(Q,(title,description,documentDate,tags,filename,docID))
             self.connexion.commit()
-        except:
+        except Exception as E:
+            logging.debug('SQL ERROR ' + str(E))
             gui.utilities.show_message(_('Unable to update document into database'))
             return False
         keywordsGroups = self.get_keywordsGroups_from(title, description, filename,tags,fullText)
@@ -754,7 +780,8 @@ class Base(object):
         try:
             self.connexion.execute(Q,(file_md5,docID))
             self.connexion.commit()
-        except:
+        except Exception as E:
+            logging.debug('SQL ERROR ' + str(E))
             gui.utilities.show_message(_('Unable to reassign checksum into database entry'))
             return False
         return True
@@ -792,7 +819,8 @@ class Base(object):
             else:
                 cur = self.connexion.execute(Q,(directory,))
             return cur
-        except:
+        except Exception as E:
+            logging.debug('SQL ERROR ' + str(E))
             #gui.utilities.show_message('Unable to get file list from database')
             return None
     #===========================================================================
@@ -803,7 +831,8 @@ class Base(object):
         try:
             cur = self.connexion.execute(Q)
             return tuple([row[0].encode('utf-8').lower() for row in cur])
-        except:
+        except Exception as E:
+            logging.debug('SQL ERROR ' + str(E))
             return ()
     #===========================================================================
     # doc_without_ocr : retrieve all docs without any OCR term recored
@@ -816,7 +845,8 @@ class Base(object):
             sql_command = "SELECT title,description,filename,registerDate,registeringPersonID,documentDate,tags,checksum,ROWID FROM "+ self.documents_tableName + ' WHERE ROWID IN ' + str(rowIDList)
             cur = self.connexion.execute(sql_command)
             return cur
-        except:
+        except Exception as E:
+            logging.debug('SQL ERROR ' + str(E))
             return None
     #===========================================================================
     # folders_childs_of(ID) : retrieve all folders whose parent is ID
@@ -826,7 +856,8 @@ class Base(object):
         try:
             cur = self.connexion.execute(Q, [ID,])
             return cur
-        except:
+        except Exception as E:
+            logging.debug('SQL ERROR ' + str(E))
             return None
     #===========================================================================
     # folders_doc_childs_of(ID) : retrieve all docs whose parent is ID
@@ -836,7 +867,8 @@ class Base(object):
         try:
             cur = self.connexion.execute(Q, [ID,])
             return [row[0] for row in cur]
-        except:
+        except Exception as E:
+            logging.debug('SQL ERROR ' + str(E))
             return ()
     #===========================================================================
     # folders_add_child_under(name,ID) : add a child named name under folder ID
@@ -847,7 +879,8 @@ class Base(object):
             self.connexion.execute(Q, [name,ID])
             self.connexion.commit()
             return True
-        except:
+        except Exception as E:
+            logging.debug('SQL ERROR ' + str(E))
             return False
     #===========================================================================
     # folders_remove(ID) : remove a folder from database 
@@ -880,7 +913,8 @@ class Base(object):
             self.connexion.execute(Q, [ID,])
             self.connexion.commit()
             return True
-        except:
+        except Exception as E:
+            logging.debug('SQL ERROR ' + str(E))
             return False
     
     #===========================================================================
@@ -892,7 +926,8 @@ class Base(object):
             self.connexion.execute(Q, [name,ID])
             self.connexion.commit()
             return True
-        except:
+        except Exception as E:
+            logging.debug('SQL ERROR ' + str(E))
             return False
     #===========================================================================
     # folders_change_doc_parent(ID,ID,parentID) : change the parentship of a folder 
@@ -907,7 +942,8 @@ class Base(object):
             self.connexion.execute(Q, P)
             self.connexion.commit()
             return True
-        except:
+        except Exception as E:
+            logging.debug('SQL ERROR ' + str(E))
             return False
     #===========================================================================
     # folders_change_doc_parent(ID,ID,parentID) : change the parentship of a folder 
@@ -919,7 +955,8 @@ class Base(object):
             self.connexion.execute(Q, P)
             self.connexion.commit()
             return True
-        except:
+        except Exception as E:
+            logging.debug('SQL ERROR ' + str(E))
             return False
     #===========================================================================
     # folders_change_parent(folderID,newParentID) : change the parentship of a folder 
@@ -930,7 +967,8 @@ class Base(object):
             self.connexion.execute(Q, [newParentID,folderID])
             self.connexion.commit()
             return True
-        except:
+        except Exception as E:
+            logging.debug('SQL ERROR ' + str(E))
             return False
     #===========================================================================
     # folders_genealogy_of(folderID) : return the parent, grandparent, grand-grand parents,... of a folder
@@ -956,7 +994,7 @@ class Base(object):
             genealogy.reverse()
             return genealogy
         except Exception,E:
-            print E
+            logging.debug('SQL ERROR ' + str(E))
             return []
     #===========================================================================
     # folders_is_descendant_of(folderID,baseID) : does folder folderID in the descendant of parentID
@@ -972,7 +1010,8 @@ class Base(object):
             Q = 'SELECT folderID FROM %s WHERE docID =?' % self.folderDoc_tableName
             cur = self.connexion.execute(Q, [docID])
             folderID_list = [row[0] for row in cur]
-        except:
+        except Exception as E:
+            logging.debug('SQL ERROR ' + str(E))
             folderID_list=[]
         return folderID_list
     #===========================================================================
@@ -997,7 +1036,7 @@ class Base(object):
             self.connexion.commit()
             return True
         except Exception,E:
-            print E
+            logging.debug('SQL ERROR ' + str(E))
             return False
     #===========================================================================
     # folders_rem_doc_from(docID,folderID) : remove the document docID under the folder ID 
@@ -1015,7 +1054,7 @@ class Base(object):
             self.connexion.commit()
             return True
         except Exception,E:
-            print E
+            logging.debug('SQL ERROR ' + str(E))
             return False
     #===========================================================================
     # get_list_of_tags_for(docList) : list of tags used into the list of docs, ordered by number of occurence 
@@ -1033,7 +1072,7 @@ class Base(object):
             cur = self.connexion.execute(Q, params)
             return cur
         except Exception,E:
-            print '*',E
+            logging.debug('SQL ERROR ' + str(E))
             return None
     #===========================================================================
     # get_list_of_docs_with_all_keys(keyList) : list of docs containing all the given keys 
@@ -1049,7 +1088,7 @@ class Base(object):
             cur = self.connexion.execute(Q,keys)
             return [row[0] for row in cur]
         except Exception,E:
-            print '+',E
+            logging.debug('SQL ERROR ' + str(E))
             return []
     #===========================================================================
     # replicate_in(new_base_name,docList) 
@@ -1136,7 +1175,7 @@ class Base(object):
                             r[self.IDX_FILENAME] = file_replacer(row[self.IDX_FILENAME])
                             if r[self.IDX_FILENAME] is not None and r[self.IDX_FILENAME] != '': newDB.connexion.execute(Q,r)
                         except Exception,E:
-                            print str(E)
+                            logging.debug('SQL ERROR ' + str(E))
                         
                 pos=pos2
                 if docList is None or pos>=len(docList) : cont=False
@@ -1181,6 +1220,7 @@ class Base(object):
             newDB.connexion.close()
             return True
         except Exception,E:
+            logging.debug('SQL ERROR ' + str(E))
             gui.utilities.show_message(_('Unable to create the database {name} : {err}'.format(name=new_base_name,err=str(E))))
             return False
         
@@ -1213,7 +1253,8 @@ class Base(object):
             zf.extractall(dirname)
             self.use_base(os.path.join(dirname,'database.db'))
             self.set_directory(dirname)
-        except:
+        except Exception as E:
+            logging.debug('SQL ERROR ' + str(E))
             gui.utilities.show_message(_('Unable to open the archive {0}'.format(filename)))
     def make_full_name(self,fname,dirname):
         if os.path.isabs(fname) :
@@ -1226,4 +1267,4 @@ class Base(object):
             self.connexion.execute(Q)
             self.connexion.commit()
         except Exception,E:
-            print "Unable to change directory in the database entries : " + str(E)
+            logging.debug('SQL ERROR ' + str(E))

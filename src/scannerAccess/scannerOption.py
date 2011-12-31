@@ -15,10 +15,10 @@ TYPE_GROUP = 5
 TYPE_INT = 1
 TYPE_STRING = 3
 class scannerOption :
-    def __init__(self,name,title,type,description='',constraint=None,value=None):
+    def __init__(self,name,title,scan_type,description='',constraint=None,value=None):
         self.name=name
         self.title=title
-        self.type=type
+        self.type=scan_type
         self.description=description
         self.constraint=constraint
         self.value=value
