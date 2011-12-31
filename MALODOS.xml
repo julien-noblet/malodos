@@ -77,7 +77,7 @@
    </Program_Info>
    <Program_Descriptions>
       <English>
-         <Keywords></Keywords>
+         <Keywords>scanner EDM documents OCR</Keywords>
          <Char_Desc_45></Char_Desc_45>
          <Char_Desc_80></Char_Desc_80>
          <Char_Desc_250></Char_Desc_250>
@@ -85,17 +85,17 @@
          <Char_Desc_2000></Char_Desc_2000>
       </English>
       <French>
-         <Keywords></Keywords>
+         <Keywords>scanner GED documents ROC</Keywords>
          <Char_Desc_45></Char_Desc_45>
          <Char_Desc_80>Acquisition et gestion de documents.</Char_Desc_80>
          <Char_Desc_250>Logiciel permettant d'acquerir (scanner), classer puis rechercher l'ensemble de vos documents papier.</Char_Desc_250>
          <Char_Desc_450></Char_Desc_450>
-         <Char_Desc_2000>Le logiciel MALODOS est conÃ§u pour permettre de transfÃ©rer l'ensemble de vos documents papier (factures, fiches de paye, etc...) sous forme Ã©lectronique, Ã  partir d'un scanner.
-Une fois un document scannÃ©, il est possible d'y attacher un ensemble de mots clefs, un titre, une description et une date d'effet.
-Il est alors par la suite trÃ¨s simple de rechercher n'importe lequel de vos documents par mot clef/date.
-La version 1.1 permet d'interfacer diffÃ©rents logiciels de reconnaissance de caractÃ¨res (OCR) afin de permettre une recherche dans le corps des documents eux mÃªmes.
+         <Char_Desc_2000>Le logiciel MALODOS est conçu pour permettre de transférer l'ensemble de vos documents papier (factures, fiches de paye, etc...) sous forme électronique, à  partir d'un scanner.
+Une fois un document scanné, il est possible d'y attacher un ensemble de mots clefs, un titre, une description et une date d'effet.
+Il est alors par la suite très simple de rechercher n'importe lequel de vos documents par mot clef/date.
+La version 1.1 permet d'interfacer différents logiciels de reconnaissance de caractères (OCR) afin de permettre une recherche dans le corps des documents eux mêmes.
 
-La version 1.2 ajoute la possibilitÃ© de classer les documents dans des dossiers virtuels, de crÃ©er une vue hiÃ©rarchique par mots clef, de faire une sauvegarde do votre base de donnÃ©es ainsi que de crÃ©er une archive transportable contenant tout ou parti de vos documents.</Char_Desc_2000>
+La version 1.2 ajoute la possibilité de classer les documents dans des dossiers virtuels, de créer une vue hiérarchique par mots clef, de faire une sauvegarde de votre base de données ainsi que de crér une archive transportable contenant tout ou parti de vos documents.</Char_Desc_2000>
       </French>
    </Program_Descriptions>
    <Web_Info>
@@ -107,8 +107,8 @@ La version 1.2 ajoute la possibilitÃ© de classer les documents dans des dossiers
          <Application_XML_File_URL></Application_XML_File_URL>
       </Application_URLs>
       <Download_URLs>
-         <Primary_Download_URL>http://malodos.googlecode.com/files/MALODOS-1.2-beta1.exe</Primary_Download_URL>
-         <Secondary_Download_URL>http://malodos.googlecode.com/files/malodos-1.2_beta1.zip</Secondary_Download_URL>
+         <Primary_Download_URL>http://malodos.googlecode.com/files/MALODOS-1.2.exe</Primary_Download_URL>
+         <Secondary_Download_URL>http://malodos.googlecode.com/files/malodos-1.2.zip</Secondary_Download_URL>
          <Additional_Download_URL_1></Additional_Download_URL_1>
          <Additional_Download_URL_2></Additional_Download_URL_2>
       </Download_URLs>
