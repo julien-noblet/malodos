@@ -27,6 +27,8 @@ class SaneAccess(object):
         self.devices=None
  
     # METHODS
+    def listSources(self):
+        return  sane.get_devices()
     def chooseSource(self,sourceName=None):
         self.devices = sane.get_devices()
         names = [D[2] for D in self.devices]
@@ -81,8 +83,10 @@ class SaneAccess(object):
             self.openScanner()
         if not self.sourceData: return
         if not options is None : self.useOptions(options)
+        #L=self.get_options()
+        #for i in L : print i.name,i.value
         src = self.get_options('source',False)
-        if not (src is None) and (len(src)==1) and (src[0].value.lower() == 'automatic document feeder') :
+        if not (src is None) and (len(src)==1) and (src[0].value.lower().count('automatic')>0 or src[0].value.lower().count('adf')>0) :
             try:
                 it = self.sourceData.multi_scan()
                 cont = True
@@ -124,6 +128,6 @@ class SaneAccess(object):
                 optValue = self.sourceData.__getattr__(k)
             except:
                 optValue=None
-            L.append(scannerOption.scannerOption(name=k,title=o.title,type=o.type,description=o.desc,constraint=o.constraint,value=optValue))
+            L.append(scannerOption.scannerOption(name=k,title=o.title,scan_type=o.type,description=o.desc,constraint=o.constraint,value=optValue))
         if autoClose : self.closeScanner()
         return L

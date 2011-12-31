@@ -14,6 +14,7 @@ import gettext
 import os
 import locale
 import sys
+import logging
 
 exe_name=None
 try:
@@ -46,6 +47,9 @@ else :
 import wx
 import gui.mainBoard as mainWindow
 import database
+logfilename=os.path.join(database.theConfig.conf_dir ,'messages.log')
+logging.basicConfig(filename=logfilename, filemode='w', level=logging.DEBUG,format='%(levelname)s %(message)s at %(filename)s on line %(lineno)d function %(funcName)s ')
+logging.info('Starting MALODOS')
 #---------------------------------------------------------------------------
 class MyApp(wx.App):
     def OnInit(self):
@@ -62,3 +66,4 @@ class MyApp(wx.App):
 app = MyApp(False)
 
 app.MainLoop()
+logging.info('Exiting MALODOS')

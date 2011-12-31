@@ -113,10 +113,10 @@ class FolderView (wx.Panel):
             folderID = self.treeView.GetPyData(itemID)
             descendants = theBase.folders_childs_of(folderID)
             for row in descendants:
-                id = row[0]
+                idt = row[0]
                 name = row[1]
-                item = self.treeView.AppendItem(itemID,name,data=wx.TreeItemData(id))
-                if id in self.selectedList : self.treeView.SetItemBold(item)
+                item = self.treeView.AppendItem(itemID,name,data=wx.TreeItemData(idt))
+                if idt in self.selectedList : self.treeView.SetItemBold(item)
                 addedItems.append(item)
             for item in addedItems : fillUnder(item)
         self.treeView.DeleteAllItems()

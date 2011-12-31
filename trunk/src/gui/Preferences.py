@@ -14,7 +14,7 @@ import database
 import os
 # import utilities
 import scanWindow
-import Resources
+#import Resources
 if os.name == 'posix' :
     from scannerAccess import saneAccess
 else:
@@ -27,16 +27,16 @@ from algorithms.words import get_available_languages
 import virtualFolder
 
 class PrefFolders(wx.NotebookPage):
-    def __init__(self,parent,id,name):
-        wx.NotebookPage.__init__(self,parent,id,name=name)
+    def __init__(self,parent,page_id,name):
+        wx.NotebookPage.__init__(self,parent,page_id,name=name)
         self.panel = wx.Panel(self, -1)
         self.sizer = wx.BoxSizer(wx.HORIZONTAL)
         self.vFold = virtualFolder.FolderView(self.panel,False,True)
         self.sizer.Add(self.vFold,1,flag=wx.ALL|wx.EXPAND)
         self.panel.SetSizerAndFit(self.sizer)
 class PrefContent(wx.NotebookPage):
-    def __init__(self,parent,id,name):
-        wx.NotebookPage.__init__(self,parent,id,name=name)
+    def __init__(self,parent,page_id,name):
+        wx.NotebookPage.__init__(self,parent,page_id,name=name)
         self.panel = wx.Panel(self, -1)
         self.sizer = wx.GridBagSizer(1,1)
         self.cbAutoOCR = wx.CheckBox(self.panel,-1,_('Automatically proceed to OCR when a new document is added to the database'))
@@ -96,8 +96,8 @@ class PrefContent(wx.NotebookPage):
         self.cbAutoOCR.Value = str_to_bool( database.theConfig.get_param('OCR', 'autoStart','1') )
 
 class PrefScanner(wx.NotebookPage):
-    def __init__(self,parent,id,name):
-        wx.NotebookPage.__init__(self,parent,id,name=name)
+    def __init__(self,parent,idp,name):
+        wx.NotebookPage.__init__(self,parent,idp,name=name)
         self.panel = wx.Panel(self, -1)
         self.sizer = wx.BoxSizer(wx.VERTICAL)
         
@@ -159,8 +159,8 @@ class PrefScanner(wx.NotebookPage):
         self.save_scanner_options()
 
 class PrefSurveyDir(wx.NotebookPage):
-    def __init__(self,parent,id,name):
-        wx.NotebookPage.__init__(self,parent,id,name=name)
+    def __init__(self,parent,page_id,name):
+        wx.NotebookPage.__init__(self,parent,page_id,name=name)
         self.panel = wx.Panel(self, -1)
         self.dirSurveySizer = wx.GridBagSizer(1,1)
         self.lstSurveyDirs = wx.CheckListBox(self.panel,-1,style=wx.LB_EXTENDED)
