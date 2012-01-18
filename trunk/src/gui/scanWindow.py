@@ -256,7 +256,7 @@ class ScanWindow(wx.Dialog):
 		try:
 			if not data.theData.save_file(fname,self.recordPart.lbTitle.Value,self.recordPart.lbDescription.Value,self.recordPart.lbTags.Value) : raise _('Unable to add the file to the disk')
 		except Exception as E:
-			logging.debug('Saving reecord ' + str(E))
+			logging.debug('Saving record ' + str(E))
 			wx.MessageBox(_('Unable to add the file to the disk'))
 			return
 		if not self.recordPart.do_save_record():

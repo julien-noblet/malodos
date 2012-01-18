@@ -1168,28 +1168,27 @@ class FPDF:
 		return
 	
 	
-	def Image(self,file,x,y,w=0,h=0,type='',link=None):
+	def Image(self,fname,x,y,w=0,h=0,v_type='',link=None):
 		#Put an image on the page
-		#if(!isset(self.images[file])):#{
-		if not self.images.__contains__(file):
+		#if(!isset(self.images[fname])):#{
+		if not self.images.__contains__(fname):
 			#First use of image, get info
-			if(type==''):#{
-				pos=strrpos(file,'.');
+			if(v_type==''):#{
+				pos=strrpos(fname,'.');
 				if(not pos):
-					self.Error('Image file has no extension and no type was specified: '+file);
+					self.Error('Image file has no extension and no type was specified: '+fname);
 					
-				v_type=substr(file,pos+1);
+				v_type=substr(fname,pos+1);
 			#}
 			
 			#print "v_type=",v_type
 			v_type=strtolower(v_type);
 			#mqr=get_magic_quotes_runtime();
 			#set_magic_quotes_runtime(0);
-			
-			if(type=='jpg' or type=='jpeg'):
-				info=self._parsejpg(file);
-			elif(type=='png'):
-				info=self._parsepng(file);
+			if(v_type=='jpg' or v_type=='jpeg'):
+				info=self._parsejpg(fname);
+			elif(v_type=='png'):
+				info=self._parsepng(fname);
 			else:#{
 				#Allow for additional formats
 				mtd='_parse'+v_type;
@@ -1199,16 +1198,16 @@ class FPDF:
 				
 				#python
 				#info=self.mtd(file) #python
-				info=eval( "self.%s('%s')" % (mtd,file) )
+				info=eval( "self.%s('%s')" % (mtd,fname) )
 			#}
 			
 			#set_magic_quotes_runtime(mqr);
 			info['i']=count(self.images)+1;
-			self.images[file]=info;
+			self.images[fname]=info;
 
 		#}
 		else:
-			info=self.images[file];
+			info=self.images[fname];
 			
 		#Automatic width and height calculation if needed
 		if(w==0 and h==0):#{
