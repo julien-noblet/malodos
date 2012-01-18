@@ -27,6 +27,8 @@ import sys
 import os.path
 import algorithms.words
 import gui.utilities
+import os.close
+import logging
 
 class imageData(object):
     val = None
@@ -118,6 +120,8 @@ class imageData(object):
             for i in range(len(self.pil_images)):
                 fle_tmp_tuple = tempfile.mkstemp(suffix='.png')
                 fle_tmp = fle_tmp_tuple[1];
+                os.close(fle_tmp_tuple[0]);
+                fle_tmp=os.path.abspath(os.path.normpath(fle_tmp))
                 list_files.append(fle_tmp)
                 IIm=self.pil_images[i]
                 (w,h) = IIm.size
@@ -132,7 +136,7 @@ class imageData(object):
             for f in list_files : os.remove(f)
             return True
         except Exception,E:
-            print E
+            logging.debug('Saving file ' + str(E))
             return False
     def get_content(self,newProgression=True):
         content = {}
