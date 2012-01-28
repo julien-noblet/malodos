@@ -3,15 +3,15 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-07-28 01:53+0300\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: 2012-01-28 22:00+0200\n"
+"PO-Revision-Date: 2012-01-28 22:05+0200\n"
+"Last-Translator: David guez <guezdav@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -21,362 +21,655 @@ msgstr ""
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#: src/database/db.py:174 database/db.py:174 database/__init__.py:14
+#: src/database/db.py:174
+#: database/db.py:174
 #: database/__init__.py:14
 msgid "Unable to connect to database"
 msgstr "Ne peut se connecter à la base de donnée"
 
-#: src/database/db.py:250 database/db.py:250 database/db.py:245
-#: database/db.py:255 database/db.py:343 database/db.py:340 database/db.py:345
+#: src/database/db.py:250
+#: database/db.py:250
+#: database/db.py:245
+#: database/db.py:255
+#: database/db.py:343
+#: database/db.py:340
 #: database/db.py:345
-msgid ""
-"Unstable state: Your database version is newer than the program itself..."
-msgstr ""
-"Etat instable : La version de votre base de données est plus récente que le "
-"programme lui-même"
+#: database/db.py:351
+msgid "Unstable state: Your database version is newer than the program itself..."
+msgstr "Etat instable : La version de votre base de données est plus récente que le programme lui-même"
 
-#: src/database/db.py:317 database/db.py:317 database/db.py:312
-#: database/db.py:322 database/db.py:410 database/db.py:430 database/db.py:454
+#: src/database/db.py:317
+#: database/db.py:317
+#: database/db.py:312
+#: database/db.py:322
+#: database/db.py:410
+#: database/db.py:430
 #: database/db.py:454
+#: database/db.py:465
 msgid "Unable to assign the registering person"
 msgstr "Impossible d'assigner la personne "
 
-#: src/database/db.py:326 database/db.py:326 database/db.py:321
-#: database/db.py:331 database/db.py:419 database/db.py:439 database/db.py:463
+#: src/database/db.py:326
+#: database/db.py:326
+#: database/db.py:321
+#: database/db.py:331
+#: database/db.py:419
+#: database/db.py:439
 #: database/db.py:463
+#: database/db.py:475
 msgid "Unable to add the document"
 msgstr "Impossible d'ajouter le document"
 
-#: src/database/db.py:462 database/db.py:462 database/db.py:487
-#: database/db.py:498 database/db.py:590 database/db.py:613 database/db.py:652
-#: database/db.py:659 database/db.py:652 database/db.py:659
+#: src/database/db.py:462
+#: database/db.py:462
+#: database/db.py:487
+#: database/db.py:498
+#: database/db.py:590
+#: database/db.py:613
+#: database/db.py:652
+#: database/db.py:659
+#: database/db.py:674
+#: database/db.py:682
 msgid "Unable to remove documents/word associations"
 msgstr "Impossible de supprimer une association mot/document"
 
-#: src/database/db.py:470 database/db.py:470 database/db.py:495
-#: database/db.py:506 database/db.py:598 database/db.py:621 database/db.py:667
+#: src/database/db.py:470
+#: database/db.py:470
+#: database/db.py:495
+#: database/db.py:506
+#: database/db.py:598
+#: database/db.py:621
 #: database/db.py:667
+#: database/db.py:691
 msgid "Unable to remove documents entries"
 msgstr "Impossible de supprimer les documents"
 
-#: src/database/db.py:484 database/db.py:484 database/db.py:509
-#: database/db.py:520 database/db.py:619 database/db.py:642 database/db.py:688
+#: src/database/db.py:484
+#: database/db.py:484
+#: database/db.py:509
+#: database/db.py:520
+#: database/db.py:619
+#: database/db.py:642
 #: database/db.py:688
+#: database/db.py:713
 msgid "Unable to remove doc/word association"
 msgstr "Impossible de supprimer une association mot/document"
 
-#: src/database/db.py:497 database/db.py:497 database/db.py:522
-#: database/db.py:536 database/db.py:635 database/db.py:658 database/db.py:704
+#: src/database/db.py:497
+#: database/db.py:497
+#: database/db.py:522
+#: database/db.py:536
+#: database/db.py:635
+#: database/db.py:658
 #: database/db.py:704
+#: database/db.py:730
 msgid "Unable to insert new keywords : "
 msgstr "Impossible d'inserer un nouveau mot-clé"
 
-#: src/database/db.py:506 database/db.py:506 database/db.py:531
-#: database/db.py:545 database/db.py:644 database/db.py:667 database/db.py:713
+#: src/database/db.py:506
+#: database/db.py:506
+#: database/db.py:531
+#: database/db.py:545
+#: database/db.py:644
+#: database/db.py:667
 #: database/db.py:713
+#: database/db.py:740
 msgid "Unable to search for keywords"
 msgstr "Recherche de mot-clé impossible"
 
-#: src/database/db.py:515 database/db.py:515 database/db.py:540
-#: database/db.py:555 database/db.py:654 database/db.py:677 database/db.py:723
+#: src/database/db.py:515
+#: database/db.py:515
+#: database/db.py:540
+#: database/db.py:555
+#: database/db.py:654
+#: database/db.py:677
 #: database/db.py:723
+#: database/db.py:751
 msgid "Unable to insert new document/word association"
 msgstr "Impossible d'inserer une association mot/document"
 
-#: src/database/db.py:532 database/db.py:532 database/db.py:557
-#: database/db.py:572 database/db.py:671 database/db.py:694 database/db.py:740
+#: src/database/db.py:532
+#: database/db.py:532
+#: database/db.py:557
+#: database/db.py:572
+#: database/db.py:671
+#: database/db.py:694
 #: database/db.py:740
+#: database/db.py:770
 msgid "Unable to update document into database"
 msgstr "Impossible de mettre à jours le document dans la base de données"
 
-#: src/database/db.py:545 database/db.py:545 database/db.py:570
-#: database/db.py:585 database/db.py:684 database/db.py:707 database/db.py:754
+#: src/database/db.py:545
+#: database/db.py:545
+#: database/db.py:570
+#: database/db.py:585
+#: database/db.py:684
+#: database/db.py:707
 #: database/db.py:754
+#: database/db.py:785
 msgid "Unable to reassign checksum into database entry"
 msgstr "Impossible de mettre à jours la signature dans la base de données"
 
-#: src/gui/addFileWindow.py:27 gui/addFileWindow.py:27 gui/addFileWindow.py:29
+#: src/gui/addFileWindow.py:27
+#: gui/addFileWindow.py:27
 #: gui/addFileWindow.py:29
+#: gui/addFileWindow.py:30
 msgid "Adding a documents to the database"
 msgstr "Ajouter un document à la base de données"
 
-#: src/gui/addFileWindow.py:30 src/gui/addFileWindow.py:64
-#: gui/addFileWindow.py:30 gui/addFileWindow.py:64 gui/addFileWindow.py:32
-#: gui/addFileWindow.py:67 gui/addFileWindow.py:32 gui/addFileWindow.py:67
+#: src/gui/addFileWindow.py:30
+#: src/gui/addFileWindow.py:64
+#: gui/addFileWindow.py:30
+#: gui/addFileWindow.py:64
+#: gui/addFileWindow.py:32
+#: gui/addFileWindow.py:67
+#: gui/addFileWindow.py:33
+#: gui/addFileWindow.py:72
 msgid "filename of the document to add"
 msgstr "Nom du fichier du document à ajouter"
 
-#: src/gui/addFileWindow.py:40 src/gui/Preferences.py:111
-#: gui/addFileWindow.py:40 gui/Preferences.py:111 gui/Preferences.py:112
-#: gui/Preferences.py:146 gui/scanWindow.py:123 gui/Preferences.py:204
-#: gui/Preferences.py:205 gui/addFileWindow.py:43 gui/Preferences.py:214
-#: gui/scanWindow.py:125 gui/Preferences.py:213 gui/Preferences.py:222
-#: gui/addFileWindow.py:43 gui/Preferences.py:222 gui/scanWindow.py:125
+#: src/gui/addFileWindow.py:40
+#: src/gui/Preferences.py:111
+#: gui/addFileWindow.py:40
+#: gui/Preferences.py:111
+#: gui/Preferences.py:112
+#: gui/Preferences.py:146
+#: gui/scanWindow.py:123
+#: gui/Preferences.py:204
+#: gui/Preferences.py:205
+#: gui/addFileWindow.py:43
+#: gui/Preferences.py:214
+#: gui/scanWindow.py:125
+#: gui/Preferences.py:213
+#: gui/Preferences.py:222
+#: gui/addFileWindow.py:46
+#: gui/Preferences.py:247
+#: gui/scanWindow.py:126
 msgid "Ok"
 msgstr "Confirmer"
 
-#: src/gui/addFileWindow.py:41 src/gui/Preferences.py:112
-#: gui/addFileWindow.py:41 gui/Preferences.py:112 gui/Preferences.py:113
-#: gui/Preferences.py:147 gui/scanWindow.py:125 gui/Preferences.py:205
-#: gui/Preferences.py:206 gui/addFileWindow.py:44 gui/Preferences.py:215
-#: gui/scanWindow.py:127 gui/Preferences.py:214 gui/Preferences.py:223
-#: gui/addFileWindow.py:44 gui/Preferences.py:223 gui/scanWindow.py:127
+#: src/gui/addFileWindow.py:41
+#: src/gui/Preferences.py:112
+#: gui/addFileWindow.py:41
+#: gui/Preferences.py:112
+#: gui/Preferences.py:113
+#: gui/Preferences.py:147
+#: gui/scanWindow.py:125
+#: gui/Preferences.py:205
+#: gui/Preferences.py:206
+#: gui/addFileWindow.py:44
+#: gui/Preferences.py:215
+#: gui/scanWindow.py:127
+#: gui/Preferences.py:214
+#: gui/Preferences.py:223
+#: gui/addFileWindow.py:47
+#: gui/Preferences.py:248
+#: gui/scanWindow.py:128
 msgid "Cancel"
 msgstr "Annuler"
 
-#: src/gui/addFileWindow.py:74 src/gui/scanWindow.py:92 src/gui/survey.py:100
-#: gui/addFileWindow.py:74 gui/scanWindow.py:92 gui/survey.py:100
-#: gui/scanWindow.py:247 gui/scanWindow.py:257 gui/addFileWindow.py:77
-#: gui/scanWindow.py:261 gui/addFileWindow.py:77 gui/scanWindow.py:261
+#: src/gui/addFileWindow.py:74
+#: src/gui/scanWindow.py:92
+#: src/gui/survey.py:100
+#: gui/addFileWindow.py:74
+#: gui/scanWindow.py:92
+#: gui/survey.py:100
+#: gui/scanWindow.py:247
+#: gui/scanWindow.py:257
+#: gui/addFileWindow.py:77
+#: gui/scanWindow.py:261
+#: gui/addFileWindow.py:82
+#: gui/scanWindow.py:285
 msgid "Unable to add the file to the database"
 msgstr "Impossible d'ajouter le fichier à la base de données"
 
-#: src/gui/mainBoard.py:70 gui/mainBoard.py:70 gui/mainBoard.py:71
-#: gui/mainBoard.py:73 gui/survey.py:370 gui/mainBoard.py:184
-#: gui/survey.py:372 gui/mainBoard.py:184 gui/survey.py:372
+#: src/gui/mainBoard.py:70
+#: gui/mainBoard.py:70
+#: gui/mainBoard.py:71
+#: gui/mainBoard.py:73
+#: gui/survey.py:370
+#: gui/mainBoard.py:184
+#: gui/survey.py:372
+#: gui/mainBoard.py:212
 msgid "Update"
 msgstr "Mettre à jour"
 
-#: src/gui/mainBoard.py:71 gui/mainBoard.py:71 gui/mainBoard.py:73
-#: gui/mainBoard.py:75 gui/mainBoard.py:186 gui/mainBoard.py:186
+#: src/gui/mainBoard.py:71
+#: gui/mainBoard.py:71
+#: gui/mainBoard.py:73
+#: gui/mainBoard.py:75
+#: gui/mainBoard.py:186
+#: gui/mainBoard.py:214
 msgid "System show"
 msgstr "Affichage système"
 
-#: src/gui/mainBoard.py:80 gui/mainBoard.py:80 gui/mainBoard.py:82
-#: gui/mainBoard.py:89 gui/mainBoard.py:208 gui/mainBoard.py:208
+#: src/gui/mainBoard.py:80
+#: gui/mainBoard.py:80
+#: gui/mainBoard.py:82
+#: gui/mainBoard.py:89
+#: gui/mainBoard.py:208
+#: gui/mainBoard.py:236
 msgid "filter :"
 msgstr "Filtre :"
 
-#: src/gui/mainBoard.py:82 gui/mainBoard.py:82 gui/mainBoard.py:84
-#: gui/mainBoard.py:91 gui/mainBoard.py:210 gui/mainBoard.py:210
+#: src/gui/mainBoard.py:82
+#: gui/mainBoard.py:82
+#: gui/mainBoard.py:84
+#: gui/mainBoard.py:91
+#: gui/mainBoard.py:210
+#: gui/mainBoard.py:238
 msgid "advanced"
 msgstr "Avancé"
 
-#: src/gui/mainBoard.py:127 gui/mainBoard.py:127 gui/mainBoard.py:129
-#: gui/mainBoard.py:140 gui/mainBoard.py:259 gui/mainBoard.py:259
+#: src/gui/mainBoard.py:127
+#: gui/mainBoard.py:127
+#: gui/mainBoard.py:129
+#: gui/mainBoard.py:140
+#: gui/mainBoard.py:259
+#: gui/mainBoard.py:287
 msgid "Scan a new document"
 msgstr "Scanner un nouveau document"
 
-#: src/gui/mainBoard.py:137 gui/mainBoard.py:137 gui/mainBoard.py:139
-#: gui/mainBoard.py:150 gui/mainBoard.py:269 gui/mainBoard.py:269
+#: src/gui/mainBoard.py:137
+#: gui/mainBoard.py:137
+#: gui/mainBoard.py:139
+#: gui/mainBoard.py:150
+#: gui/mainBoard.py:269
+#: gui/mainBoard.py:296
 msgid "Add a new document"
 msgstr "Ajouter un nouveau document"
 
 #: src/gui/mainBoard.py:186
 msgid "The file content has changed! Do you wish to update its signature?"
-msgstr ""
-"Le contenu du fichier à été modifié! Voulez vous mettre à jours sa "
-"signature ?"
+msgstr "Le contenu du fichier à été modifié! Voulez vous mettre à jours sa signature ?"
 
-#: src/gui/mainBoard.py:189 src/gui/mainBoard.py:231 gui/mainBoard.py:189
-#: gui/mainBoard.py:231 gui/mainBoard.py:191 gui/mainBoard.py:233
-#: gui/mainBoard.py:190 gui/mainBoard.py:232 gui/RecordWidget.py:211
-#: gui/RecordWidget.py:235 gui/mainBoard.py:313 gui/RecordWidget.py:246
-#: gui/mainBoard.py:313 gui/RecordWidget.py:246
+#: src/gui/mainBoard.py:189
+#: src/gui/mainBoard.py:231
+#: gui/mainBoard.py:189
+#: gui/mainBoard.py:231
+#: gui/mainBoard.py:191
+#: gui/mainBoard.py:233
+#: gui/mainBoard.py:190
+#: gui/mainBoard.py:232
+#: gui/RecordWidget.py:211
+#: gui/RecordWidget.py:235
+#: gui/mainBoard.py:313
+#: gui/RecordWidget.py:246
+#: gui/mainBoard.py:339
+#: gui/RecordWidget.py:256
 msgid "Unable to update the database"
 msgstr "Impossible de mettre à jours la base de données"
 
-#: src/gui/mainBoard.py:191 gui/mainBoard.py:191 gui/mainBoard.py:193
-#: gui/mainBoard.py:192 gui/mainBoard.py:315 gui/mainBoard.py:315
+#: src/gui/mainBoard.py:191
+#: gui/mainBoard.py:191
+#: gui/mainBoard.py:193
+#: gui/mainBoard.py:192
+#: gui/mainBoard.py:315
+#: gui/mainBoard.py:341
 msgid "Unable to check the file signature..."
 msgstr "Impossible de vérifier la signature du fichier"
 
-#: src/gui/mainBoard.py:246 gui/mainBoard.py:246 gui/mainBoard.py:248
-#: gui/mainBoard.py:247 gui/mainBoard.py:237 gui/mainBoard.py:362
+#: src/gui/mainBoard.py:246
+#: gui/mainBoard.py:246
+#: gui/mainBoard.py:248
+#: gui/mainBoard.py:247
+#: gui/mainBoard.py:237
 #: gui/mainBoard.py:362
+#: gui/mainBoard.py:388
 msgid "do you really want to delete this record ("
 msgstr "Voulez-vous vraiment supprimer cet enregistrement ("
 
-#: src/gui/mainBoard.py:248 gui/mainBoard.py:248 gui/mainBoard.py:250
-#: gui/mainBoard.py:249 gui/mainBoard.py:239 gui/mainBoard.py:364
+#: src/gui/mainBoard.py:248
+#: gui/mainBoard.py:248
+#: gui/mainBoard.py:250
+#: gui/mainBoard.py:249
+#: gui/mainBoard.py:239
 #: gui/mainBoard.py:364
+#: gui/mainBoard.py:390
 msgid "do you really want to delete these "
 msgstr "Voulez-vous vraiment supprimer ces "
 
-#: src/gui/mainBoard.py:248 gui/mainBoard.py:248 gui/mainBoard.py:250
-#: gui/mainBoard.py:249 gui/mainBoard.py:239 gui/mainBoard.py:364
+#: src/gui/mainBoard.py:248
+#: gui/mainBoard.py:248
+#: gui/mainBoard.py:250
+#: gui/mainBoard.py:249
+#: gui/mainBoard.py:239
 #: gui/mainBoard.py:364
+#: gui/mainBoard.py:390
 msgid " records"
 msgstr " enregistrements"
 
-#: src/gui/mainBoard.py:284 gui/mainBoard.py:284 gui/mainBoard.py:286
-#: gui/mainBoard.py:287 gui/mainBoard.py:276 gui/mainBoard.py:401
+#: src/gui/mainBoard.py:284
+#: gui/mainBoard.py:284
+#: gui/mainBoard.py:286
+#: gui/mainBoard.py:287
+#: gui/mainBoard.py:276
 #: gui/mainBoard.py:401
+#: gui/mainBoard.py:427
 msgid "Unable to print the document"
 msgstr "Impossible d'imprimer le document"
 
-#: src/gui/Preferences.py:28 src/gui/Preferences.py:108 gui/Preferences.py:28
-#: gui/Preferences.py:108 gui/Preferences.py:29 gui/Preferences.py:109
-#: gui/Preferences.py:30 gui/Preferences.py:143 gui/Preferences.py:87
-#: gui/Preferences.py:201 gui/Preferences.py:88 gui/Preferences.py:202
-#: gui/Preferences.py:97 gui/Preferences.py:211 gui/Preferences.py:96
-#: gui/Preferences.py:210 gui/Preferences.py:105 gui/Preferences.py:219
-#: gui/Preferences.py:105 gui/Preferences.py:219
+#: src/gui/Preferences.py:28
+#: src/gui/Preferences.py:108
+#: gui/Preferences.py:28
+#: gui/Preferences.py:108
+#: gui/Preferences.py:29
+#: gui/Preferences.py:109
+#: gui/Preferences.py:30
+#: gui/Preferences.py:143
+#: gui/Preferences.py:87
+#: gui/Preferences.py:201
+#: gui/Preferences.py:88
+#: gui/Preferences.py:202
+#: gui/Preferences.py:97
+#: gui/Preferences.py:211
+#: gui/Preferences.py:96
+#: gui/Preferences.py:210
+#: gui/Preferences.py:105
+#: gui/Preferences.py:219
+#: gui/Preferences.py:244
 msgid "Change"
 msgstr "Modifier"
 
-#: src/gui/Preferences.py:30 gui/Preferences.py:30 gui/Preferences.py:31
-#: gui/Preferences.py:33 gui/Preferences.py:90 gui/Preferences.py:91
-#: gui/Preferences.py:100 gui/Preferences.py:99 gui/Preferences.py:108
+#: src/gui/Preferences.py:30
+#: gui/Preferences.py:30
+#: gui/Preferences.py:31
+#: gui/Preferences.py:33
+#: gui/Preferences.py:90
+#: gui/Preferences.py:91
+#: gui/Preferences.py:100
+#: gui/Preferences.py:99
 #: gui/Preferences.py:108
+#: gui/Preferences.py:114
 msgid "Scanner source : "
 msgstr "Scanner source : "
 
-#: src/gui/Preferences.py:57 src/gui/survey.py:43 gui/Preferences.py:57
-#: gui/survey.py:43 gui/Preferences.py:58 gui/Preferences.py:92
-#: gui/Preferences.py:150 gui/Preferences.py:151 gui/Preferences.py:160
-#: gui/survey.py:365 gui/Preferences.py:159 gui/Preferences.py:168
-#: gui/survey.py:367 gui/Preferences.py:168 gui/survey.py:367
+#: src/gui/Preferences.py:57
+#: src/gui/survey.py:43
+#: gui/Preferences.py:57
+#: gui/survey.py:43
+#: gui/Preferences.py:58
+#: gui/Preferences.py:92
+#: gui/Preferences.py:150
+#: gui/Preferences.py:151
+#: gui/Preferences.py:160
+#: gui/survey.py:365
+#: gui/Preferences.py:159
+#: gui/Preferences.py:168
+#: gui/survey.py:367
+#: gui/Preferences.py:193
 msgid "Add"
 msgstr "Ajouter"
 
-#: src/gui/Preferences.py:58 gui/Preferences.py:58 gui/Preferences.py:59
-#: gui/Preferences.py:93 gui/Preferences.py:151 gui/Preferences.py:152
-#: gui/Preferences.py:161 gui/Preferences.py:160 gui/Preferences.py:169
+#: src/gui/Preferences.py:58
+#: gui/Preferences.py:58
+#: gui/Preferences.py:59
+#: gui/Preferences.py:93
+#: gui/Preferences.py:151
+#: gui/Preferences.py:152
+#: gui/Preferences.py:161
+#: gui/Preferences.py:160
 #: gui/Preferences.py:169
+#: gui/Preferences.py:194
 msgid "Remove"
 msgstr "Supprimer"
 
-#: src/gui/Preferences.py:60 gui/Preferences.py:60 gui/Preferences.py:61
-#: gui/Preferences.py:95 gui/Preferences.py:153 gui/Preferences.py:154
-#: gui/Preferences.py:163 gui/Preferences.py:162 gui/Preferences.py:171
+#: src/gui/Preferences.py:60
+#: gui/Preferences.py:60
+#: gui/Preferences.py:61
+#: gui/Preferences.py:95
+#: gui/Preferences.py:153
+#: gui/Preferences.py:154
+#: gui/Preferences.py:163
+#: gui/Preferences.py:162
 #: gui/Preferences.py:171
+#: gui/Preferences.py:196
 msgid "Survey directories"
 msgstr "Surveillance de répertoires"
 
-#: src/gui/Preferences.py:63 gui/Preferences.py:63 gui/Preferences.py:64
-#: gui/Preferences.py:98 gui/Preferences.py:156 gui/Preferences.py:157
-#: gui/Preferences.py:166 gui/Preferences.py:165 gui/Preferences.py:174
+#: src/gui/Preferences.py:63
+#: gui/Preferences.py:63
+#: gui/Preferences.py:64
+#: gui/Preferences.py:98
+#: gui/Preferences.py:156
+#: gui/Preferences.py:157
+#: gui/Preferences.py:166
+#: gui/Preferences.py:165
 #: gui/Preferences.py:174
+#: gui/Preferences.py:199
 msgid "(check directories which have to be recursively surveyed)"
 msgstr "Cocher les répertoires à surveiller récursivement"
 
-#: src/gui/Preferences.py:65 gui/Preferences.py:65 gui/Preferences.py:66
-#: gui/Preferences.py:100 gui/Preferences.py:158 gui/Preferences.py:159
-#: gui/Preferences.py:168 gui/Preferences.py:167 gui/Preferences.py:176
+#: src/gui/Preferences.py:65
+#: gui/Preferences.py:65
+#: gui/Preferences.py:66
+#: gui/Preferences.py:100
+#: gui/Preferences.py:158
+#: gui/Preferences.py:159
+#: gui/Preferences.py:168
+#: gui/Preferences.py:167
 #: gui/Preferences.py:176
+#: gui/Preferences.py:201
 msgid "Survey extensions"
 msgstr "Extensions surveillées"
 
-#: src/gui/Preferences.py:101 gui/Preferences.py:101 gui/Preferences.py:102
-#: gui/Preferences.py:136 gui/Preferences.py:194 gui/Preferences.py:195
-#: gui/Preferences.py:204 gui/Preferences.py:203 gui/Preferences.py:212
+#: src/gui/Preferences.py:101
+#: gui/Preferences.py:101
+#: gui/Preferences.py:102
+#: gui/Preferences.py:136
+#: gui/Preferences.py:194
+#: gui/Preferences.py:195
+#: gui/Preferences.py:204
+#: gui/Preferences.py:203
 #: gui/Preferences.py:212
+#: gui/Preferences.py:237
 msgid "Preference window"
 msgstr "Fenêtre de préférences"
 
-#: src/gui/Preferences.py:116 gui/Preferences.py:116 gui/Preferences.py:117
-#: gui/Preferences.py:151 gui/Preferences.py:209 gui/Preferences.py:210
-#: gui/Preferences.py:219 gui/Preferences.py:218 gui/Preferences.py:227
+#: src/gui/Preferences.py:116
+#: gui/Preferences.py:116
+#: gui/Preferences.py:117
+#: gui/Preferences.py:151
+#: gui/Preferences.py:209
+#: gui/Preferences.py:210
+#: gui/Preferences.py:219
+#: gui/Preferences.py:218
 #: gui/Preferences.py:227
+#: gui/Preferences.py:252
 msgid "Database name :"
 msgstr "Nom de la base de données"
 
-#: src/gui/Preferences.py:119 gui/Preferences.py:119
+#: src/gui/Preferences.py:119
+#: gui/Preferences.py:119
 msgid "Language"
 msgstr "Langue"
 
-#: src/gui/Preferences.py:123 gui/Preferences.py:123 gui/Preferences.py:124
-#: gui/Preferences.py:158 gui/Preferences.py:216 gui/Preferences.py:217
-#: gui/Preferences.py:226 gui/Preferences.py:225 gui/Preferences.py:234
+#: src/gui/Preferences.py:123
+#: gui/Preferences.py:123
+#: gui/Preferences.py:124
+#: gui/Preferences.py:158
+#: gui/Preferences.py:216
+#: gui/Preferences.py:217
+#: gui/Preferences.py:226
+#: gui/Preferences.py:225
 #: gui/Preferences.py:234
+#: gui/Preferences.py:259
 msgid "Dir. survey"
 msgstr "Surv. de rep."
 
-#: src/gui/Preferences.py:124 gui/Preferences.py:124 gui/Preferences.py:125
-#: gui/Preferences.py:159 gui/Preferences.py:217 gui/Preferences.py:218
-#: gui/Preferences.py:227 gui/Preferences.py:226 gui/Preferences.py:235
+#: src/gui/Preferences.py:124
+#: gui/Preferences.py:124
+#: gui/Preferences.py:125
+#: gui/Preferences.py:159
+#: gui/Preferences.py:217
+#: gui/Preferences.py:218
+#: gui/Preferences.py:227
+#: gui/Preferences.py:226
 #: gui/Preferences.py:235
+#: gui/Preferences.py:260
 msgid "Scanner"
 msgstr "Scanner"
 
-#: src/gui/Preferences.py:160 gui/Preferences.py:160 gui/Preferences.py:161
-#: gui/Preferences.py:203 gui/Preferences.py:264 gui/Preferences.py:265
-#: gui/Preferences.py:274 gui/Preferences.py:273 gui/Preferences.py:284
+#: src/gui/Preferences.py:160
+#: gui/Preferences.py:160
+#: gui/Preferences.py:161
+#: gui/Preferences.py:203
+#: gui/Preferences.py:264
+#: gui/Preferences.py:265
+#: gui/Preferences.py:274
+#: gui/Preferences.py:273
 #: gui/Preferences.py:284
+#: gui/Preferences.py:309
 msgid "Problem : Unable to write the configuration file."
 msgstr "Problème : Impossible d'ecrire le fichier de configuration"
 
-#: src/gui/RecordWidget.py:28 gui/RecordWidget.py:28 gui/RecordWidget.py:30
-#: gui/RecordWidget.py:31 gui/RecordWidget.py:34 gui/RecordWidget.py:38
-#: gui/RecordWidget.py:40 gui/RecordWidget.py:40
+#: src/gui/RecordWidget.py:28
+#: gui/RecordWidget.py:28
+#: gui/RecordWidget.py:30
+#: gui/RecordWidget.py:31
+#: gui/RecordWidget.py:34
+#: gui/RecordWidget.py:38
+#: gui/RecordWidget.py:40
+#: gui/RecordWidget.py:45
 msgid "Filename"
 msgstr "Nom du fichier"
 
-#: src/gui/RecordWidget.py:33 gui/RecordWidget.py:33 gui/RecordWidget.py:35
-#: gui/RecordWidget.py:36 gui/RecordWidget.py:39 gui/RecordWidget.py:43
-#: gui/RecordWidget.py:45 gui/RecordWidget.py:45
+#: src/gui/RecordWidget.py:33
+#: gui/RecordWidget.py:33
+#: gui/RecordWidget.py:35
+#: gui/RecordWidget.py:36
+#: gui/RecordWidget.py:39
+#: gui/RecordWidget.py:43
+#: gui/RecordWidget.py:45
+#: gui/RecordWidget.py:50
 msgid "Title"
 msgstr "Titre"
 
-#: src/gui/RecordWidget.py:38 gui/RecordWidget.py:38 gui/RecordWidget.py:43
-#: gui/RecordWidget.py:44 gui/RecordWidget.py:47 gui/RecordWidget.py:51
-#: gui/RecordWidget.py:53 gui/RecordWidget.py:53
+#: src/gui/RecordWidget.py:38
+#: gui/RecordWidget.py:38
+#: gui/RecordWidget.py:43
+#: gui/RecordWidget.py:44
+#: gui/RecordWidget.py:47
+#: gui/RecordWidget.py:51
+#: gui/RecordWidget.py:53
+#: gui/RecordWidget.py:58
 msgid "Description"
 msgstr "Description"
 
-#: src/gui/RecordWidget.py:43 gui/RecordWidget.py:43 gui/RecordWidget.py:48
-#: gui/RecordWidget.py:49 gui/RecordWidget.py:52 gui/RecordWidget.py:56
-#: gui/RecordWidget.py:58 gui/RecordWidget.py:58
+#: src/gui/RecordWidget.py:43
+#: gui/RecordWidget.py:43
+#: gui/RecordWidget.py:48
+#: gui/RecordWidget.py:49
+#: gui/RecordWidget.py:52
+#: gui/RecordWidget.py:56
+#: gui/RecordWidget.py:58
+#: gui/RecordWidget.py:63
 msgid "Tags"
 msgstr "Balises"
 
-#: src/gui/RecordWidget.py:48 gui/RecordWidget.py:48 gui/RecordWidget.py:58
-#: gui/RecordWidget.py:59 gui/RecordWidget.py:62 gui/RecordWidget.py:66
-#: gui/RecordWidget.py:68 gui/RecordWidget.py:68
+#: src/gui/RecordWidget.py:48
+#: gui/RecordWidget.py:48
+#: gui/RecordWidget.py:58
+#: gui/RecordWidget.py:59
+#: gui/RecordWidget.py:62
+#: gui/RecordWidget.py:66
+#: gui/RecordWidget.py:68
+#: gui/RecordWidget.py:73
 msgid "document date"
 msgstr "Date du document"
 
-#: src/gui/scanWindow.py:29 gui/scanWindow.py:29 gui/mainBoard.py:58
-#: gui/scanWindow.py:153 gui/mainBoard.py:60 gui/scanWindow.py:160
-#: gui/scanWindow.py:162 gui/mainBoard.py:171 gui/mainBoard.py:171
+#: src/gui/scanWindow.py:29
+#: gui/scanWindow.py:29
+#: gui/mainBoard.py:58
+#: gui/scanWindow.py:153
+#: gui/mainBoard.py:60
+#: gui/scanWindow.py:160
 #: gui/scanWindow.py:162
+#: gui/mainBoard.py:171
+#: gui/mainBoard.py:199
+#: gui/scanWindow.py:163
 msgid "Scanning a new document"
 msgstr "Scanner un nouveau document"
 
-#: src/gui/scanWindow.py:35 src/gui/scanWindow.py:43 gui/scanWindow.py:35
-#: gui/scanWindow.py:43 gui/scanWindow.py:159 gui/scanWindow.py:168
-#: gui/scanWindow.py:166 gui/scanWindow.py:175 gui/scanWindow.py:179
-#: gui/scanWindow.py:168 gui/scanWindow.py:179
+#: src/gui/scanWindow.py:35
+#: src/gui/scanWindow.py:43
+#: gui/scanWindow.py:35
+#: gui/scanWindow.py:43
+#: gui/scanWindow.py:159
+#: gui/scanWindow.py:168
+#: gui/scanWindow.py:166
+#: gui/scanWindow.py:175
+#: gui/scanWindow.py:179
+#: gui/scanWindow.py:169
+#: gui/scanWindow.py:180
 msgid "Source :"
 msgstr "Source :"
 
-#: src/gui/scanWindow.py:36 gui/scanWindow.py:36 gui/scanWindow.py:160
-#: gui/scanWindow.py:167 gui/scanWindow.py:169 gui/scanWindow.py:169
+#: src/gui/scanWindow.py:36
+#: gui/scanWindow.py:36
+#: gui/scanWindow.py:160
+#: gui/scanWindow.py:167
+#: gui/scanWindow.py:169
+#: gui/scanWindow.py:170
 msgid "Select Scanner"
 msgstr "Sélectionner un scanner"
 
-#: src/gui/scanWindow.py:37 gui/scanWindow.py:37 gui/scanWindow.py:161
-#: gui/scanWindow.py:168 gui/scanWindow.py:170 gui/scanWindow.py:170
+#: src/gui/scanWindow.py:37
+#: gui/scanWindow.py:37
+#: gui/scanWindow.py:161
+#: gui/scanWindow.py:168
+#: gui/scanWindow.py:170
+#: gui/scanWindow.py:171
 msgid "Scan"
 msgstr "Scan"
 
-#: src/gui/scanWindow.py:38 gui/scanWindow.py:38
+#: src/gui/scanWindow.py:38
+#: gui/scanWindow.py:38
 msgid "Manual MultiPage"
 msgstr "Multi-page manuel"
 
-#: src/gui/scanWindow.py:39 gui/scanWindow.py:39 gui/scanWindow.py:163
-#: gui/scanWindow.py:170 gui/scanWindow.py:172 gui/scanWindow.py:172
+#: src/gui/scanWindow.py:39
+#: gui/scanWindow.py:39
+#: gui/scanWindow.py:163
+#: gui/scanWindow.py:170
+#: gui/scanWindow.py:172
+#: gui/scanWindow.py:173
 msgid "Record"
 msgstr "Enregistrement"
 
-#: src/gui/scanWindow.py:75 gui/scanWindow.py:75 gui/scanWindow.py:230
-#: gui/scanWindow.py:240 gui/scanWindow.py:244 gui/scanWindow.py:244
+#: src/gui/scanWindow.py:75
+#: gui/scanWindow.py:75
+#: gui/scanWindow.py:230
+#: gui/scanWindow.py:240
+#: gui/scanWindow.py:244
+#: gui/scanWindow.py:247
 msgid "Do you want to add new page(s) ?"
 msgstr "Voulez vous vraiment ajouter une nouvelle page ?"
 
-#: src/gui/scanWindow.py:84 gui/scanWindow.py:84 gui/scanWindow.py:239
-#: gui/scanWindow.py:249 gui/scanWindow.py:253 gui/scanWindow.py:253
+#: src/gui/scanWindow.py:84
+#: gui/scanWindow.py:84
+#: gui/scanWindow.py:239
+#: gui/scanWindow.py:249
+#: gui/scanWindow.py:253
+#: gui/scanWindow.py:266
 msgid "You must give a valid filename to record the document"
 msgstr "Un nom de fichier valide est requis pour l'ajout du document"
 
-#: src/gui/scanWindow.py:89 gui/scanWindow.py:89 gui/scanWindow.py:244
-#: gui/scanWindow.py:252 gui/scanWindow.py:254 gui/scanWindow.py:256
-#: gui/scanWindow.py:258 gui/scanWindow.py:256 gui/scanWindow.py:258
+#: src/gui/scanWindow.py:89
+#: gui/scanWindow.py:89
+#: gui/scanWindow.py:244
+#: gui/scanWindow.py:252
+#: gui/scanWindow.py:254
+#: gui/scanWindow.py:256
+#: gui/scanWindow.py:258
+#: gui/scanWindow.py:279
+#: gui/scanWindow.py:282
 msgid "Unable to add the file to the disk"
 msgstr "Impossible d'ajouter le fichier sur le disque"
 
-#: src/gui/survey.py:28 gui/survey.py:28 gui/survey.py:321 gui/survey.py:323
+#: src/gui/survey.py:28
+#: gui/survey.py:28
+#: gui/survey.py:321
 #: gui/survey.py:323
 msgid "Survey directory"
 msgstr "Surveillance de répértoire"
@@ -385,19 +678,23 @@ msgstr "Surveillance de répértoire"
 msgid "           UNDER DIRECTORY "
 msgstr "          SOUS LE REPERTOIRE"
 
-#: src/gui/utilities.py:13 gui/utilities.py:13 gui/utilities.py:13
+#: src/gui/utilities.py:13
+#: gui/utilities.py:13
 msgid "selection"
 msgstr "sélection"
 
-#: src/gui/utilities.py:15 gui/utilities.py:15 gui/utilities.py:15
+#: src/gui/utilities.py:15
+#: gui/utilities.py:15
 msgid "alert"
 msgstr "alerte"
 
-#: src/gui/utilities.py:17 gui/utilities.py:17 gui/utilities.py:17
+#: src/gui/utilities.py:17
+#: gui/utilities.py:17
 msgid "Question"
 msgstr "Question"
 
-#: src/scannerAccess/saneAccess.py:46 src/scannerAccess/twainAccess.py:58
+#: src/scannerAccess/saneAccess.py:46
+#: src/scannerAccess/twainAccess.py:58
 msgid "Connect to the scanner"
 msgstr "Connecter au scanner"
 
@@ -405,54 +702,96 @@ msgstr "Connecter au scanner"
 msgid "Begin the acquisition process."
 msgstr "Demarrage de l'acquisition"
 
-#: database/db.py:58 database/db.py:61 database/db.py:64 database/db.py:68
-#: database/db.py:72 database/db.py:75 database/db.py:79 database/db.py:85
-#: database/db.py:88 database/db.py:91 database/db.py:94 database/db.py:97
-#: database/db.py:65 database/db.py:71 database/db.py:51 database/db.py:55
-#: database/db.py:52 database/db.py:56 database/db.py:54 database/db.py:54
 #: database/db.py:58
+#: database/db.py:61
+#: database/db.py:64
+#: database/db.py:68
+#: database/db.py:72
+#: database/db.py:75
+#: database/db.py:79
+#: database/db.py:85
+#: database/db.py:88
+#: database/db.py:91
+#: database/db.py:94
+#: database/db.py:97
+#: database/db.py:65
+#: database/db.py:71
+#: database/db.py:51
+#: database/db.py:55
+#: database/db.py:52
+#: database/db.py:56
+#: database/db.py:54
+#: database/db.py:59
 msgid "Configuration not found"
 msgstr "Fichier de configuration non trouvé"
 
-#: database/db.py:356 database/db.py:351 database/db.py:361 database/db.py:449
-#: database/db.py:469 database/db.py:493 database/db.py:493
+#: database/db.py:356
+#: database/db.py:351
+#: database/db.py:361
+#: database/db.py:449
+#: database/db.py:469
+#: database/db.py:493
+#: database/db.py:506
 msgid "Unable to search keywords"
 msgstr "Impossible de recherche le mot-clé"
 
-#: database/db.py:404 database/db.py:429 database/db.py:440 database/db.py:528
-#: database/db.py:576 database/db.py:551 database/db.py:599 database/db.py:589
-#: database/db.py:638 database/db.py:589 database/db.py:638
+#: database/db.py:404
+#: database/db.py:429
+#: database/db.py:440
+#: database/db.py:528
+#: database/db.py:576
+#: database/db.py:551
+#: database/db.py:599
+#: database/db.py:589
+#: database/db.py:638
+#: database/db.py:609
+#: database/db.py:659
 msgid "Keyword search failed"
 msgstr "La recherche de mot-clé à échouée"
 
-#: database/db.py:413 database/db.py:438 database/db.py:449 database/db.py:537
-#: database/db.py:560 database/db.py:599 database/db.py:599
+#: database/db.py:413
+#: database/db.py:438
+#: database/db.py:449
+#: database/db.py:537
+#: database/db.py:560
+#: database/db.py:599
+#: database/db.py:619
 msgid "Document search failed"
 msgstr "La recherche dans le document à échouée"
 
-#: gui/docWindow.py:37 gui/docWindow.py:52 gui/docWindow.py:52
+#: gui/docWindow.py:37
+#: gui/docWindow.py:52
 msgid "No page"
 msgstr "Aucune page"
 
-#: gui/docWindow.py:103 gui/docWindow.py:128 gui/docWindow.py:128
+#: gui/docWindow.py:103
+#: gui/docWindow.py:128
 msgid "no page"
 msgstr "aucune page"
 
-#: gui/mainBoard.py:42 gui/mainBoard.py:44 gui/mainBoard.py:152
+#: gui/mainBoard.py:42
+#: gui/mainBoard.py:44
 #: gui/mainBoard.py:152
+#: gui/mainBoard.py:180
 msgid "MALODOS Main panel"
 msgstr "MALODOS tableau de bord"
 
-#: gui/mainBoard.py:186 gui/mainBoard.py:188 gui/mainBoard.py:187
-#: gui/mainBoard.py:310 gui/mainBoard.py:310
+#: gui/mainBoard.py:186
+#: gui/mainBoard.py:188
+#: gui/mainBoard.py:187
+#: gui/mainBoard.py:310
+#: gui/mainBoard.py:337
 msgid "The file content has changed! Do you wish to update its signature ?"
-msgstr ""
-"Le contenu du fichier à été modifié! Voulez vous mettre à jours sa "
-"signature ?"
+msgstr "Le contenu du fichier à été modifié! Voulez vous mettre à jours sa signature ?"
 
-#: gui/Preferences.py:27 gui/Preferences.py:28 gui/Preferences.py:29
-#: gui/Preferences.py:86 gui/Preferences.py:87 gui/Preferences.py:96
-#: gui/Preferences.py:95 gui/Preferences.py:104 gui/Preferences.py:104
+#: gui/Preferences.py:27
+#: gui/Preferences.py:28
+#: gui/Preferences.py:29
+#: gui/Preferences.py:86
+#: gui/Preferences.py:87
+#: gui/Preferences.py:96
+#: gui/Preferences.py:95
+#: gui/Preferences.py:104
 msgid "None"
 msgstr "Aucun"
 
@@ -460,7 +799,7 @@ msgstr "Aucun"
 msgid "UNDER DIRECTORY"
 msgstr "SOUS LE REPERTOIRE"
 
-#: gui/utilities.py:12 gui/utilities.py:12
+#: gui/utilities.py:12
 msgid "choose in the following :"
 msgstr "Choisir parmis:"
 
@@ -468,134 +807,174 @@ msgstr "Choisir parmis:"
 msgid "No yet implemented"
 msgstr "Code non encore disponible"
 
-#: gui/mainBoard.py:57 gui/mainBoard.py:59 gui/mainBoard.py:170
+#: gui/mainBoard.py:57
+#: gui/mainBoard.py:59
 #: gui/mainBoard.py:170
+#: gui/mainBoard.py:198
 msgid "Add an existing file"
 msgstr "Ajouter un fichier existant"
 
-#: gui/mainBoard.py:59 gui/mainBoard.py:61 gui/mainBoard.py:172
+#: gui/mainBoard.py:59
+#: gui/mainBoard.py:61
 #: gui/mainBoard.py:172
+#: gui/mainBoard.py:200
 msgid "Remove the current selection from the database"
 msgstr "Supprimer les documents séléctionnés de la base de données"
 
-#: gui/mainBoard.py:60 gui/mainBoard.py:62 gui/mainBoard.py:173
+#: gui/mainBoard.py:60
+#: gui/mainBoard.py:62
 #: gui/mainBoard.py:173
+#: gui/mainBoard.py:201
 msgid "Print the selected document"
 msgstr "Imprimer le document en cours"
 
-#: gui/mainBoard.py:62 gui/mainBoard.py:64 gui/mainBoard.py:175
+#: gui/mainBoard.py:62
+#: gui/mainBoard.py:64
 #: gui/mainBoard.py:175
+#: gui/mainBoard.py:203
 msgid "Open the directory survey window"
 msgstr "Ouvrir la fenêtre de surveillance des répértoires"
 
-#: gui/mainBoard.py:63 gui/mainBoard.py:65 gui/mainBoard.py:176
+#: gui/mainBoard.py:63
+#: gui/mainBoard.py:65
 #: gui/mainBoard.py:176
+#: gui/mainBoard.py:204
 msgid "Set preferences"
 msgstr "Modifier les préférences"
 
-#: gui/mainBoard.py:64 gui/mainBoard.py:66 gui/mainBoard.py:177
+#: gui/mainBoard.py:64
+#: gui/mainBoard.py:66
 #: gui/mainBoard.py:177
+#: gui/mainBoard.py:205
 msgid "Credits"
 msgstr "A propos"
 
-#: gui/docWindow.py:33 gui/docWindow.py:33
+#: gui/docWindow.py:33
 msgid "Previous page"
 msgstr "Page précédante"
 
-#: gui/docWindow.py:35 gui/docWindow.py:35
+#: gui/docWindow.py:35
 msgid "Next page"
 msgstr "Prochaine page"
 
-#: gui/docWindow.py:37 gui/docWindow.py:37
+#: gui/docWindow.py:37
 msgid "Zoom"
 msgstr "Zoomer"
 
-#: gui/docWindow.py:39 gui/docWindow.py:39
+#: gui/docWindow.py:39
 msgid "Unzoom"
 msgstr "Dézoomer"
 
-#: gui/docWindow.py:41 gui/docWindow.py:41
+#: gui/docWindow.py:41
 msgid "Rotate clockwise"
 msgstr "Rotation horaire"
 
-#: gui/docWindow.py:43 gui/docWindow.py:43
+#: gui/docWindow.py:43
 msgid "Rotate anti-clockwise"
 msgstr "Rotation anti-horaire"
 
-#: gui/docWindow.py:45 gui/docWindow.py:45
+#: gui/docWindow.py:45
 msgid "Flip horizontally"
 msgstr "Retourner horizontalement"
 
-#: gui/docWindow.py:47 gui/docWindow.py:47
+#: gui/docWindow.py:47
 msgid "Flip vertically"
 msgstr "Retourner verticallement"
 
-#: gui/docWindow.py:49 gui/docWindow.py:49
+#: gui/docWindow.py:49
 msgid "Apply to all pages"
 msgstr "Appliquer à toutes les pages"
 
-#: gui/Preferences.py:31 gui/scanWindow.py:164 gui/Preferences.py:88
-#: gui/scanWindow.py:171 gui/Preferences.py:89 gui/Preferences.py:98
-#: gui/scanWindow.py:173 gui/Preferences.py:97 gui/Preferences.py:106
-#: gui/Preferences.py:106 gui/scanWindow.py:173
+#: gui/Preferences.py:31
+#: gui/scanWindow.py:164
+#: gui/Preferences.py:88
+#: gui/scanWindow.py:171
+#: gui/Preferences.py:89
+#: gui/Preferences.py:98
+#: gui/scanWindow.py:173
+#: gui/Preferences.py:97
+#: gui/Preferences.py:106
+#: gui/scanWindow.py:174
 msgid "Options"
 msgstr "Options"
 
-#: gui/Preferences.py:190 gui/Preferences.py:250 gui/Preferences.py:251
-#: gui/Preferences.py:260 gui/Preferences.py:259 gui/Preferences.py:270
+#: gui/Preferences.py:190
+#: gui/Preferences.py:250
+#: gui/Preferences.py:251
+#: gui/Preferences.py:260
+#: gui/Preferences.py:259
 #: gui/Preferences.py:270
+#: gui/Preferences.py:295
 msgid "choose the database file"
 msgstr "Choix du fichier de base de données"
 
-#: gui/scanWindow.py:32 gui/scanWindow.py:31 gui/scanWindow.py:33
+#: gui/scanWindow.py:32
+#: gui/scanWindow.py:31
 #: gui/scanWindow.py:33
+#: gui/scanWindow.py:34
 msgid "Scanning options"
 msgstr "Options de scan"
 
-#: gui/scanWindow.py:223 gui/scanWindow.py:230 gui/scanWindow.py:234
+#: gui/scanWindow.py:223
+#: gui/scanWindow.py:230
 #: gui/scanWindow.py:234
-msgid ""
-"Unable to set the scanner options. Do you want to proceed to scan anyway ?"
-msgstr ""
-"Impossible de définir les options du scanner. Voulez vous cependant "
-"continuer le scan ?"
+#: gui/scanWindow.py:237
+msgid "Unable to set the scanner options. Do you want to proceed to scan anyway ?"
+msgstr "Impossible de définir les options du scanner. Voulez vous cependant continuer le scan ?"
 
-#: scannerAccess/saneAccess.py:76 scannerAccess/saneAccess.py:78
+#: scannerAccess/saneAccess.py:76
 #: scannerAccess/saneAccess.py:78
+#: scannerAccess/saneAccess.py:79
 #, python-format
 msgid "Option %s not settable"
 msgstr "L'option %s n'est pas assignable"
 
-#: scannerAccess/saneAccess.py:87 scannerAccess/saneAccess.py:98
-#: scannerAccess/saneAccess.py:106 scannerAccess/saneAccess.py:98
+#: scannerAccess/saneAccess.py:87
+#: scannerAccess/saneAccess.py:98
 #: scannerAccess/saneAccess.py:106
+#: scannerAccess/saneAccess.py:100
+#: scannerAccess/saneAccess.py:108
 msgid "Error during scanning, aborted."
 msgstr "Erreur au cours du scan, annulé"
 
-#: scannerAccess/saneAccess.py:97 scannerAccess/twainAccess.py:62
-#: scannerAccess/saneAccess.py:115 scannerAccess/saneAccess.py:115
+#: scannerAccess/saneAccess.py:97
 #: scannerAccess/twainAccess.py:62
+#: scannerAccess/saneAccess.py:115
+#: scannerAccess/saneAccess.py:117
+#: scannerAccess/twainAccess.py:71
 msgid "Manual multipage"
 msgstr "Multipage manuel"
 
-#: scannerAccess/saneAccess.py:98 scannerAccess/twainAccess.py:63
-#: scannerAccess/saneAccess.py:116 scannerAccess/saneAccess.py:116
+#: scannerAccess/saneAccess.py:98
 #: scannerAccess/twainAccess.py:63
+#: scannerAccess/saneAccess.py:116
+#: scannerAccess/saneAccess.py:118
+#: scannerAccess/twainAccess.py:72
 msgid "Check to manually scan a multiple page document"
 msgstr "Cocher pour scanner manuellement un document multipage"
 
-#: gui/Preferences.py:42 gui/Preferences.py:43 gui/Preferences.py:52
-#: gui/Preferences.py:51 gui/Preferences.py:60 gui/Preferences.py:60
+#: gui/Preferences.py:42
+#: gui/Preferences.py:43
+#: gui/Preferences.py:52
+#: gui/Preferences.py:51
+#: gui/Preferences.py:60
 msgid "OCR programs to use"
 msgstr "Programmes pour la reconnaissance de caractère"
 
-#: gui/Preferences.py:43 gui/Preferences.py:44 gui/Preferences.py:53
-#: gui/Preferences.py:52 gui/Preferences.py:61 gui/Preferences.py:61
+#: gui/Preferences.py:43
+#: gui/Preferences.py:44
+#: gui/Preferences.py:53
+#: gui/Preferences.py:52
+#: gui/Preferences.py:61
 msgid "OCR Checking languages"
 msgstr "Langues pour la reconnaissance de caractère"
 
-#: gui/Preferences.py:218 gui/Preferences.py:219 gui/Preferences.py:228
-#: gui/Preferences.py:227 gui/Preferences.py:236 gui/Preferences.py:236
+#: gui/Preferences.py:218
+#: gui/Preferences.py:219
+#: gui/Preferences.py:228
+#: gui/Preferences.py:227
+#: gui/Preferences.py:236
+#: gui/Preferences.py:261
 msgid "Content"
 msgstr "Contenu"
 
@@ -607,8 +986,10 @@ msgstr "Reconnaissance de caractère"
 msgid "calling tesseract"
 msgstr "appel de tesseract"
 
-#: algorithms/words.py:167 algorithms/words.py:197 algorithms/words.py:226
-#: algorithms/words.py:190 algorithms/words.py:223 algorithms/words.py:190
+#: algorithms/words.py:167
+#: algorithms/words.py:197
+#: algorithms/words.py:226
+#: algorithms/words.py:190
 #: algorithms/words.py:223
 msgid "spellchecking"
 msgstr "correction orthographique"
@@ -621,12 +1002,14 @@ msgstr "appel de hOCR"
 msgid "calling gOCR"
 msgstr "Appel de gOCR"
 
-#: data/imageData.py:114 gui/survey.py:169 gui/survey.py:168
-#: data/imageData.py:114 gui/survey.py:168
+#: data/imageData.py:114
+#: gui/survey.py:169
+#: gui/survey.py:168
+#: data/imageData.py:143
 msgid "Character recognition"
 msgstr "Reconnaissance de caractère"
 
-#: algorithms/words.py:166 algorithms/words.py:166
+#: algorithms/words.py:166
 #, python-format
 msgid "calling %s"
 msgstr "appel de %s"
@@ -636,253 +1019,369 @@ msgstr "appel de %s"
 msgid "Unable to get the image in format %s for section %s "
 msgstr "Impossible de recupérer l'image au format %s dans la section %s"
 
-#: database/db.py:104 database/db.py:121 database/db.py:105 database/db.py:122
-#: database/db.py:107 database/db.py:124 database/db.py:107 database/db.py:124
+#: database/db.py:104
+#: database/db.py:121
+#: database/db.py:105
+#: database/db.py:122
+#: database/db.py:107
+#: database/db.py:124
+#: database/db.py:109
+#: database/db.py:126
 #, python-format
 msgid "Misformatted OCR configuration for section %s "
 msgstr "Configuration OCR mal formée dans la section %s"
 
-#: gui/Preferences.py:34 gui/Preferences.py:33 gui/Preferences.py:42
+#: gui/Preferences.py:34
+#: gui/Preferences.py:33
 #: gui/Preferences.py:42
-msgid ""
-"Automatically proceed to OCR when a new document is added to the database"
-msgstr ""
-"Utilisation automatique de la reconaissance de caractère lorsqu'un nouveau "
-"document est ajouté à la base de données"
+msgid "Automatically proceed to OCR when a new document is added to the database"
+msgstr "Utilisation automatique de la reconaissance de caractère lorsqu'un nouveau document est ajouté à la base de données"
 
-#: gui/RecordWidget.py:67 gui/RecordWidget.py:72 gui/RecordWidget.py:74
+#: gui/RecordWidget.py:67
+#: gui/RecordWidget.py:72
 #: gui/RecordWidget.py:74
+#: gui/RecordWidget.py:79
 msgid "do OCR"
 msgstr "ROC"
 
-#: gui/RecordWidget.py:160 gui/RecordWidget.py:184 gui/RecordWidget.py:194
+#: gui/RecordWidget.py:160
+#: gui/RecordWidget.py:184
 #: gui/RecordWidget.py:194
+#: gui/RecordWidget.py:203
 msgid "A valid filename is required"
 msgstr "Un nom de fichier valide est requis"
 
-#: gui/survey.py:89 gui/survey.py:87 gui/survey.py:87
+#: gui/survey.py:89
+#: gui/survey.py:87
 msgid "Files not in database"
 msgstr "Le fichier n'est pas dans la base de données"
 
-#: gui/survey.py:127 gui/survey.py:205 gui/survey.py:126 gui/survey.py:204
-#: gui/survey.py:126 gui/survey.py:204
+#: gui/survey.py:127
+#: gui/survey.py:205
+#: gui/survey.py:126
+#: gui/survey.py:204
 msgid "Fix selected"
 msgstr "Corriger la séléction"
 
-#: gui/survey.py:128 gui/survey.py:206 gui/survey.py:127 gui/survey.py:205
-#: gui/survey.py:127 gui/survey.py:205
+#: gui/survey.py:128
+#: gui/survey.py:206
+#: gui/survey.py:127
+#: gui/survey.py:205
 msgid "Fix All"
 msgstr "Tout corriger"
 
-#: gui/survey.py:333 gui/survey.py:335 gui/survey.py:335
+#: gui/survey.py:333
+#: gui/survey.py:335
 msgid "Directory survey"
 msgstr "Surveillance de répértoire"
 
-#: gui/survey.py:334 gui/survey.py:336 gui/survey.py:336
+#: gui/survey.py:334
+#: gui/survey.py:336
 msgid "Missing OCR"
 msgstr "ROC manquant"
 
-#: gui/survey.py:335 gui/survey.py:337 gui/survey.py:337
+#: gui/survey.py:335
+#: gui/survey.py:337
 msgid "Removes/modified files"
 msgstr "Fichiers supprimés/modifiés"
 
-#: gui/survey.py:347 gui/survey.py:349 gui/survey.py:349
+#: gui/survey.py:347
+#: gui/survey.py:349
 msgid "Add/Update"
 msgstr "Ajout/MAJ"
 
-#: gui/survey.py:384 gui/survey.py:386 gui/survey.py:386
+#: gui/survey.py:384
+#: gui/survey.py:386
 msgid "Unable to add/update the file to the database"
 msgstr "Impossible d'ajouter/mettre à jours le fichier dans la base de donnée"
 
-#: database/db.py:83 database/db.py:84 database/db.py:86 database/db.py:86
-msgid ""
-"Unable to get the image in format %(needed_format) for section %(section) "
-msgstr ""
-"Impossible de récuperer l'image au format %(needed_format) dans la section %"
-"(section) "
+#: database/db.py:83
+#: database/db.py:84
+#: database/db.py:86
+#: database/db.py:87
+msgid "Unable to get the image in format %(needed_format) for section %(section) "
+msgstr "Impossible de récuperer l'image au format %(needed_format) dans la section %(section) "
 
 #: gui/virtualFolder.py:20
 msgid "Directory chooser"
 msgstr "Selecteur de répertoire"
 
-#: gui/virtualFolder.py:49 gui/mainBoard.py:63 gui/mainBoard.py:135
-#: gui/virtualFolder.py:123 gui/mainBoard.py:63 gui/mainBoard.py:135
+#: gui/virtualFolder.py:49
+#: gui/mainBoard.py:63
+#: gui/mainBoard.py:135
 #: gui/virtualFolder.py:123
+#: gui/mainBoard.py:91
+#: gui/mainBoard.py:163
+#: gui/virtualFolder.py:122
 msgid "ROOT"
 msgstr "BASE"
 
-#: database/db.py:376 database/db.py:376
+#: database/db.py:376
+#: database/db.py:384
 msgid "unable to backup the database"
 msgstr "impossible de sauvegarder la base de données"
 
-#: database/db.py:383 database/db.py:387 database/db.py:383 database/db.py:387
+#: database/db.py:383
+#: database/db.py:387
+#: database/db.py:391
+#: database/db.py:395
 msgid "unable to upgrade the database"
 msgstr "impossible de mettre à jours la base de données"
 
-#: database/db.py:856 database/db.py:856
+#: database/db.py:856
+#: database/db.py:893
 msgid "Remove content"
 msgstr "Retirer le contenu"
 
-#: database/db.py:856 database/db.py:856
+#: database/db.py:856
+#: database/db.py:893
 msgid "Set to parent folder"
 msgstr "Déplacer vers le répertoire parent"
 
-#: database/db.py:856 database/db.py:856
+#: database/db.py:856
+#: database/db.py:893
 msgid "cancel"
 msgstr "annuler"
 
-#: database/db.py:857 database/db.py:857
+#: database/db.py:857
+#: database/db.py:894
 msgid "This folder is not empty, please choose the action to take"
-msgstr ""
-"Ce répertoire n'est pas vide, veuillez spécifier l'action à entreprendre"
+msgstr "Ce répertoire n'est pas vide, veuillez spécifier l'action à entreprendre"
 
-#: database/db.py:1179 database/db.py:1179
+#: database/db.py:1179
+#: database/db.py:1224
 msgid "Unable to create the database {name} : {err}"
 msgstr "Impossible de créer la base de données {name} : {err}"
 
-#: gui/documentToGo.py:16 gui/documentToGo.py:16
+#: gui/documentToGo.py:16
 msgid "Document to go wizard"
 msgstr "Guide pour la fonction Document To Go"
 
-#: gui/documentToGo.py:26 gui/documentToGo.py:26
+#: gui/documentToGo.py:26
+#: gui/documentToGo.py:27
 msgid "Are you sure you want to cancel to document to go wizard ?"
-msgstr ""
-"Etes vous sûr de vouloir annuler le guide de la fonction Document To Go ?"
+msgstr "Etes vous sûr de vouloir annuler le guide de la fonction Document To Go ?"
 
-#: gui/documentToGo.py:33 gui/documentToGo.py:40 gui/documentToGo.py:33
+#: gui/documentToGo.py:33
 #: gui/documentToGo.py:40
+#: gui/documentToGo.py:46
+#: gui/documentToGo.py:53
 msgid "The filename can't be empty"
 msgstr "Le nom du fichier ne peut être vide"
 
-#: gui/documentToGo.py:48 gui/documentToGo.py:48
+#: gui/documentToGo.py:48
+#: gui/documentToGo.py:61
 msgid "The filename and dirname can't be empty"
 msgstr "Ni le nom du fichier, ni le nom du répertoire ne doivent être vides"
 
-#: gui/documentToGo.py:60 gui/documentToGo.py:60
+#: gui/documentToGo.py:60
+#: gui/documentToGo.py:77
 msgid "Export all of part of the database."
 msgstr "Exporter tout ou partie de la base de données."
 
-#: gui/documentToGo.py:61 gui/documentToGo.py:61
-msgid ""
-"Create an archive with some or all of your documents, along with a database "
-"to browse into."
-msgstr ""
-"Créer une archive contenant tout ou partie de vos documents, ainsi que la "
-"base de données permettant de les explorer."
+#: gui/documentToGo.py:61
+#: gui/documentToGo.py:78
+msgid "Create an archive with some or all of your documents, along with a database to browse into."
+msgstr "Créer une archive contenant tout ou partie de vos documents, ainsi que la base de données permettant de les explorer."
 
-#: gui/documentToGo.py:62 gui/documentToGo.py:62
+#: gui/documentToGo.py:62
+#: gui/documentToGo.py:79
 msgid "Open an existing archive."
 msgstr "Ouvrir une archive existante."
 
-#: gui/documentToGo.py:63 gui/documentToGo.py:63
+#: gui/documentToGo.py:63
+#: gui/documentToGo.py:80
 msgid "What action do you want to take"
 msgstr "Quel action voulez vous prendre "
 
-#: gui/documentToGo.py:83 gui/documentToGo.py:83
+#: gui/documentToGo.py:83
+#: gui/documentToGo.py:114
 msgid "Path of exported database"
 msgstr "Chemin pour la base de donnée exportée"
 
-#: gui/documentToGo.py:97 gui/documentToGo.py:97
+#: gui/documentToGo.py:97
+#: gui/documentToGo.py:128
 msgid "Path of exported archive"
 msgstr "Chemin pour l'archive exportée"
 
-#: gui/documentToGo.py:110 gui/documentToGo.py:110
+#: gui/documentToGo.py:110
+#: gui/documentToGo.py:141
 msgid "Path of archive to import"
 msgstr "Chemin de l'archive à importer"
 
-#: gui/documentToGo.py:114 gui/documentToGo.py:114
+#: gui/documentToGo.py:114
+#: gui/documentToGo.py:145
 msgid "Path of directory into which the archive will be extracted"
 msgstr "Chemin du répertoir où l'archive sera extraite"
 
-#: gui/mainBoard.py:64 gui/mainBoard.py:64
+#: gui/mainBoard.py:64
+#: gui/mainBoard.py:92
 msgid "Unclassified"
 msgstr "Non classés"
 
-#: gui/mainBoard.py:201 gui/mainBoard.py:201
+#: gui/mainBoard.py:201
+#: gui/mainBoard.py:229
 msgid "Flat view"
 msgstr "Vue plate"
 
-#: gui/mainBoard.py:203 gui/mainBoard.py:203
+#: gui/mainBoard.py:203
+#: gui/mainBoard.py:231
 msgid "Folder view"
 msgstr "Vue répértoire"
 
-#: gui/mainBoard.py:205 gui/mainBoard.py:205
+#: gui/mainBoard.py:205
+#: gui/mainBoard.py:233
 msgid "Tag Folder view"
 msgstr "Vue mots-clefs"
 
-#: gui/Preferences.py:237 gui/Preferences.py:237
+#: gui/Preferences.py:237
+#: gui/Preferences.py:262
 msgid "Folders"
 msgstr "Répértoires"
 
-#: gui/RecordWidget.py:83 gui/RecordWidget.py:83
+#: gui/RecordWidget.py:83
+#: gui/RecordWidget.py:88
 msgid "Folder selection"
 msgstr "Sélection de répértoire"
 
-#: gui/utilities.py:19 gui/utilities.py:19
+#: gui/utilities.py:19
 msgid "String expected"
 msgstr "Chaine de caractère attendue"
 
-#: gui/virtualFolder.py:76 gui/virtualFolder.py:76
+#: gui/virtualFolder.py:76
 msgid "select"
 msgstr "séléctionner"
 
-#: gui/virtualFolder.py:78 gui/virtualFolder.py:78
+#: gui/virtualFolder.py:78
 msgid "add sub-menu"
 msgstr "ajouter un sous-répértoire"
 
-#: gui/virtualFolder.py:80 gui/virtualFolder.py:80
+#: gui/virtualFolder.py:80
 msgid "rename"
 msgstr "renommer"
 
-#: gui/virtualFolder.py:81 gui/virtualFolder.py:81
+#: gui/virtualFolder.py:81
 msgid "delete"
 msgstr "supprimer"
 
-#: gui/virtualFolder.py:101 gui/virtualFolder.py:101
-msgid ""
-"Do you really want to move the folder {src} and all its content under the "
-"folder {dst} ?"
-msgstr ""
-"Etes vous sur de vouloir déplacer le répertoir {src} et tout son contenu "
-"vers le répertoir {dst} ?"
+#: gui/virtualFolder.py:101
+msgid "Do you really want to move the folder {src} and all its content under the folder {dst} ?"
+msgstr "Etes vous sur de vouloir déplacer le répertoir {src} et tout son contenu vers le répertoir {dst} ?"
 
-#: gui/virtualFolder.py:106 gui/virtualFolder.py:106
+#: gui/virtualFolder.py:106
+#: gui/virtualFolder.py:105
 msgid "Unable to move the folder {src} under {dst}"
 msgstr "Impossible de déplacer le répertoir {src} sous {dst}"
 
-#: gui/virtualFolder.py:132 gui/virtualFolder.py:152 gui/virtualFolder.py:132
+#: gui/virtualFolder.py:132
 #: gui/virtualFolder.py:152
+#: gui/virtualFolder.py:131
+#: gui/virtualFolder.py:150
 msgid "name :"
 msgstr "nom :"
 
-#: gui/virtualFolder.py:132 gui/virtualFolder.py:152 gui/virtualFolder.py:132
+#: gui/virtualFolder.py:132
 #: gui/virtualFolder.py:152
+#: gui/virtualFolder.py:131
+#: gui/virtualFolder.py:150
 msgid "Give a sub-folder name"
 msgstr "Donner un nom de sous-répertoire"
 
-#: gui/virtualFolder.py:132 gui/virtualFolder.py:132
+#: gui/virtualFolder.py:132
+#: gui/virtualFolder.py:131
 msgid "folder"
 msgstr "répertoire"
 
-#: gui/virtualFolder.py:138 gui/virtualFolder.py:138
+#: gui/virtualFolder.py:138
+#: gui/virtualFolder.py:137
 msgid "unable to add the sub-folder {0}"
 msgstr "Impossible d'ajouter le sous répertoire {0}"
 
-#: gui/virtualFolder.py:142 gui/virtualFolder.py:142
+#: gui/virtualFolder.py:142
+#: gui/virtualFolder.py:141
 msgid "Are you sure that you want to delete the folder {0}"
 msgstr "Etes vous sur de vouloir supprimer le répertoire {0}"
 
-#: gui/virtualFolder.py:148 gui/virtualFolder.py:148
+#: gui/virtualFolder.py:148
+#: gui/virtualFolder.py:146
 msgid "unable to remove the sub-folder {0}"
 msgstr "impossible de supprimer le sous-répertoire {0}"
 
-#: gui/virtualFolder.py:153 gui/virtualFolder.py:153
-msgid ""
-"Are you sure that you want to rename folder \"{iniName}\" to \"{newName}\""
-msgstr ""
-"Etes vous sur de vouloir renommer le réperoire  \"{iniName}\" en \"{newName}"
-"\""
+#: gui/virtualFolder.py:153
+#: gui/virtualFolder.py:151
+msgid "Are you sure that you want to rename folder \"{iniName}\" to \"{newName}\""
+msgstr "Etes vous sur de vouloir renommer le réperoire  \"{iniName}\" en \"{newName}\""
 
-#: gui/virtualFolder.py:159 gui/virtualFolder.py:159
+#: gui/virtualFolder.py:159
+#: gui/virtualFolder.py:156
 msgid "unable to remove the subfolder {0}"
 msgstr "impossible de supprimer le sous répertoire {0}"
+
+#: database/db.py:1258
+msgid "Unable to open the archive {0}"
+msgstr "Impossible d'ouvrir l'archive {0}"
+
+#: gui/documentToGo.py:81
+msgid "Export all the documents"
+msgstr "Exporter l'ensemble des documents"
+
+#: gui/documentToGo.py:82
+msgid "Export only the result of the current search."
+msgstr "Exporter uniquement les résultat de la recherche en cours"
+
+#: gui/documentToGo.py:83
+msgid "Export only the result of the current selection."
+msgstr "Exporter uniquement les résultats de la sélection en cours"
+
+#: gui/documentToGo.py:84
+msgid "Which documents would you like to save"
+msgstr "Quel document voulez vous sauver"
+
+#: gui/mainBoard.py:31
+msgid "Alphabetical"
+msgstr "Alphabétique"
+
+#: gui/mainBoard.py:32
+msgid "Chronological (document)"
+msgstr "Chronologique (date de création)"
+
+#: gui/mainBoard.py:33
+msgid "Chronological (registering date)"
+msgstr "Chronologique (date d'enregistrement)"
+
+#: gui/mainBoard.py:34
+msgid "Relevance"
+msgstr "Pertinance"
+
+#: gui/mainBoard.py:45
+msgid "Classification"
+msgstr "Classification"
+
+#: gui/Preferences.py:107
+msgid "Automatic scan"
+msgstr "Scan automatique"
+
+#: gui/Preferences.py:108
+msgid "Automatic file name"
+msgstr "Nom de fichier automatique"
+
+#: gui/Preferences.py:109
+msgid "Default file location to last call (using default directory below otherwise)"
+msgstr "Remettre les fichier dans le dernier repertoire (ou répertoire ci-dessous sinon)"
+
+#: gui/Preferences.py:110
+msgid "Close scanner dialog after scan"
+msgstr "Fermer la fenêtre de scan après un scan"
+
+#: gui/Preferences.py:112
+msgid "Clear meta field after scan"
+msgstr "Effacer les meta-champs après un scan"
+
+#: gui/requestBuilder.py:25
+msgid "Generation of a search request"
+msgstr "Génération de la requête"
+
+#: gui/scanWindow.py:270
+msgid "The directory {dname} does not exists. Should it be created ?"
+msgstr "Le répertoire {dname} n'existe pas. Volez vous le créer?"
+

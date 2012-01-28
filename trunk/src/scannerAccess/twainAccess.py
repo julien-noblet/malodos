@@ -11,6 +11,7 @@ import twain
 import tempfile
 import PIL
 from scannerAccess import scannerOption
+import logging
 #import gui.utilities
 #import FreeImagePy as FIPY
 import data
@@ -46,9 +47,9 @@ class TwainAccess(object):
             self.sourceData.destroy()
             self.sourceData=None
         if sourceName:
-            deviceList = self.sourceManager.GetSourceList()
+            #deviceList = self.sourceManager.GetSourceList()
             try:
-                selected = deviceList.index(sourceName)
+                #selected = deviceList.index(sourceName)
                 self.sourceData = self.sourceManager.OpenSource(sourceName)
             except:
                 self.sourceData = None
@@ -69,9 +70,9 @@ class TwainAccess(object):
             if optName is None or optName.lower() == 'manual_multipage' :
                 L.append(scannerOption.scannerOption(name='manual_multipage',title=_('Manual multipage'),
                  description=_('Check to manually scan a multiple page document'),
-                 type=scannerOption.TYPE_BOOL,value=False))
-        except:
-            pass
+                 scan_type=scannerOption.TYPE_BOOL,value=False))
+        except Exception,E:
+            logging.debug('ERROR ' + str(E))
         return L
     def useOptions(self,options):
         """Use the specific options."""

@@ -24,7 +24,7 @@ class DocToGoWizard (wx.wizard.Wizard):
         self.Bind(wx.wizard.EVT_WIZARD_CANCEL, self.on_cancel)
         self.GetPageAreaSizer().Add(self.page_chooser)
     def on_cancel(self,event):
-        if utilities.ask(_('Are you sure you want to cancel to document to go wizard ?')) != wx.ID_YES : event.Veto()
+        if not utilities.ask(_('Are you sure you want to cancel to document to go wizard ?')) : event.Veto()
     def on_finished(self,event):
         sel = self.page_chooser.rbContent.GetSelection()
         sel = self.page_chooser.choice_list.keys()[sel]

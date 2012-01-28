@@ -213,7 +213,11 @@ class ScanWindow(wx.Dialog):
 				self.currentOptions[op.name] = op.value
 		for name,val in op_ini.items() :
 			if not name in self.currentOptions.keys() : self.currentOptions[name]=val
-		
+		self.recordPart.lbFileName.SetPath(self.defaultNameDir())
+		data.theData.clear_all()
+		if str_to_bool(database.theConfig.get_param('scanner', 'autoScan','False',True)) :
+			self.actionPerformScan(None)
+			self.docWin.showCurrentImage()
 	def actionOpenOptions(self,event):
 		opts = self.scanner.get_options()
 		self.scanner.closeScanner()
@@ -223,17 +227,22 @@ class ScanWindow(wx.Dialog):
 			self.currentOptions =  w.definedParams
 	def actionChooseSource(self,event):
 		self.stSource.Label = self.scanner.chooseSource()
+	def defaultNameDir(self):
+		defDir = database.theConfig.get_param('scanner', 'defaultDir',os.path.join(os.path.expanduser('~'),'MALODOS','Images'),False)
+		if str_to_bool(database.theConfig.get_param('scanner', 'useLastDir','False',True)) : 
+			defNameDir = database.theConfig.get_param('scanner', 'lastDir',defDir,False)
+		else:
+			defNameDir = defDir
+		return defNameDir
 	def actionPerformScan(self,event):
 		try:
-			auto_cont=self.currentOptions['manual_multipage']
-			auto_cont = auto_cont.lower()=='true' or auto_cont=='1' or auto_cont.lower()=='on'
+			auto_cont=str_to_bool(self.currentOptions['manual_multipage'])
 		except:
 			auto_cont=False
 		try:
 			self.scanner.useOptions(self.currentOptions)
 		except:
-			x = utilities.ask(_('Unable to set the scanner options. Do you want to proceed to scan anyway ?'))
-			if x != wx.ID_YES: return
+			if not  utilities.ask(_('Unable to set the scanner options. Do you want to proceed to scan anyway ?')) : return
 		cont=True
 		data.theData.clear_all()
 		while cont:
@@ -243,27 +252,54 @@ class ScanWindow(wx.Dialog):
 			except Exception as E:
 				logging.debug('Scan acquisition error ' + str(E))
 			if auto_cont:
-				x = utilities.ask(_('Do you want to add new page(s) ?'))
-				if x != wx.ID_YES:
-					cont=False
+				if not  utilities.ask(_('Do you want to add new page(s) ?')) : cont=False
 			else:
 				cont=False
+		if not str_to_bool(database.theConfig.get_param('scanner', 'autoFileName','False',True)) : return
+		defNameDir = self.defaultNameDir()
+		idx=1
+		def generated_file_name():
+			fname = 'file%.4d.pdf' % idx
+			return os.path.join(defNameDir,fname)
+		while os.path.exists(generated_file_name()) : idx+=1
+		self.recordPart.lbFileName.SetPath(generated_file_name())
+			
 	def actionSaveRecord(self,event):
 		fname = self.recordPart.lbFileName.GetPath()
 		if fname == '' :
 			wx.MessageBox(_('You must give a valid filename to record the document'))
 			return
+		direct = os.path.dirname(fname)
+		if not os.path.exists(direct) :
+			if utilities.ask(_('The directory {dname} does not exists. Should it be created ?'.format(dname=direct))) :
+				try:
+					os.makedirs(direct)
+				except Exception as E:
+					logging.exception('Unable to create directory '+direct + ':' + str(E))
+					raise Exception('Unable to add the file to the disk')
+			else:
+				raise Exception('Unable to add the file to the disk')
 		try:
 			if not data.theData.save_file(fname,self.recordPart.lbTitle.Value,self.recordPart.lbDescription.Value,self.recordPart.lbTags.Value) : raise _('Unable to add the file to the disk')
 		except Exception as E:
-			logging.debug('Saving record ' + str(E))
+			logging.debug('Saving file ' + str(E))
 			wx.MessageBox(_('Unable to add the file to the disk'))
 			return
 		if not self.recordPart.do_save_record():
 			wx.MessageBox(_('Unable to add the file to the database'))
 		else:
-			# close the dialog
-			self.Close()
+			# close the dialog if so required
+			database.theConfig.set_param('scanner', 'lastDir',os.path.dirname(fname),True)
+			database.theConfig.commit_config()
+			if str_to_bool(database.theConfig.get_param('scanner', 'autoClose','True',True)) :
+				self.Close()
+			else:
+				data.theData.clear_all()
+				self.docWin.showCurrentImage()
+				if str_to_bool(database.theConfig.get_param('scanner', 'clearFields','False',True)):
+					self.recordPart.clear_all()
+				else:
+					self.recordPart.lbFileName.SetPath('')
 	def onNewScannerData(self):
 		data.theData.current_image=0
 		self.docWin.showCurrentImage()
