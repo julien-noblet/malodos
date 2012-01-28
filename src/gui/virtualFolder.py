@@ -98,8 +98,7 @@ class FolderView (wx.Panel):
         if self.dragedItem == event.GetItem() : return
         oldItem = self.treeView.GetItemText(self.dragedItem)
         newItem = self.treeView.GetItemText(event.GetItem())
-        do_move = utilities.ask(_('Do you really want to move the folder {src} and all its content under the folder {dst} ?').format(src=oldItem,dst=newItem))
-        if do_move != wx.ID_YES: return
+        if not  utilities.ask(_('Do you really want to move the folder {src} and all its content under the folder {dst} ?').format(src=oldItem,dst=newItem)) : return
         iniFolderID = self.treeView.GetPyData(self.dragedItem)
         dstFolderID = self.treeView.GetPyData(event.GetItem())
         if not theBase.folders_change_parent(iniFolderID,dstFolderID):
@@ -139,8 +138,7 @@ class FolderView (wx.Panel):
     def action_del_subfolder(self,item):
         folderID = self.treeView.GetPyData(item)
         folderName = self.treeView.GetItemText(item)
-        sure = utilities.ask(_('Are you sure that you want to delete the folder {0}'.format(folderName)))
-        if sure==wx.ID_YES:
+        if utilities.ask(_('Are you sure that you want to delete the folder {0}'.format(folderName))):
             if theBase.folders_remove(folderID):
                 self.fillDirectories()
                 self.notify_selection()
@@ -150,8 +148,7 @@ class FolderView (wx.Panel):
         folderID = self.treeView.GetPyData(item)
         folderName = self.treeView.GetItemText(item)
         name = utilities.ask_string(_('name :'),_('Give a sub-folder name'),folderName)
-        sure = utilities.ask(_('Are you sure that you want to rename folder "{iniName}" to "{newName}"'.format(iniName=folderName,newName=name)))
-        if sure==wx.ID_YES:
+        if utilities.ask(_('Are you sure that you want to rename folder "{iniName}" to "{newName}"'.format(iniName=folderName,newName=name))):
             if theBase.folders_rename(folderID,name):
                 self.fillDirectories()
                 self.notify_selection()

@@ -285,7 +285,6 @@ class MainFrame(wx.Frame):
     #===========================================================================
     def actionAddScan(self,event):
         Frame = scanWindow.ScanWindow(self,_("Scan a new document"))
-        theData.clear_all()
         Frame.ShowModal()
         theData.clear_all()
         self.actionSearch(None)
@@ -335,8 +334,7 @@ class MainFrame(wx.Frame):
         try:
             file_md5 = hashlib.md5(open(row[database.theBase.IDX_FILENAME], "rb").read()).hexdigest()
             if row[database.theBase.IDX_CHECKSUM] !=  file_md5:
-                Q = utilities.ask(_('The file content has changed! Do you wish to update its signature ?'))
-                if Q==wx.ID_YES:
+                if utilities.ask(_('The file content has changed! Do you wish to update its signature ?')):
                     if not database.theBase.update_doc_signature(docID, file_md5):
                         wx.MessageBox(_('Unable to update the database'))
         except:

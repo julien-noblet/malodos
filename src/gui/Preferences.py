@@ -21,7 +21,7 @@ else:
     from scannerAccess import twainAccess
 
 from database import theConfig
-
+import os.path
 from algorithms.general import str_to_bool
 from algorithms.words import get_available_languages
 import virtualFolder
@@ -104,20 +104,26 @@ class PrefScanner(wx.NotebookPage):
         self.stScanner = wx.StaticText(self.panel,-1,_("None"))
         self.btChangeScanner = wx.Button(self.panel,-1,_("Change"))
         self.btOptions = wx.Button(self.panel,-1,_("Options"))
+        self.cbAutoScan = wx.CheckBox(self.panel,-1,_("Automatic scan"))
+        self.cbAutoFileName = wx.CheckBox(self.panel,-1,_("Automatic file name"))
+        self.cbUseLastDir = wx.CheckBox(self.panel,-1,_("Default file location to last call (using default directory below otherwise)"))
+        self.cbAutoClose = wx.CheckBox(self.panel,-1,_("Close scanner dialog after scan"))
+        self.dpDefaultDirectory = wx.DirPickerCtrl(self.panel,-1)
+        self.cbClearFields = wx.CheckBox(self.panel,-1,_("Clear meta field after scan"))
 
         self.sizer.Add(wx.StaticText(self.panel,-1,_("Scanner source : ")),flag=wx.ALL)
         self.sizer.Add(self.stScanner,flag=wx.ALL|wx.EXPAND)
         self.sizer.Add(self.btChangeScanner,flag=wx.ALL)
         self.sizer.Add(self.btOptions,flag=wx.ALL)
+        self.sizer.Add(self.cbAutoScan,flag=wx.ALL)
+        self.sizer.Add(self.cbAutoFileName,flag=wx.ALL)
+        self.sizer.Add(self.cbUseLastDir,flag=wx.ALL)
+        self.sizer.Add(self.dpDefaultDirectory,flag=wx.ALL|wx.EXPAND)
+        self.sizer.Add(self.cbAutoClose,flag=wx.ALL)
+        self.sizer.Add(self.cbClearFields,flag=wx.ALL)
+        self.actionLoad()
         self.panel.SetSizerAndFit(self.sizer)
         
-        # OTHER INITIALISATIIONS
-        if os.name == 'posix' :
-            self.scanner = saneAccess.SaneAccess(self.GetHandle())
-        else:
-            self.scanner = twainAccess.TwainAccess(self.GetHandle())
-        currentScanner = database.theConfig.get_current_scanner()
-        self.stScanner.Label = currentScanner
         # BINDING
         self.Bind(wx.EVT_BUTTON, self.actionChangeScanner, self.btChangeScanner)
         self.Bind(wx.EVT_BUTTON, self.actionChangeScannerOptions, self.btOptions)
@@ -157,7 +163,26 @@ class PrefScanner(wx.NotebookPage):
     def actionSave(self):
         database.theConfig.set_current_scanner(self.stScanner.Label)
         self.save_scanner_options()
-
+        database.theConfig.set_param('scanner', 'autoScan', str(self.cbAutoScan.Value), True)
+        database.theConfig.set_param('scanner', 'autoFileName', str(self.cbAutoFileName.Value), True)
+        database.theConfig.set_param('scanner', 'useLastDir', str(self.cbUseLastDir.Value), True)
+        database.theConfig.set_param('scanner', 'defaultDir', self.dpDefaultDirectory.GetPath(), True)
+        database.theConfig.set_param('scanner', 'autoClose', str(self.cbAutoClose.Value), True)
+        database.theConfig.set_param('scanner', 'clearFields', str(self.cbClearFields.Value), True)
+    def actionLoad(self):
+        self.cbAutoScan.Value = str_to_bool(database.theConfig.get_param('scanner', 'autoScan','False',True))
+        self.cbAutoFileName.Value = str_to_bool(database.theConfig.get_param('scanner', 'autoFileName','False',True))
+        self.cbUseLastDir.Value = str_to_bool(database.theConfig.get_param('scanner', 'useLastDir','False',True))
+        self.dpDefaultDirectory.SetPath(database.theConfig.get_param('scanner', 'defaultDir',os.path.join(os.path.expanduser('~'),'MALODOS','Images'),True))
+        self.cbAutoClose.Value = str_to_bool(database.theConfig.get_param('scanner', 'autoClose','True',True))
+        self.cbClearFields.Value = str_to_bool(database.theConfig.get_param('scanner', 'clearFields','False',True))
+        if os.name == 'posix' :
+            self.scanner = saneAccess.SaneAccess(self.GetHandle())
+        else:
+            self.scanner = twainAccess.TwainAccess(self.GetHandle())
+        currentScanner = database.theConfig.get_current_scanner()
+        self.stScanner.Label = currentScanner
+        
 class PrefSurveyDir(wx.NotebookPage):
     def __init__(self,parent,page_id,name):
         wx.NotebookPage.__init__(self,parent,page_id,name=name)

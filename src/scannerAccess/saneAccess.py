@@ -116,7 +116,7 @@ class SaneAccess(object):
             if optName is None or optName.lower() == 'manual_multipage' :
                 L.append(scannerOption.scannerOption(name='manual_multipage',title=_('Manual multipage'),
                  description=_('Check to manually scan a multiple page document'),
-                 type=scannerOption.TYPE_BOOL,value=False))
+                 scan_type=scannerOption.TYPE_BOOL,value=False))
         except:
             pass
         if not self.sourceData:

@@ -15,7 +15,7 @@ def show_message(message):
     return wx.MessageBox(message,_('alert'))
 def ask(message):
     dlg =  wx.MessageDialog(None,message,_('Question'),wx.YES_NO)
-    return dlg.ShowModal()
+    return dlg.ShowModal()==wx.ID_YES
 def ask_string(message,caption=_('String expected'),defaultValue=''):
     return wx.GetTextFromUser(message,caption,defaultValue)
 
