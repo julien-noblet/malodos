@@ -136,6 +136,7 @@ class OptionsWindow(wx.Dialog):
 		self.ScrollWindow.SetScrollbars(u, u, width/u, height/u)
 		if width>400 : width=400
 		if height>600 : height=600
+		if height<80 : height=80
 		self.SetSize((width+10,height+10))
 		self.Center()
 		
@@ -217,7 +218,6 @@ class ScanWindow(wx.Dialog):
 		data.theData.clear_all()
 		if str_to_bool(database.theConfig.get_param('scanner', 'autoScan','False',True)) :
 			self.actionPerformScan(None)
-			self.docWin.showCurrentImage()
 	def actionOpenOptions(self,event):
 		opts = self.scanner.get_options()
 		self.scanner.closeScanner()
@@ -255,6 +255,7 @@ class ScanWindow(wx.Dialog):
 				if not  utilities.ask(_('Do you want to add new page(s) ?')) : cont=False
 			else:
 				cont=False
+		self.docWin.showCurrentImage()
 		if not str_to_bool(database.theConfig.get_param('scanner', 'autoFileName','False',True)) : return
 		defNameDir = self.defaultNameDir()
 		idx=1
