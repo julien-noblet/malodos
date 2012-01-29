@@ -27,7 +27,6 @@ import sys
 import os.path
 import algorithms.words
 import gui.utilities
-import os
 import logging
 
 class imageData(object):

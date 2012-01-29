@@ -248,6 +248,9 @@ class ScanWindow(wx.Dialog):
 		while cont:
 			try:
 				self.scanner.useOptions(self.currentOptions)
+			except Exception as E:
+				logging.debug('Scan options error ' + str(E))
+			try:
 				self.scanner.startAcquisition()
 			except Exception as E:
 				logging.debug('Scan acquisition error ' + str(E))
@@ -260,7 +263,8 @@ class ScanWindow(wx.Dialog):
 		defNameDir = self.defaultNameDir()
 		idx=1
 		def generated_file_name():
-			fname = 'file%.4d.pdf' % idx
+			fnamePrefix = database.theConfig.get_param('scanner', 'autoFileNamePrefix','file',True)
+			fname = '%s%.4d.pdf' % (fnamePrefix,idx)
 			return os.path.join(defNameDir,fname)
 		while os.path.exists(generated_file_name()) : idx+=1
 		self.recordPart.lbFileName.SetPath(generated_file_name())

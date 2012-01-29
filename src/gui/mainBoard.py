@@ -26,6 +26,51 @@ import Resources
 import algorithms.stringFunctions
 import data
 import documentToGo
+import webbrowser
+
+MALODOS_VERSION='1.2c'
+
+class bugReportWindow(wx.Dialog):
+    def __init__(self,parent):
+        wx.Dialog.__init__(self, parent, -1, _('Details of the bug report'))
+        self.panel = wx.Panel(self, -1)
+        self.totalWin = wx.BoxSizer(wx.VERTICAL)
+        self.totalWin.Add(wx.StaticText(self.panel,-1,_('Your name')),0,wx.ALL | wx.EXPAND)
+        self.lbName  =  wx.TextCtrl(self.panel, -1)
+        self.totalWin.Add(self.lbName,0,wx.ALL | wx.EXPAND)
+         
+        self.totalWin.Add(wx.StaticText(self.panel,-1,_('Description of the bug')),0,wx.ALL | wx.EXPAND)
+        self.lbDescription  =  wx.TextCtrl(self.panel, -1,style=wx.TE_MULTILINE | wx.TE_WORDWRAP)
+        self.totalWin.Add(self.lbDescription,1,wx.ALL | wx.EXPAND)
+        
+        self.buttons = wx.BoxSizer(wx.HORIZONTAL)
+        self.btOk = wx.Button(self.panel,-1,_('Ok'))
+        self.btCancel = wx.Button(self.panel,-1,_('Cancel'))
+        self.buttons.Add(self.btOk,0,wx.ALL | wx.EXPAND)
+        self.buttons.Add(self.btCancel,0,wx.ALL | wx.EXPAND)
+        self.totalWin.Add(self.buttons,0,wx.ALL | wx.EXPAND)
+
+        self.panel.SetSizerAndFit(self.totalWin)
+        self.SetClientSize((600,400))
+        
+        self.Bind(wx.EVT_BUTTON,self.actionSend,self.btOk)
+        self.Bind(wx.EVT_BUTTON,self.actionCancel,self.btCancel)
+    def actionCancel(self,event):
+        self.Close()
+    def actionSend(self,event):
+        subject = 'BUG report for MALODOS version ' + MALODOS_VERSION
+        body ='Hello, my name is ' + self.lbName.Value +'\n'
+        body += 'I found a bug described here :\n'
+        body += self.lbDescription.Value
+        body +='\n'
+        body +='\n Content of the log file below \n ---------- \n'
+        if os.name == 'nt' : body = body.replace('\n','%0D')
+        logfilename=os.path.join(database.theConfig.conf_dir ,'messages.log')
+        f = open(logfilename,'r')
+        body += f.read()
+        f.close()
+        webbrowser.open('mailto:guezdav@gmail.com?subject={0}&body={1}'.format(subject,body ))
+        self.Close()
 
 class FlatView(wx.NotebookPage):
     ID_ALPHABETICAL=(1,_('Alphabetical'))
@@ -173,6 +218,8 @@ class MainFrame(wx.Frame):
     ID_SURVEY=6
     ID_PREFS=7
     ID_CREDITS=8
+    ID_SUPPORT=9
+    ID_BUGREPORT=10
     #===========================================================================
     # constructor (GUI building)
     #===========================================================================
@@ -203,6 +250,8 @@ class MainFrame(wx.Frame):
         self.tbMainBar.AddLabelTool(self.ID_SURVEY,'',wx.Bitmap(Resources.get_icon_filename('SURVEY_WIN')),shortHelp=_('Open the directory survey window'))
         self.tbMainBar.AddLabelTool(self.ID_PREFS,'',wx.Bitmap(Resources.get_icon_filename('PREFS')),shortHelp=_('Set preferences'))
         self.tbMainBar.AddLabelTool(self.ID_CREDITS,'',wx.Bitmap(Resources.get_icon_filename('CREDITS')),shortHelp=_('Credits'))
+        self.tbMainBar.AddLabelTool(self.ID_BUGREPORT,'',wx.Bitmap(Resources.get_icon_filename('BUGREPORT')),shortHelp=_('Report a bug'))
+        self.tbMainBar.AddLabelTool(self.ID_SUPPORT,'',wx.Bitmap(Resources.get_icon_filename('SUPPORT')),shortHelp=_('Support MALODOS'))
         self.tbMainBar.Realize()
         
         self.recordPart = RecordWidget.RecordWidget(self.docViewPanel)
@@ -267,6 +316,8 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_TOOL,self.actionDocToGo,id=self.ID_DOCTOGO)
         self.Bind(wx.EVT_TOOL,self.actionRemoveRecord,id=self.ID_REMOVE_SEL)
         self.Bind(wx.EVT_TOOL,self.actionAbout,id=self.ID_CREDITS)
+        self.Bind(wx.EVT_TOOL,self.actionSupport,id=self.ID_SUPPORT)
+        self.Bind(wx.EVT_TOOL,self.actionReport,id=self.ID_BUGREPORT)
         self.Bind(wx.EVT_BUTTON,self.actionStartExternalApp,self.btShowExternal)
         self.Bind(wx.EVT_BUTTON,self.actionUpdateRecord,self.btUpdateRecord)
         #self.Bind(wx.EVT_BUTTON,self.actionTestOCR,self.btDoOCR)
@@ -449,7 +500,7 @@ Being written in python, it is portable (works on windows and linux at least, no
 on other systems).
 
 The complete documentation can be found here : http://sites.google.com/site/malodospage/
-The last version can be downloaded from here : http://code.google.com/p/malodos/
+The latest version can be downloaded from here : http://code.google.com/p/malodos/
 If you like and use this software, please consider to donate to support its development.
 """
 
@@ -468,11 +519,15 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
 
         info.SetIcon(wx.Icon(Resources.get_icon_filename('APPLICATION'), wx.BITMAP_TYPE_PNG))
         info.SetName('MALODOS')
-        info.SetVersion('1.2')
+        info.SetVersion(MALODOS_VERSION)
         info.SetDescription(description)
         info.SetCopyright('(C) 2010 David GUEZ')
         info.SetWebSite('http://sites.google.com/site/malodospage')
         info.AddArtist('http://icones.pro')
         info.SetLicence(licence)
         wx.AboutBox(info)
-        
+    def actionSupport(self,event):
+        webbrowser.open('https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=D7H33JFSFA98J&lc=IL&item_name=David%20GUEZ&item_number=MALODOS&currency_code=ILS&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted')
+    def actionReport(self,event):
+            theBugReport = bugReportWindow(self)
+            theBugReport.ShowModal()

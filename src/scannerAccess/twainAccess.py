@@ -15,6 +15,7 @@ import logging
 #import gui.utilities
 #import FreeImagePy as FIPY
 import data
+import os
 
 class TwainAccess(object):
     # DATA MEMBERS
@@ -26,7 +27,10 @@ class TwainAccess(object):
     def __init__(self,imageContainer,dataReadyCallback=None):
         self.imageContainer = imageContainer
         self.dataReadyCallback = dataReadyCallback
-        self.tmpFileName=tempfile.NamedTemporaryFile().name
+        fle_tmp_tuple = tempfile.mkstemp(suffix='.bmp')
+        self.tmpFileName = fle_tmp_tuple[1];
+        os.close(fle_tmp_tuple[0]);
+        
         self.sourceName= None
     # METHODS
     def listSources(self):
@@ -83,9 +87,11 @@ class TwainAccess(object):
         if not self.sourceManager:
             try:
                 self.chooseSource()
-            except:
+            except Exception,E:
+                logging.exception('TWAIN : No source ' + str(E))
                 return
         if not self.sourceManager or not self.sourceName:
+            logging.exception('TWAIN : No source ')
             return
         self.closeScanner()
         self.sourceData = self.sourceManager.OpenSource(self.sourceName)
@@ -100,13 +106,15 @@ class TwainAccess(object):
         a callback function."""
         if not self.sourceData:
             self.openScanner()
-        if not self.sourceData: return
+        if not self.sourceData:
+            logging.error('TWAIN : No source')
+            return
         try:
             self.sourceData.SetCapability(twain.ICAP_YRESOLUTION, twain.TWTY_FIX32, 100.0)
             self.sourceData.RequestAcquire(1, 1)
-        except:
+        except Exception,E:
+            logging.exception('TWAIN acquisition error : '+ str(E))
             self.closeScanner()
-            pass
                 
 #-------------------------------------------------------------------------
 #
@@ -133,12 +141,16 @@ class TwainAccess(object):
         while more_to_come :
             try:
                 (handle, more_to_come) = self.sourceData.XferImageNatively()
-                twain.DIBToBMFile(handle, self.tmpFileName)
+                S = twain.DIBToBMFile(handle)
+                f=open(self.tmpFileName,'w')
+                f.write(S)
                 data.theData.add_image( PIL.Image.open(self.tmpFileName) )
+                f.close()
 #                img = FIPY.Image()
 #                img.load(self.tmpFileName)
 #                data.theData.add_image( img )
-            except:
+            except Exception,E:
+                print str(E)
                 break
         if handle : twain.GlobalHandleFree(handle)
         if self.dataReadyCallback :
