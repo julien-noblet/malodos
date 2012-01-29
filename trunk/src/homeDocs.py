@@ -9,7 +9,6 @@ attached to this project (LICENSE.txt file)
 =====================================================================
 main application
 '''
-
 import gettext
 import os
 import locale
