@@ -28,13 +28,24 @@ import data
 import documentToGo
 import webbrowser
 
-MALODOS_VERSION='1.2c'
+MALODOS_VERSION='1.2e'
 
 class bugReportWindow(wx.Dialog):
     def __init__(self,parent):
         wx.Dialog.__init__(self, parent, -1, _('Details of the bug report'))
         self.panel = wx.Panel(self, -1)
         self.totalWin = wx.BoxSizer(wx.VERTICAL)
+        msg ="""Below is a form that you can fill to describe any bug you have found. The normal and best way to 
+        report a bug should be to use the bug report system of the google code page of the project
+        at this address : http://code.google.com/p/malodos/issues/entry
+        However, some people do not feel sufficiently comfortable with this kind of tools, and for
+        those people the following fields could be used in order to prepare an e-mail for
+        reporting a bug.
+        
+        Please, before reporting any bug, verify at least that it is not already known by looking at
+        the existing bugs in this page :  http://code.google.com/p/malodos/issues
+        """
+        self.totalWin.Add(wx.StaticText(self.panel,-1,_(msg)),0,wx.ALL | wx.EXPAND)
         self.totalWin.Add(wx.StaticText(self.panel,-1,_('Your name')),0,wx.ALL | wx.EXPAND)
         self.lbName  =  wx.TextCtrl(self.panel, -1)
         self.totalWin.Add(self.lbName,0,wx.ALL | wx.EXPAND)
@@ -51,7 +62,7 @@ class bugReportWindow(wx.Dialog):
         self.totalWin.Add(self.buttons,0,wx.ALL | wx.EXPAND)
 
         self.panel.SetSizerAndFit(self.totalWin)
-        self.SetClientSize((600,400))
+        self.SetClientSize((700,400))
         
         self.Bind(wx.EVT_BUTTON,self.actionSend,self.btOk)
         self.Bind(wx.EVT_BUTTON,self.actionCancel,self.btCancel)

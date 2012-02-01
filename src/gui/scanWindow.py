@@ -234,31 +234,36 @@ class ScanWindow(wx.Dialog):
 		else:
 			defNameDir = defDir
 		return defNameDir
-	def actionPerformScan(self,event):
-		try:
-			auto_cont=str_to_bool(self.currentOptions['manual_multipage'])
-		except:
-			auto_cont=False
+	def do_scan(self):
 		try:
 			self.scanner.useOptions(self.currentOptions)
-		except:
-			if not  utilities.ask(_('Unable to set the scanner options. Do you want to proceed to scan anyway ?')) : return
-		cont=True
+		except Exception as E:
+			logging.debug('Scan options error ' + str(E))
+		try:
+			self.scanner.startAcquisition()
+		except Exception as E:
+			logging.debug('Scan acquisition error ' + str(E))
+		
+	def actionPerformScan(self,event):
+#		try:
+#			auto_cont=str_to_bool(self.currentOptions['manual_multipage'])
+#		except:
+#			auto_cont=False
+#		try:
+#			self.scanner.useOptions(self.currentOptions)
+#		except:
+#			if not  utilities.ask(_('Unable to set the scanner options. Do you want to proceed to scan anyway ?')) : return
+		
+#		cont=True
 		data.theData.clear_all()
-		while cont:
-			try:
-				self.scanner.useOptions(self.currentOptions)
-			except Exception as E:
-				logging.debug('Scan options error ' + str(E))
-			try:
-				self.scanner.startAcquisition()
-			except Exception as E:
-				logging.debug('Scan acquisition error ' + str(E))
-			if auto_cont:
-				if not  utilities.ask(_('Do you want to add new page(s) ?')) : cont=False
-			else:
-				cont=False
-		self.docWin.showCurrentImage()
+		data.theData.current_image=0
+		self.do_scan()
+#		while cont:
+#			if auto_cont:
+#				if not  utilities.ask(_('Do you want to add new page(s) ?')) : cont=False
+#			else:
+#				cont=False
+#		self.docWin.showCurrentImage()
 		if not str_to_bool(database.theConfig.get_param('scanner', 'autoFileName','False',True)) : return
 		defNameDir = self.defaultNameDir()
 		idx=1
@@ -306,6 +311,12 @@ class ScanWindow(wx.Dialog):
 				else:
 					self.recordPart.lbFileName.SetPath('')
 	def onNewScannerData(self):
-		data.theData.current_image=0
+		data.theData.current_image=len(data.theData.pil_images)-1
 		self.docWin.showCurrentImage()
+		try:
+			auto_cont=str_to_bool(self.currentOptions['manual_multipage'])
+		except:
+			auto_cont=False
+		if auto_cont and utilities.ask(_('Do you want to add new page(s) ?')) : self.do_scan()
+			
 	

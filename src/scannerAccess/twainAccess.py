@@ -21,16 +21,11 @@ class TwainAccess(object):
     # DATA MEMBERS
     sourceManager = None
     sourceData = None
-    tmpFileName = None
     dataReadyCallback = None
     # CONSTRUCTOR
     def __init__(self,imageContainer,dataReadyCallback=None):
         self.imageContainer = imageContainer
-        self.dataReadyCallback = dataReadyCallback
-        fle_tmp_tuple = tempfile.mkstemp(suffix='.bmp')
-        self.tmpFileName = fle_tmp_tuple[1];
-        os.close(fle_tmp_tuple[0]);
-        
+        self.dataReadyCallback = dataReadyCallback        
         self.sourceName= None
     # METHODS
     def listSources(self):
@@ -126,7 +121,7 @@ class TwainAccess(object):
             if event == twain.MSG_XFERREADY:
                 self.startTransfer()
             elif event == twain.MSG_CLOSEDSREQ:
-                self.sourceData = None
+                self.closeScanner()
         except:
             # Display information about the exception
             import sys, traceback
@@ -138,20 +133,31 @@ class TwainAccess(object):
         more_to_come = True
         handle = None
         
-        while more_to_come :
+        while more_to_come!=0 :
             try:
+                fle_tmp_tuple = tempfile.mkstemp(suffix='.bmp')
+                f = fle_tmp_tuple[0]
+                tmpFileName = fle_tmp_tuple[1];
+                os.close(f)
                 (handle, more_to_come) = self.sourceData.XferImageNatively()
-                S = twain.DIBToBMFile(handle)
-                f=open(self.tmpFileName,'w')
-                f.write(S)
-                data.theData.add_image( PIL.Image.open(self.tmpFileName) )
-                f.close()
+                twain.DIBToBMFile(handle,tmpFileName)
+                #os.write(f,S)
+                #os.close(f)
+                #self.sourceData.SetXferFileName(tmpFileName,twain.TWFF_BMP)
+                #more_to_come = self.sourceData.XferImageByFile()
+                im =  PIL.Image.open(tmpFileName)
+                im.load()
+                data.theData.add_image( im )
+                im = None
+                os.unlink(tmpFileName)
 #                img = FIPY.Image()
 #                img.load(self.tmpFileName)
 #                data.theData.add_image( img )
             except Exception,E:
-                print str(E)
+                logging.exception('Transfer error : ' + str(E))
                 break
         if handle : twain.GlobalHandleFree(handle)
+        #self.closeScanner()
+        self.sourceData.HideUI()
         if self.dataReadyCallback :
                 self.dataReadyCallback()
