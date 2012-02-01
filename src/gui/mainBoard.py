@@ -513,6 +513,9 @@ on other systems).
 The complete documentation can be found here : http://sites.google.com/site/malodospage/
 The latest version can be downloaded from here : http://code.google.com/p/malodos/
 If you like and use this software, please consider to donate to support its development.
+
+The author would like to thanks Christophe Terpreau, Bill Peters and Yves SAINT-GERARD for their very useful feedbacks \
+which are helping me debugging and improving the MALODOS.
 """
 
         licence = """MALODOS is free software; you can redistribute it and/or modify it 
