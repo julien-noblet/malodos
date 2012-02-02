@@ -55,7 +55,7 @@
          <Filename_Long></Filename_Long>
          <File_Size_Bytes>11198341</File_Size_Bytes>
          <File_Size_K></File_Size_K>
-         <File_Size_MB></File_Size_MB>
+         <File_Size_MB>10.7</File_Size_MB>
       </File_Info>
       <Expire_Info>
          <Has_Expire_Info></Has_Expire_Info>
@@ -107,8 +107,8 @@ La version 1.2 ajoute la possibilité de classer les documents dans des dossiers 
          <Application_XML_File_URL></Application_XML_File_URL>
       </Application_URLs>
       <Download_URLs>
-         <Primary_Download_URL>http://malodos.googlecode.com/files/MALODOS-1.2.exe</Primary_Download_URL>
-         <Secondary_Download_URL>http://malodos.googlecode.com/files/malodos-1.2.zip</Secondary_Download_URL>
+         <Primary_Download_URL>http://malodos.googlecode.com/files/MALODOS-1.2.1.exe</Primary_Download_URL>
+         <Secondary_Download_URL>http://malodos.googlecode.com/files/malodos-1.2.1.zip</Secondary_Download_URL>
          <Additional_Download_URL_1></Additional_Download_URL_1>
          <Additional_Download_URL_2></Additional_Download_URL_2>
       </Download_URLs>
