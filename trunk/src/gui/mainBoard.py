@@ -28,7 +28,7 @@ import data
 import documentToGo
 import webbrowser
 
-MALODOS_VERSION='1.2e'
+MALODOS_VERSION='1.2.1'
 
 class bugReportWindow(wx.Dialog):
     def __init__(self,parent):

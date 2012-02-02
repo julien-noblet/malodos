@@ -121,7 +121,7 @@ def get_available_languages():
         return enchant.list_languages()
 def is_accepted_ocr_word(word,dictList,knownTerms):
     try:
-        i = knownTerms.index(word)
+        knownTerms.index(word)
         return True
     except:
         pass

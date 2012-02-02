@@ -28,6 +28,7 @@ import database
 from database import theConfig
 from algorithms.general import str_to_bool
 import logging
+import Resources
 
 class OptionsWindow(wx.Dialog):
 	def __init__(self, parent, optList,defaultValues=None):
@@ -165,26 +166,51 @@ class ScanWindow(wx.Dialog):
 		self.panel = wx.Panel(self, -1)
 
 		self.totalWin = wx.BoxSizer(wx.VERTICAL)
-		self.upPart = wx.GridSizer(3,2)
+		self.upPart = wx.GridBagSizer(3,2)
 
 		self.stSource = wx.StaticText(self.panel,-1,_("Source :"))
-		self.btSource = wx.Button(self.panel, -1, _('Select Scanner'))
-		self.btScan = wx.Button(self.panel, -1, _('Scan'))
+		#self.btSource = wx.Button(self.panel, -1, _('Select Scanner'))
+
+		self.buttonPart = wx.BoxSizer(wx.HORIZONTAL)
+
+		self.btScan = wx.BitmapButton(self.panel,-1, wx.Bitmap(Resources.get_icon_filename('PERFORM_SCAN')))
+		self.btScan.SetToolTipString(_('Scan'))
+		self.buttonPart.Add(self.btScan ,0)
+
+		self.btAddScan = wx.BitmapButton(self.panel, 666, wx.Bitmap(Resources.get_icon_filename('ADD_PERFORM_SCAN')))
+		self.btAddScan.SetToolTipString(_('Add scan'))
+		self.buttonPart.Add(self.btAddScan ,0)
+
+		self.btSave = wx.BitmapButton(self.panel, -1, wx.Bitmap(Resources.get_icon_filename('RECORD_SCANNED')))
+		self.btSave.SetToolTipString(_('Record'))
+		self.buttonPart.Add(self.btSave ,0)
+
+		self.btSource = wx.BitmapButton(self.panel, -1, wx.Bitmap(Resources.get_icon_filename('CHOOSE_SCANNER')))
+		self.btSource.SetToolTipString(_('Select Scanner'))
+		self.buttonPart.Add(self.btSource ,0)
+
+		self.btOptions = wx.BitmapButton(self.panel,-1,wx.Bitmap(Resources.get_icon_filename('SCANNER_PREFERENCES')))
+		self.btOptions.SetToolTipString(_('Options'))
+		self.buttonPart.Add(self.btOptions ,0)
+
+
+		#self.btScan = wx.Button(self.panel, -1, _('Scan'))
 		#self.cbMultiplePage = wx.CheckBox(self.panel, -1, _('Manual MultiPage'))
-		self.btSave = wx.Button(self.panel, -1, _('Record'))
-		self.btOptions = wx.Button(self.panel,-1,_('Options'))
+		#self.btSave = wx.Button(self.panel, -1, _('Record'))
+		#self.btOptions = wx.Button(self.panel,-1,_('Options'))
 		
 		self.docWin = docWindow.docWindow(self.panel,-1)
 		self.recordPart = RecordWidget.RecordWidget(self.panel,file_style=wx.FLP_SAVE | wx.FLP_OVERWRITE_PROMPT | wx.FLP_USE_TEXTCTRL)
 		self.recordPart.cbOCR.SetValue(str_to_bool(theConfig.get_param('OCR', 'autoStart','1')))
 
-		self.upPart.Add(wx.StaticText(self.panel,-1,_("Source :")),0,wx.ALL | wx.ALIGN_CENTRE_VERTICAL)
-		self.upPart.Add(self.stSource,0,wx.ALL| wx.ALIGN_CENTRE_VERTICAL)
-		self.upPart.Add(self.btSource,0,wx.EXPAND | wx.CENTER)
-		self.upPart.Add(self.btScan,0,wx.EXPAND | wx.CENTER)
-		self.upPart.Add(self.btSave,0,wx.EXPAND | wx.CENTER)
+		self.upPart.Add(wx.StaticText(self.panel,-1,_("Source :")),(0,0),flag=wx.ALL | wx.ALIGN_CENTRE_VERTICAL)
+		self.upPart.Add(self.stSource,(0,1),flag=wx.ALL| wx.ALIGN_CENTRE_VERTICAL)
+		#self.upPart.Add(self.btSource,0,wx.EXPAND | wx.CENTER)
+		#self.upPart.Add(self.btScan,0,wx.EXPAND | wx.CENTER)
+		#self.upPart.Add(self.btSave,0,wx.EXPAND | wx.CENTER)
+		#self.upPart.Add(self.btOptions,0,wx.EXPAND | wx.CENTER)
 		#self.upPart.Add(self.cbMultiplePage,0,wx.EXPAND | wx.CENTER)
-		self.upPart.Add(self.btOptions,0,wx.EXPAND | wx.CENTER)
+		self.upPart.Add(self.buttonPart,(1,0),span=(1,2),flag=wx.ALIGN_TOP|wx.EXPAND)
 	
 		self.totalWin.Add(self.upPart,0,wx.ALIGN_TOP|wx.EXPAND)
 		self.totalWin.Add(self.recordPart,0,wx.EXPAND)
@@ -192,6 +218,7 @@ class ScanWindow(wx.Dialog):
 		# BINDING EVENTS
 		self.Bind(wx.EVT_BUTTON, self.actionChooseSource, self.btSource)
 		self.Bind(wx.EVT_BUTTON, self.actionPerformScan, self.btScan)
+		self.Bind(wx.EVT_BUTTON, self.actionPerformScan, self.btAddScan)
 		self.Bind(wx.EVT_BUTTON, self.actionSaveRecord, self.btSave)
 		self.Bind(wx.EVT_BUTTON, self.actionOpenOptions, self.btOptions)
 		# OTHER INITIALISATIIONS
@@ -255,7 +282,7 @@ class ScanWindow(wx.Dialog):
 #			if not  utilities.ask(_('Unable to set the scanner options. Do you want to proceed to scan anyway ?')) : return
 		
 #		cont=True
-		data.theData.clear_all()
+		if event.Id != 666 : data.theData.clear_all()
 		data.theData.current_image=0
 		self.do_scan()
 #		while cont:

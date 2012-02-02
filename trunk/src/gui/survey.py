@@ -18,6 +18,7 @@ from algorithms.general import str_to_bool
 import hashlib
 from database import theConfig
 import gui.utilities
+import logging
 class SurveyWindow(wx.Dialog):
     '''
     classdocs
@@ -74,7 +75,7 @@ class SurveyWindow(wx.Dialog):
                         if not currentItem : break
                     
                 if not currentItem :
-                    print 'problem for ' , relPath
+                    logging.error( 'problem for ' , relPath)
                     return
                 for f in dir_list:
                     fname = os.path.join(dr,f)
@@ -84,12 +85,16 @@ class SurveyWindow(wx.Dialog):
                     self.docList.AppendItem(currentItem,f,data=wx.TreeItemData('*'+fname))
             
             self.docList.DeleteAllItems() #self.docList.Clear()# 
-            rootItem = self.docList.AddRoot(_('Files not in database'),data=wx.TreeItemData("root"))
+            rootItem = self.docList.AddRoot(_('Files not in the database'),data=wx.TreeItemData("root"))
             (dir_list,recursiveIdx) = database.theConfig.get_survey_directory_list()
             for i in range(len(dir_list)):
                 dname = dir_list[i].decode('utf8')
                 if i in recursiveIdx:
-                    os.path.walk(dname,append_dir, dname )
+                    try:
+                        os.path.walk(dname,append_dir, dname )
+                    except Exception as E:
+                        logging.exception('Problem to survey path:'+dname+"=>"+str(E))
+                        continue
                 else:
                     append_dir(dname, dir_list[i].decode('utf8'), os.listdir(dir_list[i]))
             self.docList.ExpandAll()
@@ -175,7 +180,6 @@ class SurveyWindow(wx.Dialog):
                 filename = row[database.theBase.IDX_FILENAME]
                 title = row[database.theBase.IDX_TITLE]
                 description = row[database.theBase.IDX_DESCRIPTION]
-                documentDate = row[database.theBase.IDX_DOCUMENT_DATE]
                 tags = row[database.theBase.IDX_TAGS]
                 try:
                     imData = data.imageData.imageData()
@@ -303,13 +307,13 @@ class SurveyWindow(wx.Dialog):
             #problems = [0]*len(docLst)
             for row in docLst:
                 #row = docLst[i]
-                file    = row[database.db.Base.IDX_FILENAME]
                 md5_cs  = row[database.db.Base.IDX_CHECKSUM]
-                if not os.path.exists(file):
+                filename    = row[database.db.Base.IDX_FILENAME]
+                if not os.path.exists(filename):
                     #problems[i] = 1
                     self.docList.Append(row[database.theBase.IDX_TITLE] , row)
                     continue 
-                md5_file = hashlib.md5(open(file, "rb").read()).hexdigest()
+                md5_file = hashlib.md5(open(filename, "rb").read()).hexdigest()
                 if md5_file != md5_cs :
                     #problems[i] = 2
                     self.docList.Append(row[database.theBase.IDX_TITLE] , row)

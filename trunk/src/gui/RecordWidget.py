@@ -111,7 +111,6 @@ class RecordWidget(wx.Window):
         if ext.lower()=='':
             filename = name  + '.pdf'
             self.lbFileName.SetPath(filename)
-        print filename
 
     def getCurrentPart(self,pos,text): 
         pos1 = text.rfind(',',0,pos+1)
