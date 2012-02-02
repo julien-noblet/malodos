@@ -23,6 +23,7 @@ import Resources
 import shutil
 import zipfile
 import logging
+import re
 
 class ConfigReader(object):
     def __init__(self,conf_file=None):
@@ -788,12 +789,13 @@ class Base(object):
     #===========================================================================
     # get_keywords_from : find the keywords from a document
     #===========================================================================
-    def get_keywordsGroups_from(self,title,description,filename,tags,fullText=None):  
+    def get_keywordsGroups_from(self,title,description,filename,tags,fullText=None):
+        p=re.compile('[0-9a-z]{2,}', re.IGNORECASE)
         keywords_title = string.split(title, ' ')
-        keywords_title = [i.lower() for i in keywords_title if len(i)>3 and i.isalpha()]
+        keywords_title = [i.lower() for i in keywords_title if len(i)>3 and p.search(i) is not None]
         
         keywords_descr = string.split(description, ' ')
-        keywords_descr = [i.lower() for i in keywords_descr if len(i)>3 and i.isalpha()]
+        keywords_descr = [i.lower() for i in keywords_descr if len(i)>3 and  p.search(i) is not None]
         
         keywords_tag = string.split(tags , ',')
         keywords_tag =  map(lambda s:s.lower() , keywords_tag)
