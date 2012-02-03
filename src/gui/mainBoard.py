@@ -27,6 +27,7 @@ import algorithms.stringFunctions
 import data
 import documentToGo
 import webbrowser
+import logging
 
 MALODOS_VERSION='1.2.1'
 
@@ -51,7 +52,7 @@ class bugReportWindow(wx.Dialog):
         self.totalWin.Add(self.lbName,0,wx.ALL | wx.EXPAND)
          
         self.totalWin.Add(wx.StaticText(self.panel,-1,_('Description of the bug')),0,wx.ALL | wx.EXPAND)
-        self.lbDescription  =  wx.TextCtrl(self.panel, -1,style=wx.TE_MULTILINE | wx.TE_WORDWRAP)
+        self.lbDescription  =  wx.TextCtrl(self.panel, -1,style=wx.TE_MULTILINE | wx.TE_WORDWRAP | wx.TE_AUTO_URL | wx.TE_RICH2)
         self.totalWin.Add(self.lbDescription,1,wx.ALL | wx.EXPAND)
         
         self.buttons = wx.BoxSizer(wx.HORIZONTAL)
@@ -89,8 +90,8 @@ class FlatView(wx.NotebookPage):
     ID_CHRONO_REG=(3,_('Chronological (registering date)'))
     ID_PERTINENCE=(4,_('Relevance'))
     CHOICES=[ID_ALPHABETICAL,ID_CHRONO_DOC,ID_CHRONO_REG,]#ID_PERTINENCE]#
-    def __init__(self,parent,id,name,board):
-        wx.NotebookPage.__init__(self,parent,id,name=name)
+    def __init__(self,parent,idt,name,board):
+        wx.NotebookPage.__init__(self,parent,idt,name=name)
         self.board = board
         self.totSizer = wx.GridBagSizer()
         self.panel = wx.Panel(self, -1)
@@ -132,8 +133,8 @@ class FlatView(wx.NotebookPage):
         row = [self.lbDocuments.GetClientData(s) for s in sel]
         self.board.actionDocSelect(row)
 class FolderView(wx.NotebookPage):
-    def __init__(self,parent,id,name,board):
-        wx.NotebookPage.__init__(self,parent,id,name=name)
+    def __init__(self,parent,idt,name,board):
+        wx.NotebookPage.__init__(self,parent,idt,name=name)
         self.board = board
         self.totSizer = wx.BoxSizer(wx.VERTICAL)
         self.panel = wx.Panel(self, -1)
@@ -172,8 +173,8 @@ class FolderView(wx.NotebookPage):
 
 
 class TagFolderView(FolderView):
-    def __init__(self,parent,id,name,board):
-        FolderView.__init__(self,parent,id,name,board)
+    def __init__(self,parent,idt,name,board):
+        FolderView.__init__(self,parent,idt,name,board)
     def recursiveFill(self,baseItem,docList,refusedKeys,onlyTags):
         usedDoc=[]
         while len(docList)>0:
@@ -231,6 +232,7 @@ class MainFrame(wx.Frame):
     ID_CREDITS=8
     ID_SUPPORT=9
     ID_BUGREPORT=10
+    modified=False
     #===========================================================================
     # constructor (GUI building)
     #===========================================================================
@@ -266,6 +268,7 @@ class MainFrame(wx.Frame):
         self.tbMainBar.Realize()
         
         self.recordPart = RecordWidget.RecordWidget(self.docViewPanel)
+        self.recordPart.setModificationCallback(self.actionRecordModified)
         self.recordPart.lbFileName.Disable()
         self.recordSizer.Add(self.recordPart,1,wx.EXPAND)
         self.btUpdateRecord = wx.BitmapButton(self.docViewPanel,-1,wx.Bitmap(Resources.get_icon_filename('REFRESH')))
@@ -338,7 +341,9 @@ class MainFrame(wx.Frame):
         self.totalWin.Fit(self)
         self.Maximize()
         self.actionSearch(None)
-        
+    def actionRecordModified(self):
+        self.modified=True
+                
     def actionTestOCR(self,event):
         words_dict = data.theData.get_content()
         for w,n in words_dict.items() : print w + '(' + str(n) + ' fois)'
@@ -383,6 +388,12 @@ class MainFrame(wx.Frame):
     # actionDocSelect : show the selected item on the doc part
     #===========================================================================
     def actionDocSelect(self,row):
+        if self.modified and utilities.ask(_('The current record has modifications are not yet saved. Do you want to save it before selecting another record?')):
+            self.modified=False
+            self.actionUpdateRecord(None)
+        else:
+            self.modified=False
+            
         self.recordPart.setRow(row)
         if len(row)!=1  or row[0] is None: return
         row=row[0]
@@ -399,16 +410,19 @@ class MainFrame(wx.Frame):
                 if utilities.ask(_('The file content has changed! Do you wish to update its signature ?')):
                     if not database.theBase.update_doc_signature(docID, file_md5):
                         wx.MessageBox(_('Unable to update the database'))
-        except:
+        except Exception,E:
             utilities.show_message(_('Unable to check the file signature...'))
+            logging.exception('Error checking MD5 signature ->' + str(E))
         self.recordPart.SetFields(filename, title, description, documentDate,tags,False,folderID_list)
         #print row
         try:
             theData.load_file(filename)
             self.docWin.resetView()
             self.docWin.showCurrentImage()
-        except:
+        except Exception as E:
+            logging.exception('Unable to load image:'+str(E))
             theData.clear_all()
+        self.modified=False
         
     #===========================================================================
     # actionStartExternalApp : start the system default application associated with the file

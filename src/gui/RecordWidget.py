@@ -94,9 +94,21 @@ class RecordWidget(wx.Window):
         
         self.panel.SetSizerAndFit(self.totSizer)
         self.Bind(wx.EVT_SIZE,self.onResize)
+        self.lbTitle.Bind(wx.EVT_TEXT,self.notifyModification)
+        self.lbDescription.Bind(wx.EVT_TEXT,self.notifyModification)
+        self.lbDate.Bind(wx.EVT_DATE_CHANGED,self.notifyModification)
+        self.lbFileName.Bind(wx.EVT_FILEPICKER_CHANGED,self.notifyModification)
+        self.lbFolders.Bind(wx.EVT_LIST_DELETE_ITEM,self.notifyModification)
+        self.lbFolders.Bind(wx.EVT_LIST_INSERT_ITEM,self.notifyModification)
         #self.Bind(wx.EVT_FILEPICKER_CHANGED,self.checkFileName,self.lbFileName)
         self.lbFileName.Bind(wx.EVT_FILEPICKER_CHANGED, self.checkFileName)
+        self.modificationCallback=None
+    def setModificationCallback(self,callback_function=None):
+        self.modificationCallback=callback_function
+    def notifyModification(self,event=None):
+        if self.modificationCallback is not None : self.modificationCallback()
     def updateSelection(self,selection):
+        self.notifyModification()
         self.lbFolders.Clear()
         for folderID in selection:
             genealogy = database.theBase.folders_genealogy_of(folderID)
@@ -155,6 +167,7 @@ class RecordWidget(wx.Window):
         if len(P2)>0 : newPos=newPos+1
         self.lbTags.SetInsertionPoint(newPos)
     def action_autoCompleteTags(self):
+        self.notifyModification()
         s = self.defineWorkingString().lower()
         possibilities = database.theBase.find_keywords_by_prefix(s, database.theBase.ID_TAG)
         if possibilities and len(possibilities)>0 :
@@ -162,6 +175,7 @@ class RecordWidget(wx.Window):
         else:
             self.lbTags.SetChoices([])
     def action_autoCompleteTitle(self):
+        self.notifyModification()
         s = self.lbTitle.Value.lower()
         possibilities = database.theBase.find_field_by_prefix(s, 'title')
         if possibilities and len(possibilities)>0:
@@ -169,6 +183,7 @@ class RecordWidget(wx.Window):
         else:
             self.lbTitle.SetChoices([])
     def clear_all(self):
+        self.notifyModification()
         self.lbFileName.SetPath('')
         self.lbTitle.SetValue('')
         self.lbDescription.SetValue('')
@@ -179,6 +194,7 @@ class RecordWidget(wx.Window):
     def getRow(self):
         return self.row
     def SetFields(self,filename=None,title=None,description=None,date=None,tags=None,doOCR=None,selectedList=None):
+        self.notifyModification()
         if not filename is None: self.lbFileName.SetPath(filename)
         if not title is None : self.lbTitle.SetValue(title)
         if not description is None : self.lbDescription.SetValue(description)
