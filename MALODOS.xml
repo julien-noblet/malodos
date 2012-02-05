@@ -36,11 +36,11 @@
    </Company_Info>
    <Program_Info>
       <Program_Name>MALODOS</Program_Name>
-      <Program_Version>1.2-beta1</Program_Version>
+      <Program_Version>1.2.2</Program_Version>
       <Program_Release_Month></Program_Release_Month>
       <Program_Release_Day></Program_Release_Day>
       <Program_Release_Year></Program_Release_Year>
-      <Program_Cost_Dollars></Program_Cost_Dollars>
+      <Program_Cost_Dollars>0</Program_Cost_Dollars>
       <Program_Cost_Other_Code>EUR</Program_Cost_Other_Code>
       <Program_Cost_Other></Program_Cost_Other>
       <Program_Type>Freeware</Program_Type>
@@ -100,15 +100,15 @@ La version 1.2 ajoute la possibilité de classer les documents dans des dossiers 
    </Program_Descriptions>
    <Web_Info>
       <Application_URLs>
-         <Application_Info_URL>https://sites.google.com/site/malodospage</Application_Info_URL>
+         <Application_Info_URL>http://sites.google.com/site/malodospage</Application_Info_URL>
          <Application_Order_URL></Application_Order_URL>
          <Application_Screenshot_URL>https://sites.google.com/site/malodospage/_/rsrc/1301396631368/home/documentation/main_board.JPG</Application_Screenshot_URL>
          <Application_Icon_URL>http://malodos.googlecode.com/svn/trunk/resources/icons/application.png</Application_Icon_URL>
          <Application_XML_File_URL></Application_XML_File_URL>
       </Application_URLs>
       <Download_URLs>
-         <Primary_Download_URL>http://malodos.googlecode.com/files/MALODOS-1.2.1.exe</Primary_Download_URL>
-         <Secondary_Download_URL>http://malodos.googlecode.com/files/malodos-1.2.1.zip</Secondary_Download_URL>
+         <Primary_Download_URL>http://malodos.googlecode.com/files/MALODOS-1.2.2.exe</Primary_Download_URL>
+         <Secondary_Download_URL>http://malodos.googlecode.com/files/malodos-1.2.2.zip</Secondary_Download_URL>
          <Additional_Download_URL_1></Additional_Download_URL_1>
          <Additional_Download_URL_2></Additional_Download_URL_2>
       </Download_URLs>
