@@ -282,7 +282,7 @@ class ScanWindow(wx.Dialog):
 #			if not  utilities.ask(_('Unable to set the scanner options. Do you want to proceed to scan anyway ?')) : return
 		
 #		cont=True
-		if event.Id != 666 : data.theData.clear_all()
+		if event is not None and event.Id != 666 : data.theData.clear_all()
 		data.theData.current_image=0
 		self.do_scan()
 #		while cont:
