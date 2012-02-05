@@ -29,7 +29,7 @@ import documentToGo
 import webbrowser
 import logging
 
-MALODOS_VERSION='1.2.1'
+MALODOS_VERSION='1.2.2'
 
 class bugReportWindow(wx.Dialog):
     def __init__(self,parent):
