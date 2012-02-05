@@ -221,6 +221,7 @@ class ScanWindow(wx.Dialog):
 		self.Bind(wx.EVT_BUTTON, self.actionPerformScan, self.btAddScan)
 		self.Bind(wx.EVT_BUTTON, self.actionSaveRecord, self.btSave)
 		self.Bind(wx.EVT_BUTTON, self.actionOpenOptions, self.btOptions)
+		self.Bind(wx.EVT_CLOSE,self.onClose)
 		# OTHER INITIALISATIIONS
 		if os.name == 'posix' :
 			self.scanner = saneAccess.SaneAccess(self.GetHandle(),self.onNewScannerData)
@@ -245,6 +246,8 @@ class ScanWindow(wx.Dialog):
 		data.theData.clear_all()
 		if str_to_bool(database.theConfig.get_param('scanner', 'autoScan','False',True)) :
 			self.actionPerformScan(None)
+	def onClose(self,event):
+		if len(data.theData.pil_images)==0 or utilities.ask(_('The scanned images are not saved. Are you sure you want to quit the scan window?')) : self.Destroy()
 	def actionOpenOptions(self,event):
 		opts = self.scanner.get_options()
 		self.scanner.closeScanner()
