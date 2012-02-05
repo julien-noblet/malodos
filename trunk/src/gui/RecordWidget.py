@@ -76,7 +76,7 @@ class RecordWidget(wx.Window):
         self.txtFieldSizer.Add(self.lbDate,1)
               
 #        self.txtOCR = wx.StaticText(self.panel , -1 , _('do OCR'))
-        self.cbOCR = wx.CheckBox(self.panel , -1,label=_('do OCR'))
+        self.cbOCR = wx.CheckBox(self.panel , -1,label=_('rescan for OCR'))
 #        self.txtFieldSizer.Add(self.txtOCR,0)
         self.txtFieldSizer.Add(self.cbOCR,1)
         
