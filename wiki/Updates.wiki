@@ -29,3 +29,17 @@ Several new features added.
 
 Beside these new features, the  database format was enforced and modified. An automatic upgrade of the database format is made on the first start-up of this version, but a backup is performed before any irreversible operation.
 
+== Notes on version 1.2.2  ==
+
+This version mainly removes bugs occuring when running under the MS WINDOWS, that prevented the users to save scan images to disk.
+Some new options were added on the preference dialog for the scanner tab. These options allows to
+  * define a default folder for saving document and/or to use the last folder each time
+  * automatically start a new scan when the scanner dialog opens
+  * defining an automatic filename with a user defined prefix followed by an automatic increasing number
+  * choose between closing or keeping the scanner dialog open after a new scan
+  * reset or not the metadata fields between two scans, in case the dialog doesn't close automatically after scan.
+
+Moreover, two new buttons were added to the main panel, the first one allowing to send me a bug report via e-mail (this option is for people affraid of using the bugreport system of this site, which is the prefered way...). The second button is a shortcut to donating for the developement of MALODOS, via paypal.
+
+Finaly, a confirmation dialog is now appearing if any meta-data field is modified for a record and if the user is clicking into another record before saving the changes.
+Another confirmation dialog is also appearing if, after a new scan, the user tries to close the scan window before saving the data to the disk.
