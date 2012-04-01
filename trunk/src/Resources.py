@@ -18,7 +18,11 @@ import ConfigParser
 resourceContent = None
 
 def get_resource_dir():
-    return os.path.join(os.path.dirname(sys.argv[0]),'../resources')
+    tst = os.path.join(os.path.dirname(os.path.dirname(database.__file__)),'resources')
+    if os.path.isdir(tst) : return tst
+    tst = os.path.join(os.path.dirname(sys.argv[0]),'../resources')
+    if os.path.isdir(tst) : return tst
+    return os.path.join(os.path.dirname(sys.argv[0]),'resources')
 def read_resource_file():
     global resourceContent
     try:
@@ -33,7 +37,7 @@ def get_icon_filename(icon_id):
     if not resourceContent : read_resource_file()
     try:
         name = resourceContent.get('icons',icon_id)
-        fname= os.path.join(os.path.dirname(sys.argv[0]),'../resources/icons',name)
+        fname= os.path.join(get_resource_dir(),'icons',name)
         return fname
     except:
         return ''

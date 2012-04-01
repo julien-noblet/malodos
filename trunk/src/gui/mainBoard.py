@@ -28,8 +28,9 @@ import data
 import documentToGo
 import webbrowser
 import logging
+import requestBuilder
 
-MALODOS_VERSION='1.2.2'
+MALODOS_VERSION='1.2.2d'
 
 class bugReportWindow(wx.Dialog):
     def __init__(self,parent):
@@ -84,6 +85,7 @@ class bugReportWindow(wx.Dialog):
         webbrowser.open('mailto:guezdav@gmail.com?subject={0}&body={1}'.format(subject,body ))
         self.Close()
 
+
 class FlatView(wx.NotebookPage):
     ID_ALPHABETICAL=(1,_('Alphabetical'))
     ID_CHRONO_DOC=(2,_('Chronological (document)'))
@@ -95,19 +97,28 @@ class FlatView(wx.NotebookPage):
         self.board = board
         self.totSizer = wx.GridBagSizer()
         self.panel = wx.Panel(self, -1)
+        self.panel.SetLabel(_('Ascending order'))
         self.lbDocuments = wx.ListBox(self.panel, -1,style=wx.LB_EXTENDED )
         listChoices = [c[1] for c in self.CHOICES]
         self.cbOrder = wx.ComboBox(self.panel,-1,choices=listChoices)
         self.cbOrder.SetSelection(0)
+        self.chkInvertOrder = wx.CheckBox(self.panel,-1)
         self.totSizer.Add(wx.StaticText(self.panel,label=_('Classification')),(0,0),flag=wx.EXPAND)
         self.totSizer.Add(self.cbOrder,(0,1),flag=wx.EXPAND)
-        self.totSizer.Add(self.lbDocuments,(1,0),span=(1,2),flag=wx.EXPAND)
+        self.totSizer.Add(self.chkInvertOrder,(0,2),flag=wx.EXPAND)
+        self.totSizer.Add(wx.StaticText(self.panel,label=_('Ascending order')),(0,3),flag=wx.EXPAND)
+        self.totSizer.Add(self.lbDocuments,(1,0),span=(1,4),flag=wx.EXPAND)
         self.totSizer.AddGrowableRow(1)
         self.totSizer.AddGrowableCol(1)
         self.panel.SetSizerAndFit(self.totSizer)
         self.Bind(wx.EVT_LISTBOX,self.action_select,self.lbDocuments)
         self.Bind(wx.EVT_COMBOBOX,self.show_content,self.cbOrder)
+        self.Bind(wx.EVT_CHECKBOX,self.show_content,self.chkInvertOrder)
+        self.lbDocuments.Bind(wx.EVT_CONTEXT_MENU,self.contextualMenu)
         self.docList=None
+    def contextualMenu(self,event):
+        row = self.get_selection()
+        self.lbDocuments.PopupMenu(self.board.create_menu(row))
     def fillWith(self,docList):
         self.docList = docList
         self.show_content()
@@ -118,19 +129,22 @@ class FlatView(wx.NotebookPage):
         if sel is None : return
         sel = self.CHOICES[sel][0]
         if sel == self.ID_ALPHABETICAL[0]:
-            self.docList.sort(key=lambda row:row[database.theBase.IDX_TITLE].lower())
+            self.docList.sort(key=lambda row:row[database.theBase.IDX_TITLE].lower(),reverse=self.chkInvertOrder.Value)
         elif sel == self.ID_CHRONO_DOC[0]:
-            self.docList.sort(key=lambda row:row[database.theBase.IDX_DOCUMENT_DATE])
+            self.docList.sort(key=lambda row:row[database.theBase.IDX_DOCUMENT_DATE],reverse=self.chkInvertOrder.Value)
         elif sel == self.ID_CHRONO_REG[0]:
-            self.docList.sort(key=lambda row:row[database.theBase.IDX_REGISTER_DATE])
+            self.docList.sort(key=lambda row:row[database.theBase.IDX_REGISTER_DATE],reverse=self.chkInvertOrder.Value)
         elif sel == self.ID_PERTINENCE[0] and database.theBase.IDX_COUNT<len(self.docList[0]):
-            self.docList.sort(key=lambda row:row[database.theBase.IDX_COUNT])
+            self.docList.sort(key=lambda row:row[database.theBase.IDX_COUNT],reverse=self.chkInvertOrder.Value)
         for row in self.docList:
             self.lbDocuments.Append(row[database.theBase.IDX_TITLE] , row)
-    def action_select(self,event):
+    def get_selection(self):
         sel = self.lbDocuments.GetSelections()
         if sel == wx.NOT_FOUND: return
         row = [self.lbDocuments.GetClientData(s) for s in sel]
+        return row
+    def action_select(self,event):
+        row = self.get_selection()
         self.board.actionDocSelect(row)
 class FolderView(wx.NotebookPage):
     def __init__(self,parent,idt,name,board):
@@ -142,6 +156,10 @@ class FolderView(wx.NotebookPage):
         self.totSizer.Add(self.trFolders,1,wx.EXPAND)
         self.panel.SetSizerAndFit(self.totSizer)
         self.Bind(wx.EVT_TREE_SEL_CHANGED,self.action_select,self.trFolders)
+        self.trFolders.Bind(wx.EVT_TREE_ITEM_MENU,self.contextualMenu)
+    def contextualMenu(self,event):
+        row = self.get_selection()
+        self.trFolders.PopupMenu(self.board.create_menu(row))
     def fillWith(self,docList):
         self.trFolders.DeleteAllItems()
         if docList is None : return
@@ -165,9 +183,11 @@ class FolderView(wx.NotebookPage):
                         itemDict[fID] = item
                 self.trFolders.AppendItem(item,title,data=wx.TreeItemData(row))
         #self.trFolders.Expand(rootItem)
-    def action_select(self,event):
+    def get_selection(self):
         items = self.trFolders.GetSelections()
-        row  = [self.trFolders.GetPyData(item) for item in items]
+        return [self.trFolders.GetPyData(item) for item in items]
+    def action_select(self,event):
+        row=self.get_selection()
         self.board.actionDocSelect(row)
 
 
@@ -232,6 +252,7 @@ class MainFrame(wx.Frame):
     ID_CREDITS=8
     ID_SUPPORT=9
     ID_BUGREPORT=10
+    ID_DOCBASKET=11
     modified=False
     #===========================================================================
     # constructor (GUI building)
@@ -259,6 +280,7 @@ class MainFrame(wx.Frame):
         self.tbMainBar.AddLabelTool(self.ID_ADD_SCAN,'',wx.Bitmap(Resources.get_icon_filename('ADD_SCAN')),shortHelp=_('Scanning a new document'))
         self.tbMainBar.AddLabelTool(self.ID_REMOVE_SEL,'',wx.Bitmap(Resources.get_icon_filename('REMOVE_SELECTION')),shortHelp=_('Remove the current selection from the database'))
         self.tbMainBar.AddLabelTool(self.ID_PRINT_DOC,'',wx.Bitmap(Resources.get_icon_filename('DOC_PRINT')),shortHelp=_('Print the selected document'))
+        self.tbMainBar.AddLabelTool(self.ID_DOCBASKET,'',wx.Bitmap(Resources.get_icon_filename('DOC_BASKET')),shortHelp=Resources.get_message('DOC_BASKET'))
         self.tbMainBar.AddLabelTool(self.ID_DOCTOGO,'',wx.Bitmap(Resources.get_icon_filename('DOC_ZIP')),shortHelp=Resources.get_message('DOC_ZIP'))
         self.tbMainBar.AddLabelTool(self.ID_SURVEY,'',wx.Bitmap(Resources.get_icon_filename('SURVEY_WIN')),shortHelp=_('Open the directory survey window'))
         self.tbMainBar.AddLabelTool(self.ID_PREFS,'',wx.Bitmap(Resources.get_icon_filename('PREFS')),shortHelp=_('Set preferences'))
@@ -299,7 +321,7 @@ class MainFrame(wx.Frame):
         self.label2 = wx.StaticText(self.panel, -1, _('filter :'))
         self.tbFilter = wx.TextCtrl(self.panel, -1, '',style=wx.TE_PROCESS_ENTER)
         self.btBuildFilter = wx.Button(self.panel, -1, _('advanced'))
-        self.btBuildFilter.Hide()
+        #self.btBuildFilter.Hide()
         
 
         # sizers
@@ -334,6 +356,7 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_TOOL,self.actionReport,id=self.ID_BUGREPORT)
         self.Bind(wx.EVT_BUTTON,self.actionStartExternalApp,self.btShowExternal)
         self.Bind(wx.EVT_BUTTON,self.actionUpdateRecord,self.btUpdateRecord)
+        self.Bind(wx.EVT_BUTTON,self.actionBuildRequest,self.btBuildFilter)
         #self.Bind(wx.EVT_BUTTON,self.actionTestOCR,self.btDoOCR)
 
         # layout assignment
@@ -341,6 +364,19 @@ class MainFrame(wx.Frame):
         self.totalWin.Fit(self)
         self.Maximize()
         self.actionSearch(None)
+
+    def create_menu(self,row):
+        menu=wx.Menu()
+        menu.Append(10,_('Remove this document'))
+        menu.Append(10,_('Add to the basket'))
+        menu.Append(10,_('Remove from the basket'))
+        menu.Append(10,_('Add a file content to this document'))
+        menu.Append(20,_('Add a scan to this document'))
+        menu.Append(30,_('Merge with'))
+        return menu
+    def actionBuildRequest(self,event):
+        builder = requestBuilder.builder(self)
+        builder.ShowModal()
     def actionRecordModified(self):
         self.modified=True
                 

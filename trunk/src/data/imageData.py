@@ -12,6 +12,8 @@ singleton class for memory bitmap data management and sharing
 
 
 from PIL import Image , ImageSequence
+
+
 #try:
 #    import reportlab
 #except:
@@ -28,6 +30,7 @@ import os.path
 import algorithms.words
 import gui.utilities
 import logging
+import Resources
 
 class imageData(object):
     val = None
@@ -40,7 +43,7 @@ class imageData(object):
     subject=None
     keywords=None
     def __init__(self):
-        void_file = os.path.join(os.path.dirname(sys.argv[0]),'../resources','no_preview.png')
+        void_file = os.path.join(Resources.get_resource_dir(),'no_preview.png')
         self.image_void = Image.open(void_file)
     def change_image(self,delta):
         " change the current page by delta"
@@ -202,4 +205,4 @@ class imageData(object):
                 self.add_image(I)
             self.current_image=0
         except Exception,E:
-            print "Unable to open the file %s due to %s" % (filename,str(E))
+            logging.exception("Unable to open the file %s due to %s") % (filename,str(E))
