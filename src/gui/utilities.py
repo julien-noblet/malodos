@@ -18,6 +18,10 @@ def ask(message):
     return dlg.ShowModal()==wx.ID_YES
 def ask_string(message,caption=_('String expected'),defaultValue=''):
     return wx.GetTextFromUser(message,caption,defaultValue)
+def ask_folder(msg='Choose a folder'):
+    dlg = wx.DirDialog(parent=wx.GetActiveWindow(),message=msg)
+    dlg.ShowModal()
+    return dlg.GetPath()
 
 class ProgressDialog:
     def __init__(self,title='Progression',message=None):

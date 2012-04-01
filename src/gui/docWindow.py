@@ -21,10 +21,10 @@ class docWindow(wx.Window) :
     #===========================================================================
     # constructor (gui building)
     #===========================================================================
-    def __init__(self, parent,id):
+    def __init__(self, parent,doc_id):
         self.center = [0.5 , 0.5]
         self.window=[1.0,1.0]
-        wx.Window.__init__(self, parent, id)
+        wx.Window.__init__(self, parent, doc_id)
         self.panel = wx.Panel(self, -1)
         self.img = None
         self.totalWin = wx.BoxSizer(wx.VERTICAL)
@@ -52,6 +52,7 @@ class docWindow(wx.Window) :
         self.lbImage = wx.StaticText(self.panel,-1,_('No page'))
 
         self.canvas = wx.StaticBitmap(self.panel, -1)
+        self.canvas.SetDoubleBuffered(True)
         self.totalWin.Add(self.buttonPart,0,wx.ALIGN_TOP|wx.EXPAND)
         self.totalWin.Add(self.canvas,1,wx.GROW|wx.EXPAND|wx.ALIGN_CENTER)
         self.buttonPart.Add(self.btLeft ,0)

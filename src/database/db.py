@@ -24,6 +24,7 @@ import shutil
 import zipfile
 import logging
 import re
+import sys
 
 class ConfigReader(object):
     def __init__(self,conf_file=None):
@@ -70,7 +71,8 @@ class ConfigReader(object):
                 self.config.write(theFile)
                 theFile.close()
                 return True
-            except:
+            except Exception as E:
+                logging.exception('Unable to commit config :' + str(E))
                 return False
 
 class OCRConfiguration(ConfigReader):
@@ -144,33 +146,53 @@ class OCRConfiguration(ConfigReader):
 
 class Configuration(ConfigReader):
     def __init__(self):
+        # code from http://zhigang.org/wiki/PythonTips
+        try:
+            from win32com.shell import shellcon, shell
+            self.conf_dir = shell.SHGetFolderPath(0, shellcon.CSIDL_PERSONAL, 0, 0)
+            self.conf_dir = os.path.abspath(os.path.join(self.conf_dir,'..'))
+            self.conf_dir=unicode(self.conf_dir)
+        except Exception as EE: # quick semi-nasty fallback for non-windows/win32com case
+            #logging.exception(str(EE))
+            self.conf_dir = os.path.expanduser("~")
+        # end of code from http://zhigang.org/wiki/PythonTips
         if os.name=='nt':
-            self.conf_dir = os.path.join(os.path.expanduser('~'),'malodos')
+            self.conf_dir = os.path.join(self.conf_dir,'malodos')
         else:
-            self.conf_dir = os.path.join(os.path.expanduser('~'),'.malodos')
+            self.conf_dir = os.path.join(self.conf_dir,'.malodos')
+        #print type(self.conf_dir) , self.conf_dir
+        
         if not os.path.isdir(self.conf_dir) :
             try:
                 os.mkdir(self.conf_dir)
-            except:
+            except Exception as E:
+                logging.exception('Unable to create the folder' + self.conf_dir + '->' + str(E))
+                self.conf_dir = raw_input(_('Choose a folder for the MALODOS configuration and database'))
+                if not os.path.isdir(self.conf_dir) :
+                    try:
+                        os.mkdir(self.conf_dir)
+                    except Exception as E2:
+                        logging.exception('Unable to create the folder' + self.conf_dir + '->' + str(E2))
                 ConfigReader.__init__(self)
                 return
         if not os.path.exists(self.conf_dir) :
+            logging.exception('Unable to get the folder' + self.conf_dir)
             ConfigReader.__init__(self)
             return
         conf_file = os.path.join(self.conf_dir,'malodos.ini')
-        fillConf = not os.path.exists(conf_file) 
+        fillConf = not os.path.exists(conf_file)
         ConfigReader.__init__(self,conf_file)
         if  fillConf and os.path.exists(self.conf_file) and self.config is not None:
-            self.config.add_section('database')
-            self.set_database_name( os.path.join(self.conf_dir,'malodos.db'))
-            self.config.add_section('scanner')
-            self.set_current_scanner('None')
-            self.config.add_section('language')
-            self.set_installed_languages(u'english')
-            self.set_current_language('english')
             self.config.add_section('survey')
             self.set_survey_directory_list( (os.path.join(self.conf_dir,'documents'),) , (0,))
             self.set_survey_extension_list( 'png tif tiff pdf jpg jpeg gif bmp' )
+            self.config.add_section('scanner')
+            self.set_current_scanner('None')
+            self.config.add_section('language')
+            self.set_installed_languages('english')
+            self.set_current_language('english')
+            self.config.add_section('database')
+            self.set_database_name( os.path.join(self.conf_dir,'malodos.db'))
             self.commit_config()
         self.read_config()
 
@@ -198,9 +220,9 @@ class Configuration(ConfigReader):
     def set_current_scanner(self,S):
         return self.set_param('scanner', 'source',S)
     def get_database_name(self):
-        return self.get_param('database', 'filename')
+        return self.get_param('database', 'filename').decode('utf8')
     def set_database_name(self,S):
-        return self.set_param('database', 'filename',S)
+        return self.set_param('database', 'filename',S.encode('utf8'))
     def get_resource_filename(self):
         return self.get_param('general', 'resourceFile')
     def get_ocr_confname(self):
@@ -213,7 +235,7 @@ class Configuration(ConfigReader):
         answer = ""
         for i in range(len(dir_list)) :
             if i in checked : answer = answer + '*'
-            answer = answer + dir_list[i] + '|'
+            answer = answer + dir_list[i].encode('utf8') + '|'
         return answer
     def decode_dir_list(self,S):
         items_list = S.split('|')
@@ -226,7 +248,7 @@ class Configuration(ConfigReader):
             if item[0] == '*' :
                 checked.append(len(dir_list))
                 item=item[1:]
-            dir_list.append(item)
+            dir_list.append(item.decode('utf8'))
         return (dir_list , checked)
 
 
@@ -272,6 +294,7 @@ class Base(object):
         '''
         self.use_base(base_name)
     def use_base(self,base_name):
+        #print str(type(base_name)) + '+' + base_name 
         self.connexion = sqlite3.connect(base_name, detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
         self.base_name = base_name
         if os.name == 'nt' or os.name == 'win32' :
@@ -362,8 +385,8 @@ class Base(object):
             try:
                 self.connexion.execute(sql_statement)
                 self.connexion.commit()
-            except:
-                pass
+            except Exception as E:
+                logging.exception('error in commit->'+str(E))
         sql_statement = 'create view if not exists fullDoc as select D.title as title,D.description,D.filename,D.registerDate,D.registeringPersonID,D.documentDate,D.tags,D.checksum, D.RowID docID,K.keyword,K.soundex_word as soundex_word,DW.field,DW.count '
         sql_statement += 'FROM ' + self.keywords_tableName + ' K,' + self.documents_tableName + ' D,'
         sql_statement += self.docWords_tableName + ' DW'

@@ -200,11 +200,14 @@ class RecordWidget(wx.Window):
         if not description is None : self.lbDescription.SetValue(description)
         if not tags is None : self.lbTags.SetValue(tags)
         if not date is None :
-            dt = wx.DateTime.Today()
-            dt.SetDay(date.day)
-            dt.SetMonth(date.month-1)
-            dt.SetYear(date.year)
-            self.lbDate.SetValue(dt)
+            try:
+                dt = wx.DateTime.Today()
+                dt.SetDay(date.day)
+                dt.SetMonth(date.month-1)
+                dt.SetYear(date.year)
+                self.lbDate.SetValue(dt)
+            except Exception as E:
+                logging.exception('Unable to set the date to the date' + str(date) + '->'+str(E))
         if not doOCR is None : self.cbOCR.SetValue(doOCR)
         if not selectedList is None :
             self.vFold.setSelectedList(selectedList)

@@ -16,7 +16,10 @@ import os
 import codecs
 from PIL import Image
 import database
-import enchant
+try:
+    import enchant
+except:
+    pass
 import gui.utilities
 from general import str_to_bool
 from PIL import ImageFilter
@@ -118,7 +121,10 @@ def phonex(word):
     return word
 
 def get_available_languages():
+    try:
         return enchant.list_languages()
+    except:
+        return []
 def is_accepted_ocr_word(word,dictList,knownTerms):
     try:
         knownTerms.index(word)

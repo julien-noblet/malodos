@@ -14,12 +14,14 @@ import os
 import locale
 import sys
 import logging
+import algorithms
 
-exe_name=None
-try:
-    exe_name = os.getcwd()
-except:
-    pass
+exe_name = os.path.dirname(os.path.abspath(os.path.join(algorithms.__file__,'..')))
+if not exe_name:
+    try:
+        exe_name = os.getcwd()
+    except:
+        pass
 if not exe_name :
     try:
         exe_name = os.path.dirname(os.path.realpath(sys.executable))
