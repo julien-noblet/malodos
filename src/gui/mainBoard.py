@@ -98,6 +98,101 @@ class FlatView(wx.NotebookPage):
         self.totSizer = wx.GridBagSizer()
         self.panel = wx.Panel(self, -1)
         self.panel.SetLabel(_('Ascending order'))
+        #self.lbDocuments = wx.ListBox(self.panel, -1,style=wx.LB_EXTENDED )
+        self.lbDocuments = wx.ListCtrl(self.panel, -1,style=wx.LC_REPORT)
+        self.lbDocuments.InsertColumn(0,'Document name',width=800)
+        self.idDict = dict()
+        listChoices = [c[1] for c in self.CHOICES]
+        self.cbOrder = wx.ComboBox(self.panel,-1,choices=listChoices)
+        self.cbOrder.SetSelection(0)
+        self.chkInvertOrder = wx.CheckBox(self.panel,-1)
+        self.totSizer.Add(wx.StaticText(self.panel,label=_('Classification')),(0,0),flag=wx.EXPAND)
+        self.totSizer.Add(self.cbOrder,(0,1),flag=wx.EXPAND)
+        self.totSizer.Add(self.chkInvertOrder,(0,2),flag=wx.EXPAND)
+        self.totSizer.Add(wx.StaticText(self.panel,label=_('Ascending order')),(0,3),flag=wx.EXPAND)
+        self.totSizer.Add(self.lbDocuments,(1,0),span=(1,4),flag=wx.EXPAND)
+        self.totSizer.AddGrowableRow(1)
+        self.totSizer.AddGrowableCol(1)
+        self.panel.SetSizerAndFit(self.totSizer)
+        #self.Bind(wx.EVT_LISTBOX,self.action_select,self.lbDocuments)
+        self.Bind(wx.EVT_LIST_ITEM_SELECTED,self.action_select,self.lbDocuments)
+        self.Bind(wx.EVT_COMBOBOX,self.show_content,self.cbOrder)
+        self.Bind(wx.EVT_CHECKBOX,self.show_content,self.chkInvertOrder)
+        self.lbDocuments.Bind(wx.EVT_CONTEXT_MENU,self.contextualMenu)
+        self.lbDocuments.Bind(wx.EVT_LEFT_DCLICK,self.action_add_to_basket)
+        self.docList=None
+    def action_add_to_basket(self,event):
+        idt = self.lbDocuments.GetItemData(self.lbDocuments.GetFocusedItem())
+        rowList = [self.idDict[idt]]
+        self.board.basket_add_remove(rowList)
+        
+    def contextualMenu(self,event):
+        row = self.get_selection()
+        self.lbDocuments.PopupMenu(self.board.create_menu(row))
+    def fillWith(self,docList):
+        self.docList = docList
+        self.show_content()
+    def show_content(self,event=None):
+        #self.lbDocuments.Clear()
+        self.lbDocuments.DeleteAllItems()
+        if self.docList is None or len(self.docList)==0: return
+        sel = self.cbOrder.GetSelection()
+        if sel is None : return
+        sel = self.CHOICES[sel][0]
+        if sel == self.ID_ALPHABETICAL[0]:
+            self.docList.sort(key=lambda row:row[database.theBase.IDX_TITLE].lower(),reverse=self.chkInvertOrder.Value)
+        elif sel == self.ID_CHRONO_DOC[0]:
+            self.docList.sort(key=lambda row:row[database.theBase.IDX_DOCUMENT_DATE],reverse=self.chkInvertOrder.Value)
+        elif sel == self.ID_CHRONO_REG[0]:
+            self.docList.sort(key=lambda row:row[database.theBase.IDX_REGISTER_DATE],reverse=self.chkInvertOrder.Value)
+        elif sel == self.ID_PERTINENCE[0] and database.theBase.IDX_COUNT<len(self.docList[0]):
+            self.docList.sort(key=lambda row:row[database.theBase.IDX_COUNT],reverse=self.chkInvertOrder.Value)
+        for row in self.docList:
+            title= row[database.theBase.IDX_TITLE]
+            #if row[database.theBase.IDX_ROWID] in self.board.basket : title='---  ' + title + '   ---' 
+            #self.lbDocuments.Append( title , row)
+            #n_it = self.lbDocuments.GetItemCount()
+
+            idt = wx.NewId()
+            self.idDict[idt] = row
+
+            itm = wx.ListItem()
+            itm.SetText(title)
+            itm.SetData(idt)
+            itm.SetColumn(0)
+
+            n_it = self.lbDocuments.InsertItem(itm )
+            if row[database.theBase.IDX_ROWID] in self.board.basket_idList() : self.lbDocuments.SetItemTextColour(n_it,wx.RED)
+            #self.lbDocuments.SetItemData(n_it,row)
+            #item = self.lbDocuments.FindString(title)
+            #if row[database.theBase.IDX_ROWID] in self.board.basket : self.lbDocuments.SetItemForegroundColour(item,(255,0,0))
+            #self.lbDocuments.SetItemBackgroundColour(item,'#990000')
+    def get_selection(self):
+        #sel = self.lbDocuments.GetSelections()
+        #if sel == wx.NOT_FOUND: return
+        #row = [self.lbDocuments.GetClientData(s) for s in sel]
+        sel=[]
+        for i in range(self.lbDocuments.ItemCount) :
+            if  self.lbDocuments.IsSelected(i)  : sel.append(i)
+        row = [self.idDict[self.lbDocuments.GetItemData(s)] for s in sel]
+        return row
+    def action_select(self,event):
+        row = self.get_selection()
+        self.board.actionDocSelect(row)
+
+
+class BasketView(wx.NotebookPage):
+    ID_ALPHABETICAL=(1,_('Alphabetical'))
+    ID_CHRONO_DOC=(2,_('Chronological (document)'))
+    ID_CHRONO_REG=(3,_('Chronological (registering date)'))
+    ID_PERTINENCE=(4,_('Relevance'))
+    CHOICES=[ID_ALPHABETICAL,ID_CHRONO_DOC,ID_CHRONO_REG,]#ID_PERTINENCE]#
+    def __init__(self,parent,idt,name,board):
+        wx.NotebookPage.__init__(self,parent,idt,name=name)
+        self.board = board
+        self.totSizer = wx.GridBagSizer()
+        self.panel = wx.Panel(self, -1)
+        self.panel.SetLabel(_('Ascending order'))
         self.lbDocuments = wx.ListBox(self.panel, -1,style=wx.LB_EXTENDED )
         listChoices = [c[1] for c in self.CHOICES]
         self.cbOrder = wx.ComboBox(self.panel,-1,choices=listChoices)
@@ -116,6 +211,7 @@ class FlatView(wx.NotebookPage):
         self.Bind(wx.EVT_CHECKBOX,self.show_content,self.chkInvertOrder)
         self.lbDocuments.Bind(wx.EVT_CONTEXT_MENU,self.contextualMenu)
         self.docList=None
+        
     def contextualMenu(self,event):
         row = self.get_selection()
         self.lbDocuments.PopupMenu(self.board.create_menu(row))
@@ -137,7 +233,8 @@ class FlatView(wx.NotebookPage):
         elif sel == self.ID_PERTINENCE[0] and database.theBase.IDX_COUNT<len(self.docList[0]):
             self.docList.sort(key=lambda row:row[database.theBase.IDX_COUNT],reverse=self.chkInvertOrder.Value)
         for row in self.docList:
-            self.lbDocuments.Append(row[database.theBase.IDX_TITLE] , row)
+            title= row[database.theBase.IDX_TITLE]
+            self.lbDocuments.Append( title , row)
     def get_selection(self):
         sel = self.lbDocuments.GetSelections()
         if sel == wx.NOT_FOUND: return
@@ -146,6 +243,9 @@ class FlatView(wx.NotebookPage):
     def action_select(self,event):
         row = self.get_selection()
         self.board.actionDocSelect(row)
+
+
+
 class FolderView(wx.NotebookPage):
     def __init__(self,parent,idt,name,board):
         wx.NotebookPage.__init__(self,parent,idt,name=name)
@@ -171,7 +271,8 @@ class FolderView(wx.NotebookPage):
             docID = row[database.theBase.IDX_ROWID]
             folderID_list = database.theBase.folders_list_for(docID)
             if len(folderID_list)<1:
-                self.trFolders.AppendItem(unclassified,title,data=wx.TreeItemData(row))
+                item=self.trFolders.AppendItem(unclassified,title,data=wx.TreeItemData(row))
+                if docID in self.board.basket_idList() : self.trFolders.SetItemTextColour(item,wx.RED)
             for folderID in folderID_list:
                 genealogy = database.theBase.folders_genealogy_of(folderID, False)
                 item = self.trFolders.GetRootItem()
@@ -181,7 +282,8 @@ class FolderView(wx.NotebookPage):
                     else:
                         item = self.trFolders.AppendItem(item,fName)
                         itemDict[fID] = item
-                self.trFolders.AppendItem(item,title,data=wx.TreeItemData(row))
+                item=self.trFolders.AppendItem(item,title,data=wx.TreeItemData(row))
+                if docID in self.board.basket_idList() : self.trFolders.SetItemTextColour(item,wx.RED)
         #self.trFolders.Expand(rootItem)
     def get_selection(self):
         items = self.trFolders.GetSelections()
@@ -227,7 +329,8 @@ class TagFolderView(FolderView):
             cur = database.theBase.get_by_doc_id(toShow)
             if cur is None : cur=[]
             for row in cur:
-                self.trFolders.AppendItem(item,row[database.theBase.IDX_TITLE],data=wx.TreeItemData(row))
+                itm = self.trFolders.AppendItem(item,row[database.theBase.IDX_TITLE],data=wx.TreeItemData(row))
+                if row[database.theBase.IDX_ROWID] in self.board.basket_idList() : self.trFolders.SetItemTextColour(itm,wx.RED)
                 usedDoc.append(row[database.theBase.IDX_ROWID])
             docList3 = list(set.difference(set(docList),set(docList2)))
             if len(docList3)==len(docList) :
@@ -254,6 +357,7 @@ class MainFrame(wx.Frame):
     ID_BUGREPORT=10
     ID_DOCBASKET=11
     modified=False
+    basket=[]
     #===========================================================================
     # constructor (GUI building)
     #===========================================================================
@@ -317,11 +421,13 @@ class MainFrame(wx.Frame):
         self.leftPane.AddPage(self.folderViewFrame,self.folderViewFrame.GetName())
         self.tagFolderViewFrame = TagFolderView(self.leftPane,-1,_("Tag Folder view"),self)       
         self.leftPane.AddPage(self.tagFolderViewFrame,self.tagFolderViewFrame.GetName())
+        self.basketViewFrame = BasketView(self.leftPane,-1,_("Basket view"),self)       
+        self.leftPane.AddPage(self.basketViewFrame,self.basketViewFrame.GetName())
         
         self.label2 = wx.StaticText(self.panel, -1, _('filter :'))
         self.tbFilter = wx.TextCtrl(self.panel, -1, '',style=wx.TE_PROCESS_ENTER)
         self.btBuildFilter = wx.Button(self.panel, -1, _('advanced'))
-        #self.btBuildFilter.Hide()
+        self.btBuildFilter.Hide()
         
 
         # sizers
@@ -354,6 +460,7 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_TOOL,self.actionAbout,id=self.ID_CREDITS)
         self.Bind(wx.EVT_TOOL,self.actionSupport,id=self.ID_SUPPORT)
         self.Bind(wx.EVT_TOOL,self.actionReport,id=self.ID_BUGREPORT)
+        self.Bind(wx.EVT_TOOL,self.actionBasket,id=self.ID_DOCBASKET)
         self.Bind(wx.EVT_BUTTON,self.actionStartExternalApp,self.btShowExternal)
         self.Bind(wx.EVT_BUTTON,self.actionUpdateRecord,self.btUpdateRecord)
         self.Bind(wx.EVT_BUTTON,self.actionBuildRequest,self.btBuildFilter)
@@ -370,10 +477,36 @@ class MainFrame(wx.Frame):
         menu.Append(10,_('Remove this document'))
         menu.Append(10,_('Add to the basket'))
         menu.Append(10,_('Remove from the basket'))
-        menu.Append(10,_('Add a file content to this document'))
-        menu.Append(20,_('Add a scan to this document'))
-        menu.Append(30,_('Merge with'))
         return menu
+    def basket_idList(self):
+        return [row[database.theBase.IDX_ROWID] for row in self.basket]
+    def basket_remove(self,row_list):
+        idList = self.basket_idList()
+        for row in row_list:
+            if row[database.theBase.IDX_ROWID] in idList :
+                self.basket.remove(row)
+        self.actionSearch(None)
+        self.basketViewFrame.fillWith(self.basket)
+    def basket_add(self,row_list):
+        idList = self.basket_idList()
+        for row in row_list:
+            if row[database.theBase.IDX_ROWID] not in idList :
+                self.basket.append(row)
+        self.actionSearch(None)
+        self.basketViewFrame.fillWith(self.basket)
+    def basket_add_remove(self,row_list):
+        idList = self.basket_idList()
+        for row in row_list:
+            if row[database.theBase.IDX_ROWID] in idList :
+                self.basket.remove(row)
+            else:
+                self.basket.append(row)
+        self.actionSearch(None)
+        self.basketViewFrame.fillWith(self.basket)
+    def actionBasket(self,event):
+        rows = self.recordPart.getRow()
+        row_list = [row for row in rows if row is not None]
+        self.basket_add(row_list)
     def actionBuildRequest(self,event):
         builder = requestBuilder.builder(self)
         builder.ShowModal()
@@ -464,10 +597,6 @@ class MainFrame(wx.Frame):
     # actionStartExternalApp : start the system default application associated with the file
     #===========================================================================
     def actionStartExternalApp(self,event):
-#        sel = self.flatViewFrame.lbDocuments.GetSelections()
-#        if sel == wx.NOT_FOUND or len(sel)!=1: return
-#        sel = sel[0]
-#        row = self.flatViewFrame.lbDocuments.GetClientData(sel)
         row = self.recordPart.getRow()
         if row is None or len(row)!=1 or row[0] is None: return
         row=row[0]
@@ -490,12 +619,7 @@ class MainFrame(wx.Frame):
     #===========================================================================
     def actionRemoveRecord(self,event):
         rows = self.recordPart.getRow()
-#        sel = self.flatViewFrame.lbDocuments.GetSelections()
-#        if sel == wx.NOT_FOUND : return
         docID = [row[database.theBase.IDX_ROWID] for row in rows if row is not None]
-#        for i in sel:
-#            row = self.flatViewFrame.lbDocuments.GetClientData(i)
-#            docID.append(row[database.theBase.IDX_ROWID])
         if len(docID)==1:
             msg = _('do you really want to delete this record (') + rows[0][database.theBase.IDX_TITLE] + ')'        
         else:
