@@ -25,7 +25,7 @@ except:
 import wx
 from fpdf import FPDF
 import tempfile
-import sys
+#import sys
 import os.path
 import algorithms.words
 import gui.utilities
@@ -205,4 +205,4 @@ class imageData(object):
                 self.add_image(I)
             self.current_image=0
         except Exception,E:
-            logging.exception("Unable to open the file %s due to %s") % (filename,str(E))
+            logging.exception("Unable to open the file " + str(filename) + " because " + str(E))

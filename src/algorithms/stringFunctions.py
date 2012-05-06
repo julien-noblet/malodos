@@ -18,27 +18,27 @@ def char_type(c):
     if c=='"' or c=="'" : return 3
     return 4
 
-def str_next_elem(str):
+def str_next_elem(S):
     ''' return the next element of a string and the trailing string 
     '''
-    if str=="" : return ("","")
-    if str[0]=='"' or str[0]=="'": # everything inside comma is atomic
+    if S=="" : return ("","")
+    if S[0]=='"' or S[0]=="'": # everything inside comma is atomic
         p=1
-        while p<len(str):
-            if str[p] == str[0] : break
+        while p<len(S):
+            if S[p] == S[0] : break
             p+=1
-        return (str[0:p+1] , str[p+1:])
+        return (S[0:p+1] , S[p+1:])
 
-    t = char_type(str[0]) # otherwise : continue until char change type (ie. from num to str) 
+    t = char_type(S[0]) # otherwise : continue until char change type (ie. from num to str) 
     p=1
-    while p<len(str): # go over the string
-        t2 = char_type(str[p]) 
+    while p<len(S): # go over the string
+        t2 = char_type(S[p]) 
         if (t2 != t) and not (t==2 and t2==1) : break # if char type change, stop
         p+=1 # next char
-    if p>=len(str): # if string end reached : nothing left
-        R=  ( str , '')
+    if p>=len(S): # if string end reached : nothing left
+        R=  ( S , '')
     else:
-        R = ( str[:p] , str[p:] ) # else cut it and return the two parts
+        R = ( S[:p] , S[p:] ) # else cut it and return the two parts
     if t==0 : R=(' ',R[1])
     return R
         

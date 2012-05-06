@@ -24,7 +24,7 @@ import shutil
 import zipfile
 import logging
 import re
-import sys
+#import sys
 
 class ConfigReader(object):
     def __init__(self,conf_file=None):
@@ -152,7 +152,7 @@ class Configuration(ConfigReader):
             self.conf_dir = shell.SHGetFolderPath(0, shellcon.CSIDL_PERSONAL, 0, 0)
             self.conf_dir = os.path.abspath(os.path.join(self.conf_dir,'..'))
             self.conf_dir=unicode(self.conf_dir)
-        except Exception as EE: # quick semi-nasty fallback for non-windows/win32com case
+        except Exception: # quick semi-nasty fallback for non-windows/win32com case
             #logging.exception(str(EE))
             self.conf_dir = os.path.expanduser("~")
         # end of code from http://zhigang.org/wiki/PythonTips

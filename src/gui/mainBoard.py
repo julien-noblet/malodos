@@ -161,12 +161,21 @@ class FlatView(wx.NotebookPage):
             itm.SetData(idt)
             itm.SetColumn(0)
 
-            n_it = self.lbDocuments.InsertItem(itm )
-            if row[database.theBase.IDX_ROWID] in self.board.basket_idList() : self.lbDocuments.SetItemTextColour(n_it,wx.RED)
+            #n_it = self.lbDocuments.InsertItem(itm)
+            self.lbDocuments.InsertItem(itm)
+            #if row[database.theBase.IDX_ROWID] in self.board.basket_idList() : self.lbDocuments.SetItemTextColour(n_it,wx.RED)
             #self.lbDocuments.SetItemData(n_it,row)
             #item = self.lbDocuments.FindString(title)
             #if row[database.theBase.IDX_ROWID] in self.board.basket : self.lbDocuments.SetItemForegroundColour(item,(255,0,0))
             #self.lbDocuments.SetItemBackgroundColour(item,'#990000')
+        self.draw_content()
+    def draw_content(self):
+        for i in range(self.lbDocuments.ItemCount):
+            row = self.idDict[self.lbDocuments.GetItemData(i)]
+            if row[database.theBase.IDX_ROWID] in self.board.basket_idList() : 
+                self.lbDocuments.SetItemTextColour(i,wx.RED)
+            else:
+                self.lbDocuments.SetItemTextColour(i,wx.BLACK)
     def get_selection(self):
         #sel = self.lbDocuments.GetSelections()
         #if sel == wx.NOT_FOUND: return
@@ -235,6 +244,8 @@ class BasketView(wx.NotebookPage):
         for row in self.docList:
             title= row[database.theBase.IDX_TITLE]
             self.lbDocuments.Append( title , row)
+    def draw_content(self):
+        pass
     def get_selection(self):
         sel = self.lbDocuments.GetSelections()
         if sel == wx.NOT_FOUND: return
@@ -257,6 +268,11 @@ class FolderView(wx.NotebookPage):
         self.panel.SetSizerAndFit(self.totSizer)
         self.Bind(wx.EVT_TREE_SEL_CHANGED,self.action_select,self.trFolders)
         self.trFolders.Bind(wx.EVT_TREE_ITEM_MENU,self.contextualMenu)
+        self.trFolders.Bind(wx.EVT_LEFT_DCLICK,self.action_add_to_basket)
+    def action_add_to_basket(self,event):
+        idt = self.trFolders.GetPyData(self.trFolders.GetSelection())
+        if (idt is not None) and (idt != 0):
+            self.board.basket_add_remove([idt])
     def contextualMenu(self,event):
         row = self.get_selection()
         self.trFolders.PopupMenu(self.board.create_menu(row))
@@ -285,6 +301,18 @@ class FolderView(wx.NotebookPage):
                 item=self.trFolders.AppendItem(item,title,data=wx.TreeItemData(row))
                 if docID in self.board.basket_idList() : self.trFolders.SetItemTextColour(item,wx.RED)
         #self.trFolders.Expand(rootItem)
+    def draw_content(self):
+        def show_under(item):
+            row = self.trFolders.GetPyData(item)
+            if (row is not None and row!=0) and row[database.theBase.IDX_ROWID] in self.board.basket_idList() :
+                self.trFolders.SetItemTextColour(item,wx.RED)
+            else:
+                self.trFolders.SetItemTextColour(item,wx.BLACK)
+            child , cookie = self.trFolders.GetFirstChild(item)
+            while child.IsOk() :
+                show_under(child)
+                child , cookie = self.trFolders.GetNextChild(item,cookie)
+        show_under(self.trFolders.GetRootItem())
     def get_selection(self):
         items = self.trFolders.GetSelections()
         return [self.trFolders.GetPyData(item) for item in items]
@@ -297,6 +325,11 @@ class FolderView(wx.NotebookPage):
 class TagFolderView(FolderView):
     def __init__(self,parent,idt,name,board):
         FolderView.__init__(self,parent,idt,name,board)
+        self.trFolders.Bind(wx.EVT_LEFT_DCLICK,self.action_add_to_basket)
+    def action_add_to_basket(self,event):
+        idt = self.trFolders.GetPyData(self.trFolders.GetSelection())
+        if (idt is not None) and (idt != 0):
+            self.board.basket_add_remove([idt])
     def recursiveFill(self,baseItem,docList,refusedKeys,onlyTags):
         usedDoc=[]
         while len(docList)>0:
@@ -342,6 +375,18 @@ class TagFolderView(FolderView):
         if docList is None : return
         rootItem=self.trFolders.AddRoot(_('ROOT'),data=wx.TreeItemData(0))
         self.recursiveFill(rootItem, [row[database.theBase.IDX_ROWID] for row in docList],[],True)
+    def draw_content(self):
+        def show_under(item):
+            row = self.trFolders.GetPyData(item)
+            if (row is not None and row!=0) and row[database.theBase.IDX_ROWID] in self.board.basket_idList() :
+                self.trFolders.SetItemTextColour(item,wx.RED)
+            else:
+                self.trFolders.SetItemTextColour(item,wx.BLACK)
+            child , cookie = self.trFolders.GetFirstChild(item)
+            while child.IsOk() :
+                show_under(child)
+                child , cookie = self.trFolders.GetNextChild(item,cookie)
+        show_under(self.trFolders.GetRootItem())
 
 
 class MainFrame(wx.Frame):
@@ -478,6 +523,10 @@ class MainFrame(wx.Frame):
         menu.Append(10,_('Add to the basket'))
         menu.Append(10,_('Remove from the basket'))
         return menu
+    def redraw_items(self):
+        self.flatViewFrame.draw_content()
+        self.folderViewFrame.draw_content()
+        self.tagFolderViewFrame.draw_content()
     def basket_idList(self):
         return [row[database.theBase.IDX_ROWID] for row in self.basket]
     def basket_remove(self,row_list):
@@ -485,14 +534,14 @@ class MainFrame(wx.Frame):
         for row in row_list:
             if row[database.theBase.IDX_ROWID] in idList :
                 self.basket.remove(row)
-        self.actionSearch(None)
+        self.redraw_items()#self.actionSearch(None)
         self.basketViewFrame.fillWith(self.basket)
     def basket_add(self,row_list):
         idList = self.basket_idList()
         for row in row_list:
             if row[database.theBase.IDX_ROWID] not in idList :
                 self.basket.append(row)
-        self.actionSearch(None)
+        self.redraw_items()#self.actionSearch(None)
         self.basketViewFrame.fillWith(self.basket)
     def basket_add_remove(self,row_list):
         idList = self.basket_idList()
@@ -501,7 +550,8 @@ class MainFrame(wx.Frame):
                 self.basket.remove(row)
             else:
                 self.basket.append(row)
-        self.actionSearch(None)
+        self.redraw_items()#self.actionSearch(None)
+        
         self.basketViewFrame.fillWith(self.basket)
     def actionBasket(self,event):
         rows = self.recordPart.getRow()
