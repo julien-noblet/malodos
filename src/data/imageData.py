@@ -14,14 +14,12 @@ singleton class for memory bitmap data management and sharing
 from PIL import Image , ImageSequence
 
 
-#try:
-#    import reportlab
-#except:
-#    pass
 try:
     import gfx
 except:
     pass
+
+
 import wx
 from fpdf import FPDF
 import tempfile
@@ -182,15 +180,50 @@ class imageData(object):
         
         wx.Log.SetLogLevel(old_log_level)
         
+#        if not try_pdf:
+#            self.current_image=0
+#            return
+#        # This is executed only is try_pdf is TRUE --> loading file was not possible via wx
+#        try:
+#            doc = poppler.document_new_from_file('file://' + filename,None)
+#            self.title=doc.get_property('title')
+#            self.subject=doc.get_property('subject')
+#            self.keywords=doc.get_property('keywords')
+#            nmax = doc.get_n_pages()
+#            self.current_image=0
+#            if page:
+#                if page>=nmax: return
+#                R = [page]
+#            else :
+#                R = range(nmax)
+#            for pagenr in range(nmax):
+#                page = doc.get_page(pagenr)
+#                w,h = page.get_size()
+#                w=int(w)
+#                h=int(h)
+#                s=' '*w*h*3
+#                page.render_to_pixbuf(0, 0, w, h, 1, 0, s)
+#                I = Image.fromstring("RGB", (w, h),s)
+#                self.add_image(I)
+#                self.nb_pages = pagenr
+#            try_pdf=False
+#            print "Affiche avec poppler"
+#        except Exception,E:
+#            logging.exception("Unable to open the file " + str(filename) + " because " + str(E))
+#            print str(E)
+
         if not try_pdf:
             self.current_image=0
             return
         # This is executed only is try_pdf is TRUE --> loading file was not possible via wx
         try:
-            doc = gfx.open("pdf", filename)
+            import locale
+            l = locale.getdefaultlocale()
+            doc = gfx.open("pdf", filename.encode(l[1]))
+            #doc = gfx.open("pdf", filename)
             self.title=doc.getInfo("title")
-            self.title=doc.getInfo("subject")
-            self.title=doc.getInfo("keywords")
+            self.subject=doc.getInfo("subject")
+            self.keywords=doc.getInfo("keywords")
             nmax = doc.pages
             if page:
                 if page>=nmax: return
