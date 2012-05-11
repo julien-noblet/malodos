@@ -23,6 +23,30 @@ def ask_folder(msg='Choose a folder'):
     dlg.ShowModal()
     return dlg.GetPath()
 
+
+class MultipleButtonDialog(wx.Dialog):
+    choice=None
+    def __init__(self,parent,idt=-1,title=_("choice window"),caption=_("Choose an option"),actionList=[_('ok'),_('cancel')]):
+        self.btMsg=[]
+        wx.Dialog.__init__(self,parent,idt,title)
+        self.panel = wx.Panel(self, -1)
+        self.totSizer = wx.BoxSizer(wx.VERTICAL)
+        self.horSizer = wx.BoxSizer(wx.HORIZONTAL)
+        
+        self.lbText = wx.StaticText(self.panel,-1,caption)
+        self.totSizer.Add(self.lbText,1,wx.EXPAND)
+        
+        for i in range(len(actionList)) :
+            self.btMsg.append(wx.Button(self.panel,i,actionList[i]))
+            self.horSizer.Add(self.btMsg[i],1,wx.EXPAND)
+            self.Bind(wx.EVT_BUTTON, self.actionReturn, self.btMsg[i])
+        self.totSizer.Add(self.horSizer,0)
+        self.panel.SetSizerAndFit(self.totSizer)
+        self.totSizer.Fit(self)
+    def actionReturn(self,event):
+        self.choice =  event.GetId()
+        self.Close()
+        
 class ProgressDialog:
     def __init__(self,title='Progression',message=None):
         self.NMAX=100000

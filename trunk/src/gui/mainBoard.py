@@ -671,15 +671,24 @@ class MainFrame(wx.Frame):
         rows = self.recordPart.getRow()
         docID = [row[database.theBase.IDX_ROWID] for row in rows if row is not None]
         if len(docID)==1:
-            msg = _('do you really want to delete this record (') + rows[0][database.theBase.IDX_TITLE] + ')'        
+            msg = _('This will delete the record (') + rows[0][database.theBase.IDX_TITLE] + ').'        
         else:
-            msg = _('do you really want to delete these ') + str(len(docID)) + _(' records')
-        confirmation = wx.MessageDialog(self,msg,style=wx.OK|wx.CANCEL | wx.CENTRE)
-        x= confirmation.ShowModal()
-        if x == wx.ID_CANCEL : return
+            msg = _('This will delete these ') + str(len(docID)) + _(' records.')
+        msg=msg+_('Please, choose an action below')
+        choiceWin = utilities.MultipleButtonDialog(self,-1,_('What to do'),msg,
+                                                   [_('remove from database'),_('remove from database AND FROM DISK'),_('cancel')])
+        choiceWin.ShowModal()
+        #confirmation = wx.MessageDialog(self,msg,style=wx.OK|wx.CANCEL | wx.CENTRE)
+        #x= confirmation.ShowModal()
+        #if x == wx.ID_CANCEL : return
+        if choiceWin.choice == 2 : return
         
         #print 'must remove ' + str(docID) + ' because x is ' + str(x)
+        if choiceWin.choice == 1 :
+            listFiles = [row[database.theBase.IDX_FILENAME] for row in rows if row is not None]
+            for f in listFiles : os.remove(f)
         database.theBase.remove_documents(docID)
+        #for doc in docID : print "Want to remov " + str(doc) + " from database"
         self.actionSearch(None)
         
     #===========================================================================
