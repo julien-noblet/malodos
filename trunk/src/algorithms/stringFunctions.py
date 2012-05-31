@@ -14,7 +14,7 @@ import datetime
 def char_type(c):
     if c.isspace() : return 0
     if c.isdigit() : return 1
-    if c.isalpha() : return 2
+    if c.isalpha() or c=='!': return 2
     if c=='"' or c=="'" : return 3
     return 4
 
@@ -102,7 +102,7 @@ def is_world(e):
     '''
     is this string a text value
     '''
-    return e[0].isalnum()\
+    return e[0].isalnum() or e[0]=='!' \
            or (e[0]=="'" and e[-1]=="'")\
            or (e[0]=='"' and e[-1]=='"')
 
@@ -122,28 +122,54 @@ def str_field_constraint(field_name,req_value):
     else:
         strict_comp=False
     
-    req_value = req_value.upper()
+
+    req_value = req_value.lower()
     if req_value[0]=="'" or req_value[0]=='"' :
         req_value_search = req_value[1:-1]
         searchField = 'KEYWORD'
     else:
         req_value_search = algorithms.words.phonex(req_value)
         searchField = 'soundex_word'   
+
+    if req_value_search[0]=='!':
+        req_value_search=req_value_search[1:]
+        whole_word=True
+    else:
+        whole_word=False
+
+    
+    
     if field_name == 'ANY':
-        S= "( " + searchField +" LIKE ?)"
-        lst=[ '%' + req_value_search + '%' ]
+        if whole_word:
+            S= "( " + searchField +" = ?)"
+            lst=[ req_value_search  ]
+        else:
+            S= "( " + searchField +" LIKE ?)"
+            lst=[ '%' + req_value_search + '%' ]
     elif field_name == 'TITLE' or field_name == 'TI':
-        S= "( " + searchField +" LIKE ?" + " AND FIELD=" +  str(database.db.Base.ID_TITLE) +  ")"
-        lst=[ '%' + req_value_search + '%' ]
+        if whole_word:
+            S= "( " + searchField +" = ?" + " AND FIELD=" +  str(database.db.Base.ID_TITLE) +  ")"
+            lst=[ req_value_search ]
+        else:
+            S= "( " + searchField +" LIKE ?" + " AND FIELD=" +  str(database.db.Base.ID_TITLE) +  ")"
+            lst=[ '%' + req_value_search + '%' ]
     elif field_name == 'DESCRIPTION' or field_name == 'DE':
-        S= "( " + searchField +" LIKE ?" + " AND FIELD=" +  str(database.db.Base.IDX_DESCRIPTION) +  ")"
-        lst=[ '%' + req_value_search + '%' ]
+        if whole_word:
+            S= "( " + searchField +" = ?" + " AND FIELD=" +  str(database.db.Base.IDX_DESCRIPTION) +  ")"
+            lst=[ req_value_search ]
+        else:
+            S= "( " + searchField +" LIKE ?" + " AND FIELD=" +  str(database.db.Base.IDX_DESCRIPTION) +  ")"
+            lst=[ '%' + req_value_search + '%' ]
     elif field_name == 'TAG' or field_name == 'TA':
         S= "( "+ searchField +"= ?" + " AND FIELD=" +  str(database.db.Base.ID_TAG) +  ")"
         lst=[req_value_search]
     elif field_name == 'FULLTEXT' or field_name == 'FU':
-        S= "( "+searchField +" LIKE ?"+ " AND FIELD=" +  str(database.db.Base.ID_FULL_TEXT) +  ")"
-        lst=[ '%' + req_value_search + '%' ]
+        if whole_word:
+            S= "( "+searchField +" = ?"+ " AND FIELD=" +  str(database.db.Base.ID_FULL_TEXT) +  ")"
+            lst=[ req_value_search  ]
+        else:
+            S= "( "+searchField +" LIKE ?"+ " AND FIELD=" +  str(database.db.Base.ID_FULL_TEXT) +  ")"
+            lst=[ '%' + req_value_search + '%' ]
     elif field_name=="DATE" or field_name == 'DD':
         S= "( documentDate = ?)"
         lst=[req_value]
