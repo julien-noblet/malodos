@@ -16,6 +16,7 @@ import os
 import subprocess
 import docPrinter
 from data import theData
+import fileMerge
 
 import scanWindow
 import survey
@@ -30,7 +31,7 @@ import webbrowser
 import logging
 import requestBuilder
 
-MALODOS_VERSION='1.2.2d'
+MALODOS_VERSION='1.3'
 
 class bugReportWindow(wx.Dialog):
     def __init__(self,parent):
@@ -120,7 +121,10 @@ class FlatView(wx.NotebookPage):
         self.Bind(wx.EVT_CHECKBOX,self.show_content,self.chkInvertOrder)
         self.lbDocuments.Bind(wx.EVT_CONTEXT_MENU,self.contextualMenu)
         self.lbDocuments.Bind(wx.EVT_LEFT_DCLICK,self.action_add_to_basket)
+        self.lbDocuments.Bind(wx.EVT_MENU,self.action_menu)
         self.docList=None
+    def action_menu(self,event):
+        self.board.action_menu(self.get_selection(),event.GetId())
     def action_add_to_basket(self,event):
         idt = self.lbDocuments.GetItemData(self.lbDocuments.GetFocusedItem())
         rowList = [self.idDict[idt]]
@@ -128,7 +132,7 @@ class FlatView(wx.NotebookPage):
         
     def contextualMenu(self,event):
         row = self.get_selection()
-        self.lbDocuments.PopupMenu(self.board.create_menu(row))
+        if len(row)>0: self.lbDocuments.PopupMenu(self.board.create_menu(row))
     def fillWith(self,docList):
         self.docList = docList
         self.show_content()
@@ -223,7 +227,7 @@ class BasketView(wx.NotebookPage):
         
     def contextualMenu(self,event):
         row = self.get_selection()
-        self.lbDocuments.PopupMenu(self.board.create_menu(row))
+        if len(row)>0: self.lbDocuments.PopupMenu(self.board.create_menu(row))
     def fillWith(self,docList):
         self.docList = docList
         self.show_content()
@@ -269,13 +273,16 @@ class FolderView(wx.NotebookPage):
         self.Bind(wx.EVT_TREE_SEL_CHANGED,self.action_select,self.trFolders)
         self.trFolders.Bind(wx.EVT_TREE_ITEM_MENU,self.contextualMenu)
         self.trFolders.Bind(wx.EVT_LEFT_DCLICK,self.action_add_to_basket)
+        self.trFolders.Bind(wx.EVT_MENU,self.action_menu)
+    def action_menu(self,event):
+        self.board.action_menu(self.get_selection(),event.GetId())
     def action_add_to_basket(self,event):
         idt = self.trFolders.GetPyData(self.trFolders.GetSelection())
         if (idt is not None) and (idt != 0):
             self.board.basket_add_remove([idt])
     def contextualMenu(self,event):
         row = self.get_selection()
-        self.trFolders.PopupMenu(self.board.create_menu(row))
+        if len(row)>0: self.trFolders.PopupMenu(self.board.create_menu(row))
     def fillWith(self,docList):
         self.trFolders.DeleteAllItems()
         if docList is None : return
@@ -401,6 +408,15 @@ class MainFrame(wx.Frame):
     ID_SUPPORT=9
     ID_BUGREPORT=10
     ID_DOCBASKET=11
+
+    ID_MENU_REMOVE=1
+    ID_MENU_ADD_BASKET=2
+    ID_MENU_REMOVE_BASKET=3
+    ID_MENU_CONCATENATE_FILE=4
+    ID_MENU_CONCATENATE_SCAN=5
+    ID_MENU_CONCATENATE_ITEMS=6
+    
+    
     modified=False
     basket=[]
     #===========================================================================
@@ -518,11 +534,34 @@ class MainFrame(wx.Frame):
         self.actionSearch(None)
 
     def create_menu(self,row):
+        rows = self.recordPart.getRow()
         menu=wx.Menu()
-        menu.Append(10,_('Remove this document'))
-        menu.Append(10,_('Add to the basket'))
-        menu.Append(10,_('Remove from the basket'))
+        menu.Append(self.ID_MENU_REMOVE,_('Remove / delete'))
+        menu.Append(self.ID_MENU_ADD_BASKET,_('Add to the basket'))
+        menu.Append(self.ID_MENU_REMOVE_BASKET,_('Remove from the basket'))
+        if len(rows)==1:
+            menu.Append(self.ID_MENU_CONCATENATE_FILE,_('Add file content after this document'))
+            menu.Append(self.ID_MENU_CONCATENATE_SCAN,_('Add scan content after this document'))
+        else:
+            menu.Append(self.ID_MENU_CONCATENATE_ITEMS,_('Merge documents together'))
         return menu
+    def action_menu(self,row_list,menu_id):
+        if menu_id == self.ID_MENU_REMOVE:
+            self.actionRemoveRecord(row_list)
+        elif menu_id == self.ID_MENU_ADD_BASKET:
+            self.basket_add(row_list)
+        elif menu_id == self.ID_MENU_REMOVE_BASKET:
+            self.basket_add_remove(row_list)
+        elif menu_id == self.ID_MENU_CONCATENATE_FILE:
+            self.actionAddFile(None,row_list[0])
+        elif menu_id == self.ID_MENU_CONCATENATE_SCAN:
+            self.actionAddScan(None,row_list[0])
+        elif menu_id == self.ID_MENU_CONCATENATE_ITEMS:
+            self.merge_documents(row_list)
+    def merge_documents(self,row_list):
+        fm = fileMerge.FileMerger(self,row_list)
+        fm.ShowModal()
+        self.actionSearch(None)
     def redraw_items(self):
         self.flatViewFrame.draw_content()
         self.folderViewFrame.draw_content()
@@ -569,7 +608,14 @@ class MainFrame(wx.Frame):
     #===========================================================================
     # click on add scan button
     #===========================================================================
-    def actionAddScan(self,event):
+    def actionAddScan(self,event,row=None):
+        data.theData.clear_all()
+        if row is not None :
+            try:
+                fname = row[database.theBase.IDX_FILENAME]
+                data.theData.load_file(fname, do_clear=False)
+            except :
+                pass
         Frame = scanWindow.ScanWindow(self,_("Scan a new document"))
         Frame.ShowModal()
         theData.clear_all()
@@ -578,7 +624,14 @@ class MainFrame(wx.Frame):
     #===========================================================================
     # click on add file button
     #===========================================================================
-    def actionAddFile(self,event):
+    def actionAddFile(self,event,row=None):
+        data.theData.clear_all()
+        if row is not None :
+            try:
+                fname = row[database.theBase.IDX_FILENAME]
+                data.theData.load_file(fname, do_clear=False)
+            except :
+                pass
         Frame = addFileWindow.AddFileWindow(self,_("Add a new document"))
         Frame.ShowModal()
         self.actionSearch(None)
@@ -668,27 +721,12 @@ class MainFrame(wx.Frame):
     # actionRemoveRecord : remove the selected items
     #===========================================================================
     def actionRemoveRecord(self,event):
-        rows = self.recordPart.getRow()
-        docID = [row[database.theBase.IDX_ROWID] for row in rows if row is not None]
-        if len(docID)==1:
-            msg = _('This will delete the record (') + rows[0][database.theBase.IDX_TITLE] + ').'        
+        if type(event) is list :
+            rows = event
         else:
-            msg = _('This will delete these ') + str(len(docID)) + _(' records.')
-        msg=msg+_('Please, choose an action below')
-        choiceWin = utilities.MultipleButtonDialog(self,-1,_('What to do'),msg,
-                                                   [_('remove from database'),_('remove from database AND FROM DISK'),_('cancel')])
-        choiceWin.ShowModal()
-        #confirmation = wx.MessageDialog(self,msg,style=wx.OK|wx.CANCEL | wx.CENTRE)
-        #x= confirmation.ShowModal()
-        #if x == wx.ID_CANCEL : return
-        if choiceWin.choice == 2 : return
-        
-        #print 'must remove ' + str(docID) + ' because x is ' + str(x)
-        if choiceWin.choice == 1 :
-            listFiles = [row[database.theBase.IDX_FILENAME] for row in rows if row is not None]
-            for f in listFiles : os.remove(f)
-        database.theBase.remove_documents(docID)
-        #for doc in docID : print "Want to remov " + str(doc) + " from database"
+            rows = self.recordPart.getRow()
+        database.theBase.delete_documents(rows,parent=self)
+        #for doc in docID : print "Want to remove " + str(doc) + " from database"
         self.actionSearch(None)
         
     #===========================================================================

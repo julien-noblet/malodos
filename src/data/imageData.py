@@ -151,11 +151,11 @@ class imageData(object):
         gui.utilities.closeGlobalProgressDialog()
         #for w in content: print w
         return content
-    def load_file(self,filename,page=None):
+    def load_file(self,filename,page=None,do_clear=True):
         "Load a given file into memory (only the asked page if given, all the pages otherwise)"
         
         self.current_file=filename
-        self.clear_all()
+        if do_clear : self.clear_all()
         
         try_pdf = filename.lower().endswith('.pdf')
         old_log_level = wx.Log.GetLogLevel()
