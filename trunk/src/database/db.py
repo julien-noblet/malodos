@@ -285,6 +285,11 @@ class Base(object):
     ID_TITLE=1
     ID_DESCRIPTION=2
     ID_FULL_TEXT=3
+    
+    ID_DEL_ASK=0
+    ID_DEL_NOT=1
+    ID_DEL_DB=2
+    ID_DEL_DB_AND_FS=3
     #===========================================================================
     # constructor
     #===========================================================================
@@ -503,6 +508,56 @@ class Base(object):
             # find the list of keyword not yet registered
             if not self.update_keywords_for(docID,keywordsGroups) : return False
         return self.folders_set_doc_to(docID, folderID_list)
+
+    
+    #===============================================================================
+    # remove and eventually delete from disk a list of documents
+    #===============================================================================
+    def delete_documents(self,rows,delete_files=ID_DEL_ASK,parent=None,exclusion=[]):
+        # delete_files code
+        # 0 = ask
+        # 1 = do not delete
+        # 2 = just from database
+        # 3 = database AND filesystem
+        docID = [row[self.IDX_ROWID] for row in rows if row is not None]
+
+        #confirmation = wx.MessageDialog(self,msg,style=wx.OK|wx.CANCEL | wx.CENTRE)
+        #x= confirmation.ShowModal()
+        #if x == wx.ID_CANCEL : return
+        if delete_files is self.ID_DEL_ASK :
+            if len(docID)==1:
+                msg = _('This will delete the record (') + rows[0][self.IDX_TITLE] + ').'        
+            else:
+                msg = _('This will delete these ') + str(len(docID)) + _(' records.')
+            msg=msg+_('Please, choose an action below')
+            choiceWin = gui.utilities.MultipleButtonDialog(parent,-1,_('What to do'),msg,
+                                                       [_('remove from database'),_('remove from database AND FROM DISK'),_('cancel')])
+            choiceWin.ShowModal()
+            if choiceWin.choice == 2 :
+                self.ID_DEL_NOT
+            elif choiceWin.choice == 1 :
+                delete_files = self.ID_DEL_DB_AND_FS
+            elif choiceWin.choice == 0 :
+                delete_files = self.ID_DEL_DB
+        
+        #print 'must remove ' + str(docID) + ' because x is ' + str(x)
+        if delete_files == self.ID_DEL_DB_AND_FS:
+            listFiles = [row[self.IDX_FILENAME] for row in rows if row is not None]
+            try:
+                from send2trash import send2trash
+                for f in listFiles :
+                    #print f + " was send to trash"
+                    if f in exclusion : continue
+                    send2trash(f)
+            except Exception :
+                #print str(E)
+                for f in listFiles :
+                    if f in exclusion : continue
+                    os.remove(f)
+                    #print f + " was deleted"
+        if delete_files == self.ID_DEL_DB_AND_FS or delete_files == self.ID_DEL_DB : self.remove_documents(docID)
+    
+    
     #===============================================================================
     # finding keywords rows
     #===============================================================================

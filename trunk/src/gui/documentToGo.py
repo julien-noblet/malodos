@@ -40,6 +40,8 @@ class DocToGoWizard (wx.wizard.Wizard):
             rowL = self.row_list
         elif what == self.page_chooser.FILTER_RESULT:
             rowL = self.doc_list
+        elif what == self.page_chooser.BASKET_DOCS:
+            rowL = self.GetParent().basket
         if sel == self.page_chooser.EXPORT_DATABASE:
             filename = self.page_database_export.fcFileChooser.GetPath()
             if filename=='' : 
@@ -71,6 +73,7 @@ class PageActionChooser (wx.wizard.PyWizardPage):
     ALL_DOCUMENTS=1
     FILTER_RESULT=2
     SELECTED_DOCS=3
+    BASKET_DOCS=4
     def __init__(self,parent):
         wx.wizard.PyWizardPage.__init__(self,parent)
         self.sizer = wx.BoxSizer(wx.VERTICAL)
@@ -80,7 +83,8 @@ class PageActionChooser (wx.wizard.PyWizardPage):
         self.rbContent =  wx.RadioBox(self,label=_('What action do you want to take'),choices=self.choice_list.values(),style=wx.RA_VERTICAL)
         self.sel_list = { self.ALL_DOCUMENTS:_('Export all the documents') ,
                              self.FILTER_RESULT :_('Export only the result of the current search.'),
-                             self.SELECTED_DOCS :_('Export only the result of the current selection.')   }
+                             self.SELECTED_DOCS :_('Export only the result of the current selection.'),
+                             self.BASKET_DOCS :_('Export all the documents in the basket')    }
         self.rbDocToSave =  wx.RadioBox(self,label=_('Which documents would you like to save'),choices=self.sel_list.values(),style=wx.RA_VERTICAL)
         self.sizer.Add(self.rbContent,0,flag=wx.EXPAND|wx.ALIGN_CENTER_VERTICAL)
         self.sizer.Add(self.rbDocToSave,0,flag=wx.EXPAND|wx.ALIGN_CENTER_VERTICAL)

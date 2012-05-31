@@ -243,7 +243,7 @@ class ScanWindow(wx.Dialog):
 		for name,val in op_ini.items() :
 			if not name in self.currentOptions.keys() : self.currentOptions[name]=val
 		self.recordPart.lbFileName.SetPath(self.defaultNameDir())
-		data.theData.clear_all()
+		#data.theData.clear_all()
 		if str_to_bool(database.theConfig.get_param('scanner', 'autoScan','False',True)) :
 			self.actionPerformScan(None)
 	def onClose(self,event):

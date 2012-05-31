@@ -13,6 +13,7 @@ import RecordWidget
 from database import theConfig
 from algorithms.general import str_to_bool
 import docWindow
+import data
 
 class AddFileWindow(wx.Dialog):
     '''
@@ -35,6 +36,10 @@ class AddFileWindow(wx.Dialog):
             if dlg.ShowModal():
                 filename = os.path.join(dlg.Directory,dlg.Filename)
         if not filename : return
+        try:
+            data.theData.load_file(filename, do_clear=False)
+        except:
+            pass
         
         self.totSizer = wx.BoxSizer(wx.VERTICAL)
         self.horSizer = wx.BoxSizer(wx.HORIZONTAL)

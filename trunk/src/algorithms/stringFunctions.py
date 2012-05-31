@@ -130,20 +130,20 @@ def str_field_constraint(field_name,req_value):
         req_value_search = algorithms.words.phonex(req_value)
         searchField = 'soundex_word'   
     if field_name == 'ANY':
-        S= "( " + searchField +"= ?)"
-        lst=[req_value_search]
+        S= "( " + searchField +" LIKE ?)"
+        lst=[ '%' + req_value_search + '%' ]
     elif field_name == 'TITLE' or field_name == 'TI':
-        S= "( " + searchField +"= ?" + " AND FIELD=" +  str(database.db.Base.ID_TITLE) +  ")"
-        lst=[req_value_search]
+        S= "( " + searchField +" LIKE ?" + " AND FIELD=" +  str(database.db.Base.ID_TITLE) +  ")"
+        lst=[ '%' + req_value_search + '%' ]
     elif field_name == 'DESCRIPTION' or field_name == 'DE':
-        S= "( " + searchField +"= ?" + " AND FIELD=" +  str(database.db.Base.IDX_DESCRIPTION) +  ")"
-        lst=[req_value_search]
+        S= "( " + searchField +" LIKE ?" + " AND FIELD=" +  str(database.db.Base.IDX_DESCRIPTION) +  ")"
+        lst=[ '%' + req_value_search + '%' ]
     elif field_name == 'TAG' or field_name == 'TA':
         S= "( "+ searchField +"= ?" + " AND FIELD=" +  str(database.db.Base.ID_TAG) +  ")"
         lst=[req_value_search]
     elif field_name == 'FULLTEXT' or field_name == 'FU':
-        S= "( "+searchField +"= ?"+ " AND FIELD=" +  str(database.db.Base.ID_FULL_TEXT) +  ")"
-        lst=[req_value_search]
+        S= "( "+searchField +" LIKE ?"+ " AND FIELD=" +  str(database.db.Base.ID_FULL_TEXT) +  ")"
+        lst=[ '%' + req_value_search + '%' ]
     elif field_name=="DATE" or field_name == 'DD':
         S= "( documentDate = ?)"
         lst=[req_value]
