@@ -158,7 +158,7 @@ def ocr_image_file(image_name,usedOCR):
     
     test_langs = database.theConfig.get_param('OCR', 'languages','').split(',')
     dictList=[]
-    knownTerms = database.theBase.get_all_keywords()
+    #knownTerms = database.theBase.get_all_keywords()
     for l in test_langs :
         try:
             d = enchant.Dict(l)

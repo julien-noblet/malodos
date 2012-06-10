@@ -488,7 +488,7 @@ class MainFrame(wx.Frame):
         self.label2 = wx.StaticText(self.panel, -1, _('filter :'))
         self.tbFilter = wx.TextCtrl(self.panel, -1, '',style=wx.TE_PROCESS_ENTER)
         self.btBuildFilter = wx.Button(self.panel, -1, _('advanced'))
-        self.btBuildFilter.Hide()
+        #self.btBuildFilter.Hide()
         
 
         # sizers
@@ -599,6 +599,9 @@ class MainFrame(wx.Frame):
     def actionBuildRequest(self,event):
         builder = requestBuilder.builder(self)
         builder.ShowModal()
+        if builder.request is not None:
+            self.tbFilter.Value = builder.request
+            self.actionSearch(None)
     def actionRecordModified(self):
         self.modified=True
                 

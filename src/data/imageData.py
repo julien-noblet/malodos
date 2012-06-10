@@ -167,8 +167,10 @@ class imageData(object):
                 R = [page]
             else :
                 R = range(nmax)
+            progressor = gui.utilities.ProgressDialog('MALODOS',_('Reading image data, please wait...'))
             for idx in R:
                 try:
+                    progressor.add_to_current_step(1.0/nmax)
                     wxi = wx.Image(filename,index=idx)
                     img = Image.new('RGB', (wxi.GetWidth(), wxi.GetHeight()))
                     img.fromstring(wxi.GetData())
@@ -177,45 +179,15 @@ class imageData(object):
                     try_pdf=False
                 except:
                     pass
+            progressor.destroy()
         
         wx.Log.SetLogLevel(old_log_level)
         
-#        if not try_pdf:
-#            self.current_image=0
-#            return
-#        # This is executed only is try_pdf is TRUE --> loading file was not possible via wx
-#        try:
-#            doc = poppler.document_new_from_file('file://' + filename,None)
-#            self.title=doc.get_property('title')
-#            self.subject=doc.get_property('subject')
-#            self.keywords=doc.get_property('keywords')
-#            nmax = doc.get_n_pages()
-#            self.current_image=0
-#            if page:
-#                if page>=nmax: return
-#                R = [page]
-#            else :
-#                R = range(nmax)
-#            for pagenr in range(nmax):
-#                page = doc.get_page(pagenr)
-#                w,h = page.get_size()
-#                w=int(w)
-#                h=int(h)
-#                s=' '*w*h*3
-#                page.render_to_pixbuf(0, 0, w, h, 1, 0, s)
-#                I = Image.fromstring("RGB", (w, h),s)
-#                self.add_image(I)
-#                self.nb_pages = pagenr
-#            try_pdf=False
-#            print "Affiche avec poppler"
-#        except Exception,E:
-#            logging.exception("Unable to open the file " + str(filename) + " because " + str(E))
-#            print str(E)
-
         if not try_pdf:
             self.current_image=0
             return
         # This is executed only is try_pdf is TRUE --> loading file was not possible via wx
+        progressor = gui.utilities.ProgressDialog('MALODOS',_('Reading image data, please wait...'))
         try:
             import locale
             l = locale.getdefaultlocale()
@@ -231,6 +203,7 @@ class imageData(object):
             else :
                 R = range(nmax)
             for pagenr in range(nmax):
+                progressor.add_to_current_step(1.0/nmax)
                 page = doc.getPage(pagenr+1)
                 bm = page.asImage(page.width,page.height)
                 I = Image.fromstring("RGB",(page.width,page.height),bm)
@@ -239,3 +212,5 @@ class imageData(object):
             self.current_image=0
         except Exception,E:
             logging.exception("Unable to open the file " + str(filename) + " because " + str(E))
+        finally:
+            progressor.destroy()
