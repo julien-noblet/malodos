@@ -316,11 +316,16 @@ class ScanWindow(wx.Dialog):
 					os.makedirs(direct)
 				except Exception as E:
 					logging.exception('Unable to create directory '+direct + ':' + str(E))
-					raise Exception('Unable to add the file to the disk')
+					#raise Exception('Unable to add the file to the disk')
+					return
 			else:
 				raise Exception('Unable to add the file to the disk')
 		try:
-			if not data.theData.save_file(fname,self.recordPart.lbTitle.Value,self.recordPart.lbDescription.Value,self.recordPart.lbTags.Value) : raise _('Unable to add the file to the disk')
+			#if not data.theData.save_file(fname,self.recordPart.lbTitle.Value,self.recordPart.lbDescription.Value,self.recordPart.lbTags.Value) : raise _('Unable to add the file to the disk')
+			if not data.theData.save_file(fname,self.recordPart.lbTitle.Value,self.recordPart.lbDescription.Value,self.recordPart.lbTags.Value) :
+				logging.debug('Unable to save the file ' + fname + ':' + str(E))
+				return
+				
 		except Exception as E:
 			logging.debug('Saving file ' + str(E))
 			wx.MessageBox(_('Unable to add the file to the disk'))

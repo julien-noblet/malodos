@@ -87,7 +87,23 @@ class imageData(object):
         else :
             return
         self.apply_transposition(image_num, mode)
-
+    def rescale_all(self):
+        # first find the highest width/height
+        wD=0
+        hD=0
+        for i in range(len(self.pil_images)):
+            (ww,hh) = self.pil_images[i].size
+            w=min(ww,hh)
+            h=max(ww,hh)
+            wD=max(wD,w)
+            hD=max(hD,h)
+        # then rescale any smaller page to the max
+        for i in range(len(self.pil_images)):
+            (ww,hh) = self.pil_images[i].size
+            if ww<hh:
+                self.pil_images[i] = self.pil_images[i].resize((wD, hD), Image.BICUBIC)
+            else:
+                self.pil_images[i] = self.pil_images[i].resize((hD, wD), Image.BICUBIC)
     def clear_all(self):
         "clear the image data"
         self.pil_images=[]
@@ -102,6 +118,32 @@ class imageData(object):
     def save_file(self,filename,title=None,description=None,keywords=None):
         "save the image data to a PDF file"
         if len(self.pil_images)<1 : return False
+        
+        (fname,ext) = os.path.splitext(filename)
+        ext=ext.lower()
+        if ext in ['.jpg'  , '.jpeg'  ,  '.png',  '.bmp' , '.gif']:
+            if len(self.pil_images)>1 :
+                gui.utilities.show_message(_('Unable to save multipage document with the asked extension'))
+                return False
+            try:
+                self.pil_images[0].save(filename)
+                return True
+            except Exception as E:
+                logging.exception('Saving file ' + filename + ':' + str(E))
+                return False
+        if ext in ['.tif' , '.tiff'] :
+            if len(self.pil_images)>1 :
+                gui.utilities.show_message(_('Unable to save multipage tiff document for the time being'))
+                return False
+            try:
+                self.pil_images[0].save(filename)
+                return True
+            except Exception as E:
+                logging.exception('Saving file ' + filename + ':' + str(E))
+                return False
+        if ext!='.pdf' :
+            gui.utilities.show_message(_('Extension unknown'))
+            return False
         wD=0
         hD=0
         for i in range(len(self.pil_images)):
