@@ -99,6 +99,7 @@ class FileMerger(wx.Dialog):
         for idx in self.docOrder:
             row = self.rowList[idx]
             data.theData.load_file(row[database.theBase.IDX_FILENAME], None, False)
+        data.theData.rescale_all()
         fname = self.recordPart.lbFileName.GetPath()
         if fname == '' :
             wx.MessageBox(_('You must give a valid filename to record the document'))
@@ -110,11 +111,16 @@ class FileMerger(wx.Dialog):
                     os.makedirs(direct)
                 except Exception as E:
                     logging.exception('Unable to create directory '+direct + ':' + str(E))
-                    raise Exception('Unable to add the file to the disk')
+                    #raise Exception('Unable to add the file to the disk')
+                    return
             else:
-                raise Exception('Unable to add the file to the disk')
+                #raise Exception('Unable to add the file to the disk')
+                return
         try:
-            if not data.theData.save_file(fname,self.recordPart.lbTitle.Value,self.recordPart.lbDescription.Value,self.recordPart.lbTags.Value) : raise _('Unable to add the file to the disk')
+            #if not data.theData.save_file(fname,self.recordPart.lbTitle.Value,self.recordPart.lbDescription.Value,self.recordPart.lbTags.Value) : raise _('Unable to add the file to the disk')
+            if not data.theData.save_file(fname,self.recordPart.lbTitle.Value,self.recordPart.lbDescription.Value,self.recordPart.lbTags.Value) :
+                logging.exception('Unable to save '+fname + ':' + str(E))
+                return
         except Exception as E:
             logging.debug('Saving file ' + str(E))
             wx.MessageBox(_('Unable to add the file to the disk'))
