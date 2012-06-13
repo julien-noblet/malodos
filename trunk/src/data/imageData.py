@@ -133,8 +133,32 @@ class imageData(object):
                 return False
         if ext in ['.tif' , '.tiff'] :
             if len(self.pil_images)>1 :
-                gui.utilities.show_message(_('Unable to save multipage tiff document for the time being'))
-                return False
+#                try:
+#                    import tifffile
+#                    tifffile.imsave(filename, self.pil_images[0])
+#                try:
+#                    import pytiff
+#                    tiff_writer = pytiff.TiffWriter(filename)
+#                    for i in range(len(self.pil_images)):
+#                        img = pytiff.MemoryImage(self.pil_images[i])
+#                        tiff_writer.append(img)
+#                    return True
+                try:
+                    import FreeImagePy.FreeImagePy as FIPY
+                    fip = FIPY.freeimage()
+                    imgList=[]
+                    for i in range(len(self.pil_images)):
+                        fle = tempfile.mkstemp('.png')
+                        imgList.append(fle[1])
+                        self.pil_images[i].save(fle[1])
+                        os.close(fle[0])
+                    fip.convertToMultiPage((x for x in imgList), filename,deleteOld=True)
+                    return True
+                    
+                except Exception as E:
+                    print str(E)
+                    gui.utilities.show_message(_('Unable to save multipage tiff document for the time being'))
+                    return False
             try:
                 self.pil_images[0].save(filename)
                 return True
