@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-02-05 22:25+0200\n"
-"PO-Revision-Date: 2012-02-05 22:26+0200\n"
+"POT-Creation-Date: 2012-06-13 22:11+0300\n"
+"PO-Revision-Date: 2012-06-13 22:26+0200\n"
 "Last-Translator: David guez <guezdav@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -36,6 +36,7 @@ msgstr "Ne peut se connecter à la base de donnée"
 #: database/db.py:345
 #: database/db.py:351
 #: database/db.py:352
+#: database/db.py:380
 msgid "Unstable state: Your database version is newer than the program itself..."
 msgstr "Etat instable : La version de votre base de données est plus récente que le programme lui-même"
 
@@ -48,6 +49,7 @@ msgstr "Etat instable : La version de votre base de données est plus récente q
 #: database/db.py:454
 #: database/db.py:465
 #: database/db.py:466
+#: database/db.py:494
 msgid "Unable to assign the registering person"
 msgstr "Impossible d'assigner la personne "
 
@@ -60,6 +62,7 @@ msgstr "Impossible d'assigner la personne "
 #: database/db.py:463
 #: database/db.py:475
 #: database/db.py:476
+#: database/db.py:504
 msgid "Unable to add the document"
 msgstr "Impossible d'ajouter le document"
 
@@ -75,6 +78,8 @@ msgstr "Impossible d'ajouter le document"
 #: database/db.py:682
 #: database/db.py:675
 #: database/db.py:683
+#: database/db.py:753
+#: database/db.py:761
 msgid "Unable to remove documents/word associations"
 msgstr "Impossible de supprimer une association mot/document"
 
@@ -87,6 +92,7 @@ msgstr "Impossible de supprimer une association mot/document"
 #: database/db.py:667
 #: database/db.py:691
 #: database/db.py:692
+#: database/db.py:770
 msgid "Unable to remove documents entries"
 msgstr "Impossible de supprimer les documents"
 
@@ -99,6 +105,7 @@ msgstr "Impossible de supprimer les documents"
 #: database/db.py:688
 #: database/db.py:713
 #: database/db.py:714
+#: database/db.py:792
 msgid "Unable to remove doc/word association"
 msgstr "Impossible de supprimer une association mot/document"
 
@@ -111,6 +118,7 @@ msgstr "Impossible de supprimer une association mot/document"
 #: database/db.py:704
 #: database/db.py:730
 #: database/db.py:731
+#: database/db.py:809
 msgid "Unable to insert new keywords : "
 msgstr "Impossible d'inserer un nouveau mot-clé"
 
@@ -123,6 +131,7 @@ msgstr "Impossible d'inserer un nouveau mot-clé"
 #: database/db.py:713
 #: database/db.py:740
 #: database/db.py:741
+#: database/db.py:819
 msgid "Unable to search for keywords"
 msgstr "Recherche de mot-clé impossible"
 
@@ -135,6 +144,7 @@ msgstr "Recherche de mot-clé impossible"
 #: database/db.py:723
 #: database/db.py:751
 #: database/db.py:752
+#: database/db.py:830
 msgid "Unable to insert new document/word association"
 msgstr "Impossible d'inserer une association mot/document"
 
@@ -147,6 +157,7 @@ msgstr "Impossible d'inserer une association mot/document"
 #: database/db.py:740
 #: database/db.py:770
 #: database/db.py:771
+#: database/db.py:849
 msgid "Unable to update document into database"
 msgstr "Impossible de mettre à jours le document dans la base de données"
 
@@ -159,6 +170,7 @@ msgstr "Impossible de mettre à jours le document dans la base de données"
 #: database/db.py:754
 #: database/db.py:785
 #: database/db.py:786
+#: database/db.py:864
 msgid "Unable to reassign checksum into database entry"
 msgstr "Impossible de mettre à jours la signature dans la base de données"
 
@@ -166,6 +178,7 @@ msgstr "Impossible de mettre à jours la signature dans la base de données"
 #: gui/addFileWindow.py:27
 #: gui/addFileWindow.py:29
 #: gui/addFileWindow.py:30
+#: gui/addFileWindow.py:31
 msgid "Adding a documents to the database"
 msgstr "Ajouter un document à la base de données"
 
@@ -177,6 +190,8 @@ msgstr "Ajouter un document à la base de données"
 #: gui/addFileWindow.py:67
 #: gui/addFileWindow.py:33
 #: gui/addFileWindow.py:72
+#: gui/addFileWindow.py:34
+#: gui/addFileWindow.py:77
 msgid "filename of the document to add"
 msgstr "Nom du fichier du document à ajouter"
 
@@ -202,6 +217,11 @@ msgstr "Nom du fichier du document à ajouter"
 #: gui/mainBoard.py:58
 #: gui/scanWindow.py:127
 #: gui/mainBoard.py:59
+#: gui/addFileWindow.py:51
+#: gui/fileMerge.py:50
+#: gui/mainBoard.py:61
+#: gui/requestBuilder.py:167
+#: gui/requestBuilder.py:300
 msgid "Ok"
 msgstr "Confirmer"
 
@@ -227,6 +247,11 @@ msgstr "Confirmer"
 #: gui/mainBoard.py:59
 #: gui/scanWindow.py:129
 #: gui/mainBoard.py:60
+#: gui/addFileWindow.py:52
+#: gui/fileMerge.py:51
+#: gui/mainBoard.py:62
+#: gui/requestBuilder.py:168
+#: gui/requestBuilder.py:301
 msgid "Cancel"
 msgstr "Annuler"
 
@@ -247,6 +272,9 @@ msgstr "Annuler"
 #: gui/scanWindow.py:299
 #: gui/scanWindow.py:326
 #: gui/scanWindow.py:329
+#: gui/addFileWindow.py:87
+#: gui/fileMerge.py:129
+#: gui/scanWindow.py:336
 msgid "Unable to add the file to the database"
 msgstr "Impossible d'ajouter le fichier à la base de données"
 
@@ -263,6 +291,7 @@ msgstr "Impossible d'ajouter le fichier à la base de données"
 #: gui/mainBoard.py:272
 #: gui/survey.py:376
 #: gui/mainBoard.py:275
+#: gui/mainBoard.py:463
 msgid "Update"
 msgstr "Mettre à jour"
 
@@ -276,6 +305,7 @@ msgstr "Mettre à jour"
 #: gui/mainBoard.py:263
 #: gui/mainBoard.py:274
 #: gui/mainBoard.py:277
+#: gui/mainBoard.py:465
 msgid "System show"
 msgstr "Affichage système"
 
@@ -289,6 +319,7 @@ msgstr "Affichage système"
 #: gui/mainBoard.py:285
 #: gui/mainBoard.py:296
 #: gui/mainBoard.py:299
+#: gui/mainBoard.py:489
 msgid "filter :"
 msgstr "Filtre :"
 
@@ -302,6 +333,7 @@ msgstr "Filtre :"
 #: gui/mainBoard.py:287
 #: gui/mainBoard.py:298
 #: gui/mainBoard.py:301
+#: gui/mainBoard.py:491
 msgid "advanced"
 msgstr "Avancé"
 
@@ -315,6 +347,7 @@ msgstr "Avancé"
 #: gui/mainBoard.py:338
 #: gui/mainBoard.py:349
 #: gui/mainBoard.py:354
+#: gui/mainBoard.py:630
 msgid "Scan a new document"
 msgstr "Scanner un nouveau document"
 
@@ -328,6 +361,7 @@ msgstr "Scanner un nouveau document"
 #: gui/mainBoard.py:347
 #: gui/mainBoard.py:358
 #: gui/mainBoard.py:363
+#: gui/mainBoard.py:654
 msgid "Add a new document"
 msgstr "Ajouter un nouveau document"
 
@@ -355,6 +389,8 @@ msgstr "Le contenu du fichier à été modifié! Voulez vous mettre à jours sa 
 #: gui/RecordWidget.py:255
 #: gui/mainBoard.py:412
 #: gui/RecordWidget.py:271
+#: gui/mainBoard.py:706
+#: gui/RecordWidget.py:275
 msgid "Unable to update the database"
 msgstr "Impossible de mettre à jours la base de données"
 
@@ -368,6 +404,7 @@ msgstr "Impossible de mettre à jours la base de données"
 #: gui/mainBoard.py:392
 #: gui/mainBoard.py:403
 #: gui/mainBoard.py:414
+#: gui/mainBoard.py:708
 msgid "Unable to check the file signature..."
 msgstr "Impossible de vérifier la signature du fichier"
 
@@ -424,6 +461,7 @@ msgstr " enregistrements"
 #: gui/mainBoard.py:478
 #: gui/mainBoard.py:489
 #: gui/mainBoard.py:503
+#: gui/mainBoard.py:795
 msgid "Unable to print the document"
 msgstr "Impossible d'imprimer le document"
 
@@ -666,6 +704,7 @@ msgstr "Balises"
 #: gui/RecordWidget.py:66
 #: gui/RecordWidget.py:68
 #: gui/RecordWidget.py:73
+#: gui/requestBuilder.py:17
 msgid "document date"
 msgstr "Date du document"
 
@@ -685,6 +724,7 @@ msgstr "Date du document"
 #: gui/mainBoard.py:257
 #: gui/scanWindow.py:165
 #: gui/mainBoard.py:259
+#: gui/mainBoard.py:446
 msgid "Scanning a new document"
 msgstr "Scanner un nouveau document"
 
@@ -755,6 +795,7 @@ msgstr "Enregistrement"
 #: gui/scanWindow.py:320
 #: gui/scanWindow.py:347
 #: gui/scanWindow.py:350
+#: gui/scanWindow.py:357
 msgid "Do you want to add new page(s) ?"
 msgstr "Voulez vous vraiment ajouter une nouvelle page ?"
 
@@ -769,6 +810,8 @@ msgstr "Voulez vous vraiment ajouter une nouvelle page ?"
 #: gui/scanWindow.py:280
 #: gui/scanWindow.py:307
 #: gui/scanWindow.py:310
+#: gui/fileMerge.py:105
+#: gui/scanWindow.py:312
 msgid "You must give a valid filename to record the document"
 msgstr "Un nom de fichier valide est requis pour l'ajout du document"
 
@@ -790,6 +833,8 @@ msgstr "Un nom de fichier valide est requis pour l'ajout du document"
 #: gui/scanWindow.py:320
 #: gui/scanWindow.py:323
 #: gui/scanWindow.py:326
+#: gui/fileMerge.py:126
+#: gui/scanWindow.py:333
 msgid "Unable to add the file to the disk"
 msgstr "Impossible d'ajouter le fichier sur le disque"
 
@@ -850,6 +895,7 @@ msgstr "Demarrage de l'acquisition"
 #: database/db.py:54
 #: database/db.py:59
 #: database/db.py:60
+#: database/db.py:57
 msgid "Configuration not found"
 msgstr "Fichier de configuration non trouvé"
 
@@ -861,6 +907,7 @@ msgstr "Fichier de configuration non trouvé"
 #: database/db.py:493
 #: database/db.py:506
 #: database/db.py:507
+#: database/db.py:585
 msgid "Unable to search keywords"
 msgstr "Impossible de recherche le mot-clé"
 
@@ -877,6 +924,8 @@ msgstr "Impossible de recherche le mot-clé"
 #: database/db.py:659
 #: database/db.py:610
 #: database/db.py:660
+#: database/db.py:688
+#: database/db.py:738
 msgid "Keyword search failed"
 msgstr "La recherche de mot-clé à échouée"
 
@@ -888,6 +937,7 @@ msgstr "La recherche de mot-clé à échouée"
 #: database/db.py:599
 #: database/db.py:619
 #: database/db.py:620
+#: database/db.py:698
 msgid "Document search failed"
 msgstr "La recherche dans le document à échouée"
 
@@ -898,6 +948,7 @@ msgstr "Aucune page"
 
 #: gui/docWindow.py:103
 #: gui/docWindow.py:128
+#: gui/docWindow.py:129
 msgid "no page"
 msgstr "aucune page"
 
@@ -909,6 +960,7 @@ msgstr "aucune page"
 #: gui/mainBoard.py:227
 #: gui/mainBoard.py:238
 #: gui/mainBoard.py:240
+#: gui/mainBoard.py:427
 msgid "MALODOS Main panel"
 msgstr "MALODOS tableau de bord"
 
@@ -921,6 +973,7 @@ msgstr "MALODOS tableau de bord"
 #: gui/mainBoard.py:388
 #: gui/mainBoard.py:399
 #: gui/mainBoard.py:410
+#: gui/mainBoard.py:704
 msgid "The file content has changed! Do you wish to update its signature ?"
 msgstr "Le contenu du fichier à été modifié! Voulez vous mettre à jours sa signature ?"
 
@@ -955,6 +1008,7 @@ msgstr "Code non encore disponible"
 #: gui/mainBoard.py:245
 #: gui/mainBoard.py:256
 #: gui/mainBoard.py:258
+#: gui/mainBoard.py:445
 msgid "Add an existing file"
 msgstr "Ajouter un fichier existant"
 
@@ -966,6 +1020,7 @@ msgstr "Ajouter un fichier existant"
 #: gui/mainBoard.py:247
 #: gui/mainBoard.py:258
 #: gui/mainBoard.py:260
+#: gui/mainBoard.py:447
 msgid "Remove the current selection from the database"
 msgstr "Supprimer les documents séléctionnés de la base de données"
 
@@ -977,6 +1032,7 @@ msgstr "Supprimer les documents séléctionnés de la base de données"
 #: gui/mainBoard.py:248
 #: gui/mainBoard.py:259
 #: gui/mainBoard.py:261
+#: gui/mainBoard.py:448
 msgid "Print the selected document"
 msgstr "Imprimer le document en cours"
 
@@ -988,6 +1044,7 @@ msgstr "Imprimer le document en cours"
 #: gui/mainBoard.py:250
 #: gui/mainBoard.py:261
 #: gui/mainBoard.py:263
+#: gui/mainBoard.py:451
 msgid "Open the directory survey window"
 msgstr "Ouvrir la fenêtre de surveillance des répértoires"
 
@@ -999,6 +1056,7 @@ msgstr "Ouvrir la fenêtre de surveillance des répértoires"
 #: gui/mainBoard.py:251
 #: gui/mainBoard.py:262
 #: gui/mainBoard.py:264
+#: gui/mainBoard.py:452
 msgid "Set preferences"
 msgstr "Modifier les préférences"
 
@@ -1010,6 +1068,7 @@ msgstr "Modifier les préférences"
 #: gui/mainBoard.py:252
 #: gui/mainBoard.py:263
 #: gui/mainBoard.py:265
+#: gui/mainBoard.py:453
 msgid "Credits"
 msgstr "A propos"
 
@@ -1165,6 +1224,8 @@ msgstr "appel de tesseract"
 #: algorithms/words.py:226
 #: algorithms/words.py:190
 #: algorithms/words.py:223
+#: algorithms/words.py:196
+#: algorithms/words.py:229
 msgid "spellchecking"
 msgstr "correction orthographique"
 
@@ -1182,10 +1243,12 @@ msgstr "Appel de gOCR"
 #: data/imageData.py:143
 #: data/imageData.py:142
 #: gui/survey.py:173
+#: data/imageData.py:213
 msgid "Character recognition"
 msgstr "Reconnaissance de caractère"
 
 #: algorithms/words.py:166
+#: algorithms/words.py:172
 #, python-format
 msgid "calling %s"
 msgstr "appel de %s"
@@ -1205,6 +1268,8 @@ msgstr "Impossible de recupérer l'image au format %s dans la section %s"
 #: database/db.py:126
 #: database/db.py:110
 #: database/db.py:127
+#: database/db.py:112
+#: database/db.py:129
 #, python-format
 msgid "Misformatted OCR configuration for section %s "
 msgstr "Configuration OCR mal formée dans la section %s"
@@ -1228,6 +1293,7 @@ msgstr "ROC"
 #: gui/RecordWidget.py:203
 #: gui/RecordWidget.py:202
 #: gui/RecordWidget.py:218
+#: gui/RecordWidget.py:222
 msgid "A valid filename is required"
 msgstr "Un nom de fichier valide est requis"
 
@@ -1289,6 +1355,7 @@ msgstr "Impossible d'ajouter/mettre à jours le fichier dans la base de donnée"
 #: database/db.py:86
 #: database/db.py:87
 #: database/db.py:88
+#: database/db.py:90
 msgid "Unable to get the image in format %(needed_format) for section %(section) "
 msgstr "Impossible de récuperer l'image au format %(needed_format) dans la section %(section) "
 
@@ -1310,12 +1377,15 @@ msgstr "Selecteur de répertoire"
 #: gui/mainBoard.py:219
 #: gui/mainBoard.py:148
 #: gui/mainBoard.py:220
+#: gui/mainBoard.py:290
+#: gui/mainBoard.py:384
 msgid "ROOT"
 msgstr "BASE"
 
 #: database/db.py:376
 #: database/db.py:384
 #: database/db.py:385
+#: database/db.py:413
 msgid "unable to backup the database"
 msgstr "impossible de sauvegarder la base de données"
 
@@ -1325,36 +1395,45 @@ msgstr "impossible de sauvegarder la base de données"
 #: database/db.py:395
 #: database/db.py:392
 #: database/db.py:396
+#: database/db.py:420
+#: database/db.py:424
 msgid "unable to upgrade the database"
 msgstr "impossible de mettre à jours la base de données"
 
 #: database/db.py:856
 #: database/db.py:893
 #: database/db.py:895
+#: database/db.py:973
 msgid "Remove content"
 msgstr "Retirer le contenu"
 
 #: database/db.py:856
 #: database/db.py:893
 #: database/db.py:895
+#: database/db.py:973
 msgid "Set to parent folder"
 msgstr "Déplacer vers le répertoire parent"
 
 #: database/db.py:856
 #: database/db.py:893
 #: database/db.py:895
+#: database/db.py:534
+#: database/db.py:973
+#: gui/utilities.py:29
 msgid "cancel"
 msgstr "annuler"
 
 #: database/db.py:857
 #: database/db.py:894
 #: database/db.py:896
+#: database/db.py:974
 msgid "This folder is not empty, please choose the action to take"
 msgstr "Ce répertoire n'est pas vide, veuillez spécifier l'action à entreprendre"
 
 #: database/db.py:1179
 #: database/db.py:1224
 #: database/db.py:1226
+#: database/db.py:1304
 msgid "Unable to create the database {name} : {err}"
 msgstr "Impossible de créer la base de données {name} : {err}"
 
@@ -1371,51 +1450,62 @@ msgstr "Etes vous sûr de vouloir annuler le guide de la fonction Document To Go
 #: gui/documentToGo.py:40
 #: gui/documentToGo.py:46
 #: gui/documentToGo.py:53
+#: gui/documentToGo.py:48
+#: gui/documentToGo.py:55
 msgid "The filename can't be empty"
 msgstr "Le nom du fichier ne peut être vide"
 
 #: gui/documentToGo.py:48
 #: gui/documentToGo.py:61
+#: gui/documentToGo.py:63
 msgid "The filename and dirname can't be empty"
 msgstr "Ni le nom du fichier, ni le nom du répertoire ne doivent être vides"
 
 #: gui/documentToGo.py:60
 #: gui/documentToGo.py:77
+#: gui/documentToGo.py:80
 msgid "Export all of part of the database."
 msgstr "Exporter tout ou partie de la base de données."
 
 #: gui/documentToGo.py:61
 #: gui/documentToGo.py:78
+#: gui/documentToGo.py:81
 msgid "Create an archive with some or all of your documents, along with a database to browse into."
 msgstr "Créer une archive contenant tout ou partie de vos documents, ainsi que la base de données permettant de les explorer."
 
 #: gui/documentToGo.py:62
 #: gui/documentToGo.py:79
+#: gui/documentToGo.py:82
 msgid "Open an existing archive."
 msgstr "Ouvrir une archive existante."
 
 #: gui/documentToGo.py:63
 #: gui/documentToGo.py:80
+#: gui/documentToGo.py:83
 msgid "What action do you want to take"
 msgstr "Quel action voulez vous prendre "
 
 #: gui/documentToGo.py:83
 #: gui/documentToGo.py:114
+#: gui/documentToGo.py:118
 msgid "Path of exported database"
 msgstr "Chemin pour la base de donnée exportée"
 
 #: gui/documentToGo.py:97
 #: gui/documentToGo.py:128
+#: gui/documentToGo.py:132
 msgid "Path of exported archive"
 msgstr "Chemin pour l'archive exportée"
 
 #: gui/documentToGo.py:110
 #: gui/documentToGo.py:141
+#: gui/documentToGo.py:145
 msgid "Path of archive to import"
 msgstr "Chemin de l'archive à importer"
 
 #: gui/documentToGo.py:114
 #: gui/documentToGo.py:145
+#: gui/documentToGo.py:149
 msgid "Path of directory into which the archive will be extracted"
 msgstr "Chemin du répertoir où l'archive sera extraite"
 
@@ -1425,6 +1515,7 @@ msgstr "Chemin du répertoir où l'archive sera extraite"
 #: gui/mainBoard.py:137
 #: gui/mainBoard.py:148
 #: gui/mainBoard.py:149
+#: gui/mainBoard.py:291
 msgid "Unclassified"
 msgstr "Non classés"
 
@@ -1434,6 +1525,7 @@ msgstr "Non classés"
 #: gui/mainBoard.py:278
 #: gui/mainBoard.py:289
 #: gui/mainBoard.py:292
+#: gui/mainBoard.py:480
 msgid "Flat view"
 msgstr "Vue plate"
 
@@ -1443,6 +1535,7 @@ msgstr "Vue plate"
 #: gui/mainBoard.py:280
 #: gui/mainBoard.py:291
 #: gui/mainBoard.py:294
+#: gui/mainBoard.py:482
 msgid "Folder view"
 msgstr "Vue répértoire"
 
@@ -1452,6 +1545,7 @@ msgstr "Vue répértoire"
 #: gui/mainBoard.py:282
 #: gui/mainBoard.py:293
 #: gui/mainBoard.py:296
+#: gui/mainBoard.py:484
 msgid "Tag Folder view"
 msgstr "Vue mots-clefs"
 
@@ -1541,22 +1635,27 @@ msgstr "impossible de supprimer le sous répertoire {0}"
 
 #: database/db.py:1258
 #: database/db.py:1260
+#: database/db.py:1338
 msgid "Unable to open the archive {0}"
 msgstr "Impossible d'ouvrir l'archive {0}"
 
 #: gui/documentToGo.py:81
+#: gui/documentToGo.py:84
 msgid "Export all the documents"
 msgstr "Exporter l'ensemble des documents"
 
 #: gui/documentToGo.py:82
+#: gui/documentToGo.py:85
 msgid "Export only the result of the current search."
 msgstr "Exporter uniquement les résultat de la recherche en cours"
 
 #: gui/documentToGo.py:83
+#: gui/documentToGo.py:86
 msgid "Export only the result of the current selection."
 msgstr "Exporter uniquement les résultats de la sélection en cours"
 
 #: gui/documentToGo.py:84
+#: gui/documentToGo.py:88
 msgid "Which documents would you like to save"
 msgstr "Quel document voulez vous sauver"
 
@@ -1565,6 +1664,8 @@ msgstr "Quel document voulez vous sauver"
 #: gui/mainBoard.py:76
 #: gui/mainBoard.py:87
 #: gui/mainBoard.py:88
+#: gui/mainBoard.py:91
+#: gui/mainBoard.py:199
 msgid "Alphabetical"
 msgstr "Alphabétique"
 
@@ -1573,6 +1674,8 @@ msgstr "Alphabétique"
 #: gui/mainBoard.py:77
 #: gui/mainBoard.py:88
 #: gui/mainBoard.py:89
+#: gui/mainBoard.py:92
+#: gui/mainBoard.py:200
 msgid "Chronological (document)"
 msgstr "Chronologique (date de création)"
 
@@ -1581,6 +1684,8 @@ msgstr "Chronologique (date de création)"
 #: gui/mainBoard.py:78
 #: gui/mainBoard.py:89
 #: gui/mainBoard.py:90
+#: gui/mainBoard.py:93
+#: gui/mainBoard.py:201
 msgid "Chronological (registering date)"
 msgstr "Chronologique (date d'enregistrement)"
 
@@ -1589,6 +1694,8 @@ msgstr "Chronologique (date d'enregistrement)"
 #: gui/mainBoard.py:79
 #: gui/mainBoard.py:90
 #: gui/mainBoard.py:91
+#: gui/mainBoard.py:94
+#: gui/mainBoard.py:202
 msgid "Relevance"
 msgstr "Pertinance"
 
@@ -1597,6 +1704,8 @@ msgstr "Pertinance"
 #: gui/mainBoard.py:90
 #: gui/mainBoard.py:101
 #: gui/mainBoard.py:102
+#: gui/mainBoard.py:111
+#: gui/mainBoard.py:215
 msgid "Classification"
 msgstr "Classification"
 
@@ -1633,23 +1742,28 @@ msgstr "Génération de la requête"
 #: gui/scanWindow.py:284
 #: gui/scanWindow.py:311
 #: gui/scanWindow.py:314
+#: gui/fileMerge.py:109
+#: gui/scanWindow.py:316
 msgid "The directory {dname} does not exists. Should it be created ?"
 msgstr "Le répertoire {dname} n'existe pas. Volez vous le créer?"
 
 #: gui/mainBoard.py:35
 #: gui/mainBoard.py:36
+#: gui/mainBoard.py:38
 msgid "Details of the bug report"
 msgstr "Détail du rapport de bug"
 
 #: gui/mainBoard.py:38
 #: gui/mainBoard.py:49
 #: gui/mainBoard.py:50
+#: gui/mainBoard.py:52
 msgid "Your name"
 msgstr "Votre nom"
 
 #: gui/mainBoard.py:42
 #: gui/mainBoard.py:53
 #: gui/mainBoard.py:54
+#: gui/mainBoard.py:56
 msgid "Description of the bug"
 msgstr "Description du bug"
 
@@ -1657,6 +1771,7 @@ msgstr "Description du bug"
 #: gui/mainBoard.py:253
 #: gui/mainBoard.py:264
 #: gui/mainBoard.py:266
+#: gui/mainBoard.py:454
 msgid "Report a bug"
 msgstr "Rapport de bug"
 
@@ -1664,6 +1779,7 @@ msgstr "Rapport de bug"
 #: gui/mainBoard.py:254
 #: gui/mainBoard.py:265
 #: gui/mainBoard.py:267
+#: gui/mainBoard.py:455
 msgid "Support MALODOS"
 msgstr "Soutenir MALODOS"
 
@@ -1683,7 +1799,7 @@ msgid ""
 "        Please, before reporting any bug, verify at least that it is not already known by looking at\r\n"
 "        the existing bugs in this page :  http://code.google.com/p/malodos/issues\r\n"
 "        "
-msgstr ""
+msgstr "Ci-dessous, vous pouvez remplir la description du bug. le moyen normal de \r \n"
 
 #: gui/scanWindow.py:181
 msgid "Add scan"
@@ -1694,6 +1810,7 @@ msgid "Files not in the database"
 msgstr "Fichier absent de la base de données"
 
 #: gui/mainBoard.py:391
+#: gui/mainBoard.py:683
 msgid "The current record has modifications are not yet saved. Do you want to save it before selecting another record?"
 msgstr "Les modification de l'enregistrement courant ne sont pas sauvegardées. Voulez vous effectuer la sauvegarde avant de passer à un nouvel enregistrement ?"
 
@@ -1702,6 +1819,295 @@ msgid "rescan for OCR"
 msgstr "relancer la ROC"
 
 #: gui/scanWindow.py:250
+#: gui/scanWindow.py:251
 msgid "The scanned images are not saved. Are you sure you want to quit the scan window?"
 msgstr "Les images scannées n'ont pas été sauvegardées. Etes vous sur de vouloir quitter la fenêtre de scan?"
+
+#: data/imageData.py:130
+msgid "Unable to save multi-page document with the asked extension"
+msgstr "Impossible de sauvegarder un document multi-page avec cette extension"
+
+#: data/imageData.py:164
+msgid "Unable to save multipage tiff document for the time being"
+msgstr "Impossible de sauvegarder un tiff multipage pour l'instant"
+
+#: data/imageData.py:173
+msgid "Unknown file extension"
+msgstr "Nom d'extension inconnu"
+
+#: data/imageData.py:241
+#: data/imageData.py:261
+msgid "Reading image data, please wait..."
+msgstr "Lecture de l'image, un instant s'il vous plait..."
+
+#: database/db.py:170
+msgid "Choose a folder for the MALODOS configuration and database"
+msgstr "Choisissez un répertoire pour la configuration et la base de données de MALODOS"
+
+#: database/db.py:529
+msgid "This will delete the record ("
+msgstr "Ceci supprimera l'enregistrement ("
+
+#: database/db.py:531
+msgid "This will delete these "
+msgstr "Ceci détruira les"
+
+#: database/db.py:531
+msgid " records."
+msgstr "enregistrements."
+
+#: database/db.py:532
+msgid "Please, choose an action below"
+msgstr "Veuillez choisir une acion ci-dessous"
+
+#: database/db.py:533
+msgid "What to do"
+msgstr "Que faire"
+
+#: database/db.py:534
+msgid "remove from database"
+msgstr "supprimer de la base de données"
+
+#: database/db.py:534
+msgid "remove from database AND FROM DISK"
+msgstr "supprimer de la base de données ET DU DISQUE"
+
+#: database/__init__.py:15
+msgid "Unable to connect to database->"
+msgstr "Impossible de se connecter à la base de données ->"
+
+#: gui/documentToGo.py:87
+msgid "Export all the documents in the basket"
+msgstr "Exporter tous les documents du panier"
+
+#: gui/fileMerge.py:40
+msgid "Move up"
+msgstr "Monter"
+
+#: gui/fileMerge.py:41
+msgid "Move down"
+msgstr "Descendre"
+
+#: gui/fileMerge.py:43
+msgid "What do you want to do with the previous documents"
+msgstr "Que faire des anciens documents"
+
+#: gui/fileMerge.py:43
+msgid "Keep them on database"
+msgstr "Les conserver dans la base de données"
+
+#: gui/fileMerge.py:43
+msgid "Remove from database only"
+msgstr "Les supprimer uniquement de la base de données"
+
+#: gui/fileMerge.py:43
+msgid "Remove from the database and delete the file contents"
+msgstr "Les supprimer de la base de données ET supprimer le contenu du disque"
+
+#: gui/fileMerge.py:46
+msgid "Where do you want to save the merged content"
+msgstr "Que faire du contenu agrégé"
+
+#: gui/fileMerge.py:46
+msgid "As a new file"
+msgstr "En tant que nouveau fichier"
+
+#: gui/fileMerge.py:46
+msgid "Instead one of the older files"
+msgstr "A la place d'un des anciens fichiers"
+
+#: gui/fileMerge.py:53
+msgid "Define in which order the files will be merged into the new document"
+msgstr "Définir l'ordre dans lequel les fichiers seront agrégés dans le nouveau document"
+
+#: gui/mainBoard.py:101
+#: gui/mainBoard.py:114
+#: gui/mainBoard.py:209
+#: gui/mainBoard.py:218
+msgid "Ascending order"
+msgstr "Ordre ascendant"
+
+#: gui/mainBoard.py:486
+msgid "Basket view"
+msgstr "Vue panier"
+
+#: gui/mainBoard.py:540
+msgid "Remove / delete"
+msgstr "Retirer / Supprimer"
+
+#: gui/mainBoard.py:541
+msgid "Add to the basket"
+msgstr "Ajouter au panier"
+
+#: gui/mainBoard.py:542
+msgid "Remove from the basket"
+msgstr "Retirer du panier"
+
+#: gui/mainBoard.py:544
+msgid "Add file content after this document"
+msgstr "Ajouter un fichier à la suite de ce document"
+
+#: gui/mainBoard.py:545
+msgid "Add scan content after this document"
+msgstr "Ajouter un scan à la suite de ce document"
+
+#: gui/mainBoard.py:547
+msgid "Merge documents together"
+msgstr "Agréger les documents ensemble"
+
+#: gui/mainBoard.py:742
+msgid "Unable to apply the record changes."
+msgstr "Impossible d'appliquer les modifications à l'enregistrement."
+
+#: gui/mainBoard.py:745
+msgid "The image itself has changed, do you want to save the modified image ?"
+msgstr "Le contenu de l'image à changé, voulez vous sauvegarder l'image modifiée ?"
+
+#: gui/requestBuilder.py:16
+msgid "and"
+msgstr "et"
+
+#: gui/requestBuilder.py:16
+msgid "or"
+msgstr "ou"
+
+#: gui/requestBuilder.py:16
+msgid "or (exclusive)"
+msgstr "ou (exclusif)"
+
+#: gui/requestBuilder.py:17
+msgid "any field"
+msgstr "n'importe quel champ"
+
+#: gui/requestBuilder.py:17
+msgid "title"
+msgstr "titre"
+
+#: gui/requestBuilder.py:17
+msgid "description"
+msgstr "description"
+
+#: gui/requestBuilder.py:17
+msgid "tags"
+msgstr "mots-clefs"
+
+#: gui/requestBuilder.py:17
+msgid "fulltext"
+msgstr "corp du texte"
+
+#: gui/requestBuilder.py:17
+msgid "Registering date"
+msgstr "Date d'enregistrement"
+
+#: gui/requestBuilder.py:18
+msgid "sounds like"
+msgstr "ressemble à"
+
+#: gui/requestBuilder.py:18
+msgid "spells exactly"
+msgstr "s'écrit exactement"
+
+#: gui/requestBuilder.py:19
+msgid "is on"
+msgstr "est du"
+
+#: gui/requestBuilder.py:19
+msgid "is before"
+msgstr "est anterieur à"
+
+#: gui/requestBuilder.py:19
+msgid "is on or before"
+msgstr "est du ou est anterieur à"
+
+#: gui/requestBuilder.py:19
+msgid "is after"
+msgstr "est posterieur à"
+
+#: gui/requestBuilder.py:19
+msgid "is on or after"
+msgstr "est du ou est posterieur à"
+
+#: gui/requestBuilder.py:156
+msgid "Whole word"
+msgstr "Mot complet"
+
+#: gui/requestBuilder.py:172
+msgid "How to link the condition with the previous one in the current group"
+msgstr "Comment relier la conditio avec la précédante dans ce groupe"
+
+#: gui/requestBuilder.py:175
+msgid "Field on which the condition apply"
+msgstr "Champ auquel s'applique la condition"
+
+#: gui/requestBuilder.py:178
+msgid "Condition type"
+msgstr "Type de condition"
+
+#: gui/requestBuilder.py:181
+msgid "Condition"
+msgstr "Condition"
+
+#: gui/requestBuilder.py:233
+msgid "Defining a condition"
+msgstr "Définir une condition"
+
+#: gui/requestBuilder.py:288
+msgid "In the following, enter the list of restriction defining your search request\n"
+msgstr "Dans la suite, entrez la liste des restriction definissant votre requête\n"
+
+#: gui/requestBuilder.py:289
+msgid "Every element is clickable\n"
+msgstr "Chaque élément est cliquable"
+
+#: gui/requestBuilder.py:290
+msgid "Click on a condition to change it\n"
+msgstr "Cliquer sur une condition pour la modifier"
+
+#: gui/requestBuilder.py:291
+msgid "Click on the + button to add another condition after the corresponding line\n"
+msgstr "Cliquez sur le boutton + pour ajouter une condition après la ligne correspondante"
+
+#: gui/requestBuilder.py:292
+msgid "Click on the [+] button to add another group of conditions after the corresponding line\n"
+msgstr "Cliquez sur le boutton [+] pour ajouter un groupe de conditions après la ligne correspondante"
+
+#: gui/requestBuilder.py:293
+msgid "Click on the - button to remove the condition on the corresponding line\n"
+msgstr "Cliquez sur le boutton - pour supprimer la condition de ligne correspondante"
+
+#: gui/requestBuilder.py:294
+msgid "Click on the [-] button to remove the group of conditions for the corresponding line"
+msgstr "Cliquez sur le boutton [-] pour supprimer le groupe de conditions de ligne correspondante"
+
+#: gui/requestBuilder.py:363
+msgid "How to link the condition group with the previous one"
+msgstr "Comment lier ce groupe de conditions avec le précédant"
+
+#: gui/requestBuilder.py:367
+msgid "Do you want to remove all the conditions from this list ?"
+msgstr "Voulez vous retirer l'ensemble des conditions de ce groupe ?"
+
+#: gui/requestBuilder.py:403
+msgid "Please add at least one condition"
+msgstr "Veuillez ajouter au moins une condition"
+
+#: gui/requestBuilder.py:462
+msgid "Simple request"
+msgstr "Requête simple"
+
+#: gui/requestBuilder.py:463
+msgid "Advanced request"
+msgstr "Requête avancée"
+
+#: gui/utilities.py:29
+msgid "choice window"
+msgstr "choix"
+
+#: gui/utilities.py:29
+msgid "Choose an option"
+msgstr "Choisissez une option"
+
+#: gui/utilities.py:29
+msgid "ok"
+msgstr "ok"
 
