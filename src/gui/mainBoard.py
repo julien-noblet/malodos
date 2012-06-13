@@ -24,7 +24,7 @@ from gui import utilities
 import hashlib
 from gui import Preferences
 import Resources
-import algorithms.stringFunctions
+import algorithms.stringFunctions as SF
 import data
 import documentToGo
 import webbrowser
@@ -107,6 +107,7 @@ class FlatView(wx.NotebookPage):
         self.cbOrder = wx.ComboBox(self.panel,-1,choices=listChoices)
         self.cbOrder.SetSelection(0)
         self.chkInvertOrder = wx.CheckBox(self.panel,-1)
+        self.chkInvertOrder.SetValue(True)
         self.totSizer.Add(wx.StaticText(self.panel,label=_('Classification')),(0,0),flag=wx.EXPAND)
         self.totSizer.Add(self.cbOrder,(0,1),flag=wx.EXPAND)
         self.totSizer.Add(self.chkInvertOrder,(0,2),flag=wx.EXPAND)
@@ -144,7 +145,7 @@ class FlatView(wx.NotebookPage):
         if sel is None : return
         sel = self.CHOICES[sel][0]
         if sel == self.ID_ALPHABETICAL[0]:
-            self.docList.sort(key=lambda row:row[database.theBase.IDX_TITLE].lower(),reverse=self.chkInvertOrder.Value)
+            self.docList.sort(key=lambda row: SF.no_accent(row[database.theBase.IDX_TITLE].lower()),reverse=self.chkInvertOrder.Value)
         elif sel == self.ID_CHRONO_DOC[0]:
             self.docList.sort(key=lambda row:row[database.theBase.IDX_DOCUMENT_DATE],reverse=self.chkInvertOrder.Value)
         elif sel == self.ID_CHRONO_REG[0]:
@@ -664,7 +665,7 @@ class MainFrame(wx.Frame):
         if len(sFilter)==0:
             docList = database.theBase.find_documents(None)
         else:
-            [request,pars] = algorithms.stringFunctions.req_to_sql(self.tbFilter.Value)
+            [request,pars] = SF.req_to_sql(self.tbFilter.Value)
             docList = database.theBase.find_sql(request,pars)
         if docList is None : docList=[]
         #if not docList: return
@@ -679,9 +680,11 @@ class MainFrame(wx.Frame):
     # actionDocSelect : show the selected item on the doc part
     #===========================================================================
     def actionDocSelect(self,row):
-        if self.modified and utilities.ask(_('The current record has modifications are not yet saved. Do you want to save it before selecting another record?')):
-            self.modified=False
-            self.actionUpdateRecord(None)
+        if (self.modified or theData.is_modified) and utilities.ask(_('The current record has modifications are not yet saved. Do you want to save it before selecting another record?')):
+            if self.actionUpdateRecord(None):
+                self.modified=False
+            else:
+                return
         else:
             self.modified=False
             
@@ -735,7 +738,20 @@ class MainFrame(wx.Frame):
         if row is None  or len(row)!=1 or row[0] is None: return
         row=row[0]
         docID = row[database.theBase.IDX_ROWID]
-        if self.recordPart.update_record(docID) : self.actionSearch(event)
+        if not self.recordPart.update_record(docID) :
+            utilities.show_message(_('Unable to apply the record changes.'))
+            return False
+        if theData.is_modified :
+            if utilities.ask(_('The image itself has changed, do you want to save the modified image ?')):
+                filename = row[database.theBase.IDX_FILENAME]
+                title = row[database.theBase.IDX_TITLE]
+                description = row[database.theBase.IDX_DESCRIPTION]
+                keywords = database.theBase.get_list_of_tags_for(docID)
+                theData.save_file(filename, title, description, keywords)
+                new_md5 = hashlib.md5(open(filename, "rb").read()).hexdigest()
+                database.theBase.update_doc_signature(docID, new_md5)
+        self.actionSearch(event)
+        return True
     #===========================================================================
     # actionRemoveRecord : remove the selected items
     #===========================================================================
