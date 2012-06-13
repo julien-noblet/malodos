@@ -35,6 +35,7 @@ class imageData(object):
     pil_images = []
     current_image = 0
     image_changed = True
+    is_modified=False
     current_file=None
     nb_pages=0
     title=None
@@ -69,6 +70,7 @@ class imageData(object):
             if image_num>=0 and image_num<len(self.pil_images):
                 self.pil_images[image_num] = self.pil_images[image_num].transpose(mode)
         self.image_changed = True
+        self.is_modified=True
     def swap_x(self,image_num=None):
         "swap the image along the x axis (or all images is image_num is not given)"
         self.apply_transposition(image_num,Image.FLIP_LEFT_RIGHT )
@@ -108,6 +110,7 @@ class imageData(object):
         "clear the image data"
         self.pil_images=[]
         self.image_changed = True
+        self.is_modified=False
         self.current_file=None
         self.title=None
         self.subject=None
@@ -118,6 +121,7 @@ class imageData(object):
     def save_file(self,filename,title=None,description=None,keywords=None):
         "save the image data to a PDF file"
         if len(self.pil_images)<1 : return False
+        self.is_modified=False
         
         (fname,ext) = os.path.splitext(filename)
         ext=ext.lower()
@@ -222,6 +226,7 @@ class imageData(object):
         
         self.current_file=filename
         if do_clear : self.clear_all()
+        self.is_modified=False
         
         try_pdf = filename.lower().endswith('.pdf')
         old_log_level = wx.Log.GetLogLevel()
@@ -229,7 +234,7 @@ class imageData(object):
         if wx.Image.CanRead(filename):
             nmax = wx.Image.GetImageCount(filename)
             if page:
-                if page>=nmax: return
+                if page>=nmax:return
                 R = [page]
             else :
                 R = range(nmax)
@@ -264,7 +269,9 @@ class imageData(object):
             self.keywords=doc.getInfo("keywords")
             nmax = doc.pages
             if page:
-                if page>=nmax: return
+                if page>=nmax:
+                    progressor.destroy()
+                    return
                 R = [page]
             else :
                 R = range(nmax)

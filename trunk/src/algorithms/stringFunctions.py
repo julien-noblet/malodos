@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 '''
 Created on 21 juin 2010. Copyright 2010, David GUEZ
 @author: david guez (guezdav@gmail.com)
@@ -268,3 +269,24 @@ def req_to_sql(req):
     #print S
     #print L
     return (SS,LL)
+def no_accent(S):
+    S=S.replace('à','a')
+    S=S.replace('ä','a')
+    S=S.replace('â','a')
+
+    S=S.replace('é','e')
+    S=S.replace('è','e')
+    S=S.replace('ê','e')
+    S=S.replace('ë','e')
+    
+    S=S.replace('ï','i')
+    S=S.replace('î','i')
+    
+    S=S.replace('ö','o')
+    S=S.replace('ô','o')
+
+    S=S.replace('û','u')
+    S=S.replace('ü','u')
+    S=S.replace('ù','u')
+    
+    return S
