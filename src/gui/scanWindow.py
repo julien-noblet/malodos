@@ -161,7 +161,7 @@ class ScanWindow(wx.Dialog):
 	#==============================================================================
 	# constructor (gui building)
 	#==============================================================================
-	def __init__(self, parent, title):
+	def __init__(self, parent, title,clear_data=True):
 		wx.Dialog.__init__(self, parent, -1, _('Scanning a new document'), wx.DefaultPosition, (372, 700), style=wx.CLOSE_BOX | wx.SYSTEM_MENU | wx.CAPTION | wx.RESIZE_BORDER  | wx.MAXIMIZE_BOX | wx.MINIMIZE_BOX)
 		self.panel = wx.Panel(self, -1)
 
@@ -245,6 +245,7 @@ class ScanWindow(wx.Dialog):
 		self.recordPart.lbFileName.SetPath(self.defaultNameDir())
 		#data.theData.clear_all()
 		if str_to_bool(database.theConfig.get_param('scanner', 'autoScan','False',True)) :
+#			event.Id = 0 if clear_data else 666 
 			self.actionPerformScan(None)
 	def onClose(self,event):
 		if len(data.theData.pil_images)==0 or utilities.ask(_('The scanned images are not saved. Are you sure you want to quit the scan window?')) : self.Destroy()
@@ -294,6 +295,7 @@ class ScanWindow(wx.Dialog):
 #			else:
 #				cont=False
 #		self.docWin.showCurrentImage()
+		if self.recordPart.lbFileName.GetPath() != '' : return
 		if not str_to_bool(database.theConfig.get_param('scanner', 'autoFileName','False',True)) : return
 		defNameDir = self.defaultNameDir()
 		idx=1

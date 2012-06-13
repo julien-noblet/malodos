@@ -123,7 +123,7 @@ class imageData(object):
         ext=ext.lower()
         if ext in ['.jpg'  , '.jpeg'  ,  '.png',  '.bmp' , '.gif']:
             if len(self.pil_images)>1 :
-                gui.utilities.show_message(_('Unable to save multipage document with the asked extension'))
+                gui.utilities.show_message(_('Unable to save multi-page document with the asked extension'))
                 return False
             try:
                 self.pil_images[0].save(filename)
@@ -166,7 +166,7 @@ class imageData(object):
                 logging.exception('Saving file ' + filename + ':' + str(E))
                 return False
         if ext!='.pdf' :
-            gui.utilities.show_message(_('Extension unknown'))
+            gui.utilities.show_message(_('Unknown file extension'))
             return False
         wD=0
         hD=0
