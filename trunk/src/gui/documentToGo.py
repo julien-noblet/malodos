@@ -12,8 +12,10 @@ import wx.wizard
 import database
 import utilities
 class DocToGoWizard (wx.wizard.Wizard):
-    def __init__(self,parent,doc_list,row_list):
+    selectBasket=False
+    def __init__(self,parent,doc_list,row_list,selectBasket=False):
         wx.wizard.Wizard.__init__(self,parent,-1,_('Document to go wizard'))
+        self.selectBasket=selectBasket
         self.page_chooser = PageActionChooser(self)
         self.page_database_export = PageActionDatabaseExport(self)
         self.page_archive_export = PageActionArchiveCreation(self)
@@ -86,6 +88,8 @@ class PageActionChooser (wx.wizard.PyWizardPage):
                              self.SELECTED_DOCS :_('Export only the result of the current selection.'),
                              self.BASKET_DOCS :_('Export all the documents in the basket')    }
         self.rbDocToSave =  wx.RadioBox(self,label=_('Which documents would you like to save'),choices=self.sel_list.values(),style=wx.RA_VERTICAL)
+        if self.Parent.selectBasket :
+            self.rbDocToSave.SetSelection(3)
         self.sizer.Add(self.rbContent,0,flag=wx.EXPAND|wx.ALIGN_CENTER_VERTICAL)
         self.sizer.Add(self.rbDocToSave,0,flag=wx.EXPAND|wx.ALIGN_CENTER_VERTICAL)
         self.SetSizer(self.sizer)
