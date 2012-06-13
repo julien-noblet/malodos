@@ -201,23 +201,34 @@ class BasketView(wx.NotebookPage):
     ID_CHRONO_REG=(3,_('Chronological (registering date)'))
     ID_PERTINENCE=(4,_('Relevance'))
     CHOICES=[ID_ALPHABETICAL,ID_CHRONO_DOC,ID_CHRONO_REG,]#ID_PERTINENCE]#
+    
+    ID_REMOVE=1
+    ID_MERGE=2
+    ID_TOGO=3
     def __init__(self,parent,idt,name,board):
         wx.NotebookPage.__init__(self,parent,idt,name=name)
         self.board = board
         self.totSizer = wx.GridBagSizer()
         self.panel = wx.Panel(self, -1)
         self.panel.SetLabel(_('Ascending order'))
+        self.icBar=wx.ToolBar(self.panel)
+        self.icBar.SetToolBitmapSize((16,16))
+        self.icBar.AddLabelTool(self.ID_REMOVE,'',wx.Bitmap(Resources.get_icon_filename('REMOVE_SELECTION32')),shortHelp=_('Remove/delete all documents in the basket'))
+        self.icBar.AddLabelTool(self.ID_MERGE,'',wx.Bitmap(Resources.get_icon_filename('MERGE_SELECTION32')),shortHelp=_('Merge together all documents in the basket'))
+        self.icBar.AddLabelTool(self.ID_TOGO,'',wx.Bitmap(Resources.get_icon_filename('DOC_ZIP32')),shortHelp=_('Make a portable zip of all the documents in the basket'))
         self.lbDocuments = wx.ListBox(self.panel, -1,style=wx.LB_EXTENDED )
         listChoices = [c[1] for c in self.CHOICES]
         self.cbOrder = wx.ComboBox(self.panel,-1,choices=listChoices)
         self.cbOrder.SetSelection(0)
         self.chkInvertOrder = wx.CheckBox(self.panel,-1)
-        self.totSizer.Add(wx.StaticText(self.panel,label=_('Classification')),(0,0),flag=wx.EXPAND)
-        self.totSizer.Add(self.cbOrder,(0,1),flag=wx.EXPAND)
-        self.totSizer.Add(self.chkInvertOrder,(0,2),flag=wx.EXPAND)
-        self.totSizer.Add(wx.StaticText(self.panel,label=_('Ascending order')),(0,3),flag=wx.EXPAND)
-        self.totSizer.Add(self.lbDocuments,(1,0),span=(1,4),flag=wx.EXPAND)
-        self.totSizer.AddGrowableRow(1)
+        self.chkInvertOrder.SetValue(True)
+        self.totSizer.Add(self.icBar,(0,0),flag=wx.EXPAND)
+        self.totSizer.Add(wx.StaticText(self.panel,label=_('Classification')),(1,0),flag=wx.EXPAND)
+        self.totSizer.Add(self.cbOrder,(1,1),flag=wx.EXPAND)
+        self.totSizer.Add(self.chkInvertOrder,(1,2),flag=wx.EXPAND)
+        self.totSizer.Add(wx.StaticText(self.panel,label=_('Ascending order')),(1,3),flag=wx.EXPAND)
+        self.totSizer.Add(self.lbDocuments,(2,0),span=(1,4),flag=wx.EXPAND)
+        self.totSizer.AddGrowableRow(2)
         self.totSizer.AddGrowableCol(1)
         self.panel.SetSizerAndFit(self.totSizer)
         self.Bind(wx.EVT_LISTBOX,self.action_select,self.lbDocuments)
@@ -225,7 +236,17 @@ class BasketView(wx.NotebookPage):
         self.Bind(wx.EVT_CHECKBOX,self.show_content,self.chkInvertOrder)
         self.lbDocuments.Bind(wx.EVT_CONTEXT_MENU,self.contextualMenu)
         self.docList=None
+        self.Bind(wx.EVT_TOOL,self.actionRemove,id=self.ID_REMOVE)
+        self.Bind(wx.EVT_TOOL,self.actionMerge,id=self.ID_MERGE)
+        self.Bind(wx.EVT_TOOL,self.actionToGo,id=self.ID_TOGO)
+
         
+    def actionRemove(self,event):
+        self.board.actionRemoveRecord(self.board.basket)
+    def actionMerge(self,event):
+        self.board.merge_documents(self.board.basket)
+    def actionToGo(self,event):
+        self.board.actionDocToGo(self.board.basket)
     def contextualMenu(self,event):
         row = self.get_selection()
         if len(row)>0: self.lbDocuments.PopupMenu(self.board.create_menu(row))
@@ -239,7 +260,7 @@ class BasketView(wx.NotebookPage):
         if sel is None : return
         sel = self.CHOICES[sel][0]
         if sel == self.ID_ALPHABETICAL[0]:
-            self.docList.sort(key=lambda row:row[database.theBase.IDX_TITLE].lower(),reverse=self.chkInvertOrder.Value)
+            self.docList.sort(key=lambda row:SF.no_accent(row[database.theBase.IDX_TITLE].lower()),reverse=self.chkInvertOrder.Value)
         elif sel == self.ID_CHRONO_DOC[0]:
             self.docList.sort(key=lambda row:row[database.theBase.IDX_DOCUMENT_DATE],reverse=self.chkInvertOrder.Value)
         elif sel == self.ID_CHRONO_REG[0]:
@@ -756,7 +777,7 @@ class MainFrame(wx.Frame):
     # actionRemoveRecord : remove the selected items
     #===========================================================================
     def actionRemoveRecord(self,event):
-        if type(event) is list :
+        if isinstance(event,list) :
             rows = event
         else:
             rows = self.recordPart.getRow()
@@ -797,10 +818,13 @@ class MainFrame(wx.Frame):
     # actionDocToGo :start the doc to go wizard
     #===========================================================================
     def actionDocToGo(self,event):
-        rows = self.recordPart.getRow()
+        if isinstance(event,list) :
+            rows = event
+        else:
+            rows = self.recordPart.getRow()
         if rows is None or len(rows)<1 :
             rows = self.docList
-        docToGo = documentToGo.DocToGoWizard(self,self.docList,rows)
+        docToGo = documentToGo.DocToGoWizard(self,self.docList,rows, isinstance(event,list))
         docToGo.RunWizard(docToGo.page_chooser)
         self.actionSearch(None)
     #===========================================================================
