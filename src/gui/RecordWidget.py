@@ -101,7 +101,7 @@ class RecordWidget(wx.Window):
         self.lbFolders.Bind(wx.EVT_LIST_DELETE_ITEM,self.notifyModification)
         self.lbFolders.Bind(wx.EVT_LIST_INSERT_ITEM,self.notifyModification)
         #self.Bind(wx.EVT_FILEPICKER_CHANGED,self.checkFileName,self.lbFileName)
-        self.lbFileName.Bind(wx.EVT_FILEPICKER_CHANGED, self.checkFileName)
+        #self.lbFileName.Bind(wx.EVT_FILEPICKER_CHANGED, self.checkFileName)
         self.modificationCallback=None
     def setModificationCallback(self,callback_function=None):
         self.modificationCallback=callback_function
@@ -216,6 +216,7 @@ class RecordWidget(wx.Window):
     def onResize(self,event):
         self.panel.Size = self.Size
     def do_save_record(self):
+        self.checkFileName(None)
         filename = self.lbFileName.GetPath()
         if not os.path.exists(filename):
             gui.utilities.show_message(_('A valid filename is required'))
