@@ -613,13 +613,21 @@ class MainFrame(wx.Frame):
     #===========================================================================
     def actionAddScan(self,event,row=None):
         data.theData.clear_all()
+        filename=None
         if row is not None :
             try:
-                fname = row[database.theBase.IDX_FILENAME]
-                data.theData.load_file(fname, do_clear=False)
+                docID = row[database.theBase.IDX_ROWID]
+                title = row[database.theBase.IDX_TITLE]
+                description = row[database.theBase.IDX_DESCRIPTION]
+                documentDate = row[database.theBase.IDX_DOCUMENT_DATE]
+                tags = row[database.theBase.IDX_TAGS]
+                folderID_list = database.theBase.folders_list_for(docID)
+                filename = row[database.theBase.IDX_FILENAME]
+                data.theData.load_file(filename, do_clear=False)
             except :
                 pass
         Frame = scanWindow.ScanWindow(self,_("Scan a new document"))
+        if filename is not None : Frame.recordPart.SetFields(filename, title, description, documentDate,tags,False,folderID_list)
         Frame.ShowModal()
         theData.clear_all()
         self.actionSearch(None)
@@ -629,13 +637,21 @@ class MainFrame(wx.Frame):
     #===========================================================================
     def actionAddFile(self,event,row=None):
         data.theData.clear_all()
+        filename=None
         if row is not None :
             try:
-                fname = row[database.theBase.IDX_FILENAME]
-                data.theData.load_file(fname, do_clear=False)
+                docID = row[database.theBase.IDX_ROWID]
+                title = row[database.theBase.IDX_TITLE]
+                description = row[database.theBase.IDX_DESCRIPTION]
+                documentDate = row[database.theBase.IDX_DOCUMENT_DATE]
+                tags = row[database.theBase.IDX_TAGS]
+                folderID_list = database.theBase.folders_list_for(docID)
+                filename = row[database.theBase.IDX_FILENAME]
+                data.theData.load_file(filename, do_clear=False)
             except :
                 pass
         Frame = addFileWindow.AddFileWindow(self,_("Add a new document"))
+        if filename is not None : Frame.recordPart.SetFields(filename, title, description, documentDate,tags,False,folderID_list)
         Frame.ShowModal()
         self.actionSearch(None)
     #===========================================================================
