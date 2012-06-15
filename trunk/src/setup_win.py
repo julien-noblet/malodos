@@ -26,8 +26,8 @@ from distutils.core import setup
 import py2exe
 from glob import glob
 import sys
-sys.path.append("H:\\homeDoc\\src\\dist\\Microsoft.VC90.CRT")
-data_files = [("Microsoft.VC90.CRT", glob(r'H:\homeDoc\src\dist\Microsoft.VC90.CRT\*.*'))]
+sys.path.append("H:\\homeDoc\\src\\Microsoft.VC90.CRT")
+data_files = [("Microsoft.VC90.CRT", glob(r'H:\homeDoc\src\Microsoft.VC90.CRT\*.*'))]
 setup(
     url='http://sites.google.com/site/malodospage/',
     license='GPL v3',

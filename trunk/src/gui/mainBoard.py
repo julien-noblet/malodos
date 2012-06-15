@@ -211,18 +211,33 @@ class BasketView(wx.NotebookPage):
         self.totSizer = wx.GridBagSizer()
         self.panel = wx.Panel(self, -1)
         self.panel.SetLabel(_('Ascending order'))
-        self.icBar=wx.ToolBar(self.panel)
-        self.icBar.SetToolBitmapSize((16,16))
-        self.icBar.AddLabelTool(self.ID_REMOVE,'',wx.Bitmap(Resources.get_icon_filename('REMOVE_SELECTION32')),shortHelp=_('Remove/delete all documents in the basket'))
-        self.icBar.AddLabelTool(self.ID_MERGE,'',wx.Bitmap(Resources.get_icon_filename('MERGE_SELECTION32')),shortHelp=_('Merge together all documents in the basket'))
-        self.icBar.AddLabelTool(self.ID_TOGO,'',wx.Bitmap(Resources.get_icon_filename('DOC_ZIP32')),shortHelp=_('Make a portable zip of all the documents in the basket'))
+#        self.icBar=wx.ToolBar(self.panel)
+#        self.icBar.SetToolBitmapSize((32,32))
+#        self.icBar.AddLabelTool(self.ID_REMOVE,'',wx.Bitmap(Resources.get_icon_filename('REMOVE_SELECTION32')),shortHelp=_('Remove/delete all documents in the basket'))
+#        self.icBar.AddLabelTool(self.ID_MERGE,'',wx.Bitmap(Resources.get_icon_filename('MERGE_SELECTION32')),shortHelp=_('Merge together all documents in the basket'))
+#        self.icBar.AddLabelTool(self.ID_TOGO,'',wx.Bitmap(Resources.get_icon_filename('DOC_ZIP32')),shortHelp=_('Make a portable zip of all the documents in the basket'))
+        self.bxSizer=wx.BoxSizer(wx.HORIZONTAL)
+        self.btUpdateRemove = wx.BitmapButton(self.panel,-1,wx.Bitmap(Resources.get_icon_filename('REMOVE_SELECTION32')))
+        self.btUpdateRemove.SetToolTipString(_('Remove/delete all documents in the basket'))
+
+        self.btMerge = wx.BitmapButton(self.panel,-1,wx.Bitmap(Resources.get_icon_filename('MERGE_SELECTION32')))
+        self.btMerge.SetToolTipString(_('Merge together all documents in the basket'))
+
+        self.btToGo = wx.BitmapButton(self.panel,-1,wx.Bitmap(Resources.get_icon_filename('DOC_ZIP32')))
+        self.btToGo.SetToolTipString(_('Make a portable zip of all the documents in the basket'))
+
+
         self.lbDocuments = wx.ListBox(self.panel, -1,style=wx.LB_EXTENDED )
         listChoices = [c[1] for c in self.CHOICES]
         self.cbOrder = wx.ComboBox(self.panel,-1,choices=listChoices)
         self.cbOrder.SetSelection(0)
         self.chkInvertOrder = wx.CheckBox(self.panel,-1)
         self.chkInvertOrder.SetValue(True)
-        self.totSizer.Add(self.icBar,(0,0),flag=wx.EXPAND)
+#        self.totSizer.Add(self.icBar,(0,0),flag=wx.EXPAND)
+        self.bxSizer.Add(self.btUpdateRemove,flag=wx.ALIGN_LEFT)
+        self.bxSizer.Add(self.btMerge,flag=wx.ALIGN_LEFT)
+        self.bxSizer.Add(self.btToGo,flag=wx.ALIGN_LEFT)
+        self.totSizer.Add(self.bxSizer,(0,0),flag=wx.EXPAND)
         self.totSizer.Add(wx.StaticText(self.panel,label=_('Classification')),(1,0),flag=wx.EXPAND)
         self.totSizer.Add(self.cbOrder,(1,1),flag=wx.EXPAND)
         self.totSizer.Add(self.chkInvertOrder,(1,2),flag=wx.EXPAND)
@@ -236,9 +251,12 @@ class BasketView(wx.NotebookPage):
         self.Bind(wx.EVT_CHECKBOX,self.show_content,self.chkInvertOrder)
         self.lbDocuments.Bind(wx.EVT_CONTEXT_MENU,self.contextualMenu)
         self.docList=None
-        self.Bind(wx.EVT_TOOL,self.actionRemove,id=self.ID_REMOVE)
-        self.Bind(wx.EVT_TOOL,self.actionMerge,id=self.ID_MERGE)
-        self.Bind(wx.EVT_TOOL,self.actionToGo,id=self.ID_TOGO)
+#        self.Bind(wx.EVT_TOOL,self.actionRemove,id=self.ID_REMOVE)
+#        self.Bind(wx.EVT_TOOL,self.actionMerge,id=self.ID_MERGE)
+#        self.Bind(wx.EVT_TOOL,self.actionToGo,id=self.ID_TOGO)
+        self.Bind(wx.EVT_BUTTON,self.actionRemove,self.btUpdateRemove)
+        self.Bind(wx.EVT_BUTTON,self.actionMerge,self.btMerge)
+        self.Bind(wx.EVT_BUTTON,self.actionToGo,self.btToGo)
 
         
     def actionRemove(self,event):

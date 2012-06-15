@@ -13,7 +13,7 @@ import sys
 import os.path
 import database
 import ConfigParser
-
+import logging
 
 resourceContent = None
 
@@ -39,7 +39,8 @@ def get_icon_filename(icon_id):
         name = resourceContent.get('icons',icon_id)
         fname= os.path.join(get_resource_dir(),'icons',name)
         return fname
-    except:
+    except Exception as E:
+        logging.debug('Unable to get resource id ' + str(icon_id) + ':' + str(E))
         return ''
 def get_message(message_id,language=None):
     if not resourceContent : read_resource_file()
