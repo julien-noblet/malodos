@@ -242,7 +242,7 @@ class ScanWindow(wx.Dialog):
 				self.currentOptions[op.name] = op.value
 		for name,val in op_ini.items() :
 			if not name in self.currentOptions.keys() : self.currentOptions[name]=val
-		self.recordPart.lbFileName.SetPath(self.defaultNameDir())
+		#self.recordPart.lbFileName.SetPath(self.defaultNameDir())
 		#data.theData.clear_all()
 		if str_to_bool(database.theConfig.get_param('scanner', 'autoScan','False',True)) :
 #			event.Id = 0 if clear_data else 666 
@@ -325,12 +325,11 @@ class ScanWindow(wx.Dialog):
 		try:
 			#if not data.theData.save_file(fname,self.recordPart.lbTitle.Value,self.recordPart.lbDescription.Value,self.recordPart.lbTags.Value) : raise _('Unable to add the file to the disk')
 			if not data.theData.save_file(fname,self.recordPart.lbTitle.Value,self.recordPart.lbDescription.Value,self.recordPart.lbTags.Value) :
-				logging.debug('Unable to save the file ' + fname + ':' + str(E))
+				wx.MessageBox(_('Unable to add the file to the disk'))
 				return
 				
-		except Exception as E:
-			logging.debug('Saving file ' + str(E))
-			wx.MessageBox(_('Unable to add the file to the disk'))
+		except Exception,E:
+			logging.debug('Unable to save the file ' + fname + ':' + str(E))
 			return
 		if not self.recordPart.do_save_record():
 			wx.MessageBox(_('Unable to add the file to the database'))
@@ -338,10 +337,10 @@ class ScanWindow(wx.Dialog):
 			# close the dialog if so required
 			database.theConfig.set_param('scanner', 'lastDir',os.path.dirname(fname),True)
 			database.theConfig.commit_config()
+			data.theData.clear_all()
 			if str_to_bool(database.theConfig.get_param('scanner', 'autoClose','True',True)) :
 				self.Close()
 			else:
-				data.theData.clear_all()
 				self.docWin.showCurrentImage()
 				if str_to_bool(database.theConfig.get_param('scanner', 'clearFields','False',True)):
 					self.recordPart.clear_all()

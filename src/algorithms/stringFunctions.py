@@ -270,23 +270,23 @@ def req_to_sql(req):
     #print L
     return (SS,LL)
 def no_accent(S):
-    S=S.replace('à','a')
-    S=S.replace('ä','a')
-    S=S.replace('â','a')
+    S=S.replace(u'à','a')
+    S=S.replace(u'ä','a')
+    S=S.replace(u'â','a')
 
-    S=S.replace('é','e')
-    S=S.replace('è','e')
-    S=S.replace('ê','e')
-    S=S.replace('ë','e')
+    S=S.replace(u'é','e')
+    S=S.replace(u'è','e')
+    S=S.replace(u'ê','e')
+    S=S.replace(u'ë','e')
     
-    S=S.replace('ï','i')
-    S=S.replace('î','i')
+    S=S.replace(u'ï','i')
+    S=S.replace(u'î','i')
     
-    S=S.replace('ö','o')
-    S=S.replace('ô','o')
+    S=S.replace(u'ö','o')
+    S=S.replace(u'ô','o')
 
-    S=S.replace('û','u')
-    S=S.replace('ü','u')
-    S=S.replace('ù','u')
+    S=S.replace(u'û','u')
+    S=S.replace(u'ü','u')
+    S=S.replace(u'ù','u')
     
     return S

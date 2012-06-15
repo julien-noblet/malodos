@@ -41,10 +41,15 @@ The following is a list of software /libraries to install, along with a link to 
    if so required, you should however download it from there :
    https://code.google.com/p/pyfpdf/downloads/detail?name=pyfpdf-1.53c.zip&can=2&q=
  
- 8.Enchant
+8.Enchant
    *******
    http://www.abisource.com/projects/enchant/
    Used to call the system installed spellchecker language when using OCR feature
- 
- Once all the dependencies are installed (a packaged version will be provided
- for MS Windows later), just execute the main script in <MALODOS installdir>/src/homeDocs.py
+   
+9. FreeImagePy
+   ************
+   http://freeimagepy.sourceforge.net/
+   Used to write multi-page tiff file
+   
+ Once all the dependencies are installed (a packaged version is provided
+ for MS Windows, containing all the requiered depedencies), just execute the main script in <MALODOS installdir>/src/homeDocs.py
