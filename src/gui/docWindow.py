@@ -82,6 +82,8 @@ class docWindow(wx.Window) :
         
         self.canvas.SetSize(wx.Size(200,300))
         self.panel.SetSizerAndFit(self.totalWin)
+        self.maximumSize = self.canvas.GetSize()
+        self.cornerPosition = self.canvas.GetPosition()
     def resetView(self):
         self.center = [0.5,0.5]
         self.window = [1.0,1.0]
@@ -146,24 +148,42 @@ class docWindow(wx.Window) :
         self.center[1] = float(viewRect.y + viewRect.height/2)/self.img.GetHeight()
         self.window[0] = float(viewRect.width) / self.img.GetWidth()  
         self.window[1] = float(viewRect.height) / self.img.GetHeight()  
-        theImage = self.img.GetSubBitmap(viewRect)
-        theImage = theImage.ConvertToImage()
 
         # calculating stretching factors
         size_ini = self.canvas.GetSize()
         disp_ini = self.canvas.GetPosition()
+
+        canvasSize= self.canvas.GetSize()
         size = self.canvas.GetSize()
-        origSize = theImage.GetSize()
+        origSize = viewRect.GetSize()
         # factor to apply in each direction
         factors = [ float(size[0])/origSize[0] , float(size[1])/origSize[1] ]
         # take only the lowest factor and apply to both x and y direction
         # (thus keeping the initial aspect ratio)
         if factors[0]>factors[1] :
-            size[0] = factors[1] * origSize[0]
-            size[1] = factors[1] * origSize[1]
+            s = factors[1] * origSize[0]
+            w= canvasSize[0]*origSize[0] / s
+            if w < origSize[0]:
+                dw = w - viewRect.width
+                viewRect.x -= dw/2
+                viewRect.width =w
+            else:
+                viewRect.x=0
+                viewRect.width=self.img.GetWidth()
+                size[0]= self.img.GetWidth()*s / origSize[0]
         else:
-            size[0] = factors[0] * origSize[0]
-            size[1] = factors[0] * origSize[1]
+            s = factors[0] * origSize[1]
+            h= canvasSize[1]*origSize[1] / s
+            if h < origSize[1]:
+                dh = h - viewRect.height
+                viewRect.y -= dh/2
+                viewRect.height =h
+            else:
+                viewRect.y=0
+                viewRect.height=self.img.GetHeight()
+                size[1]= self.img.GetHeight()*s / origSize[1]
+        theImage = self.img.GetSubBitmap(viewRect)
+        theImage = theImage.ConvertToImage()
         if size[0]>0 and size[1]>0:
             # do stretching and drawing if sizes are ok
             displ = [ disp_ini[0] + (size_ini[0] - size[0])/2 , disp_ini[1] + (size_ini[1] - size[1])/2 ]
@@ -249,4 +269,7 @@ class docWindow(wx.Window) :
     # called when resizing window/pane
     #===========================================================================
     def onResize(self,event):
+        self.totalWin.Layout()
+        self.maximumSize = self.canvas.GetSize()
+        self.cornerPosition = self.canvas.GetPosition()
         self.showCurrentImage()
