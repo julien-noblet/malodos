@@ -119,6 +119,10 @@ class docWindow(wx.Window) :
         if viewRect.height > self.img.GetHeight() : viewRect.height = self.img.GetHeight()
         if viewRect.x + viewRect.width > self.img.GetWidth() : viewRect.x = self.img.GetWidth() - viewRect.width
         if viewRect.y + viewRect.height > self.img.GetHeight() : viewRect.y = self.img.GetHeight() - viewRect.height
+        self.center[0] = float(viewRect.x + viewRect.width/2)/self.img.GetWidth()  
+        self.center[1] = float(viewRect.y + viewRect.height/2)/self.img.GetHeight()
+        self.window[0] = float(viewRect.width) / self.img.GetWidth()  
+        self.window[1] = float(viewRect.height) / self.img.GetHeight()  
         return viewRect
     #===========================================================================
     # show the current image in the canvas
@@ -141,15 +145,11 @@ class docWindow(wx.Window) :
                 if qmin <1 :
                     res_final = [ int(self.img.GetWidth() * qmin) , int(self.img.GetHeight() * qmin) ]
                     self.img.Rescale(res_final[0],res_final[1],wx.IMAGE_QUALITY_HIGH)
-            self.img = self.img.ConvertToBitmap()
         if not self.img : return
         viewRect = self.getViewRect()
-        self.center[0] = float(viewRect.x + viewRect.width/2)/self.img.GetWidth()  
-        self.center[1] = float(viewRect.y + viewRect.height/2)/self.img.GetHeight()
-        self.window[0] = float(viewRect.width) / self.img.GetWidth()  
-        self.window[1] = float(viewRect.height) / self.img.GetHeight()  
 
         # calculating stretching factors
+        img_size=self.img.GetSize()
         size_ini = self.canvas.GetSize()
         disp_ini = self.canvas.GetPosition()
 
@@ -157,39 +157,41 @@ class docWindow(wx.Window) :
         size = self.canvas.GetSize()
         origSize = viewRect.GetSize()
         # factor to apply in each direction
-        factors = [ float(size[0])/origSize[0] , float(size[1])/origSize[1] ]
+        factors = [ float(canvasSize[0])/origSize[0] , float(canvasSize[1])/origSize[1] ] # factor to pass from image to screen
         # take only the lowest factor and apply to both x and y direction
         # (thus keeping the initial aspect ratio)
-        if factors[0]>factors[1] :
-            s = factors[1] * origSize[0]
-            w= canvasSize[0]*origSize[0] / s
-            if w < origSize[0]:
-                dw = w - viewRect.width
-                viewRect.x -= dw/2
-                viewRect.width =w
+        if factors[0]>factors[1] : # keep y @ canvas size
+            q = factors[1]
+            s = q * img_size[0] # size in screen that should be used along x
+            if s>canvasSize[0]: # if x size would be too big 
+                w =canvasSize[0]/q # part of the image corresponding to canvas size along x
+                viewRect.x=viewRect.x+viewRect.width/2-w/2
+                if viewRect.x<0:
+                    w+=viewRect.x
+                    viewRect.x=0
+                viewRect.width=w
             else:
                 viewRect.x=0
-                viewRect.width=self.img.GetWidth()
-                size[0]= self.img.GetWidth()*s / origSize[0]
-        else:
-            s = factors[0] * origSize[1]
-            h= canvasSize[1]*origSize[1] / s
-            if h < origSize[1]:
-                dh = h - viewRect.height
-                viewRect.y -= dh/2
-                viewRect.height =h
+                viewRect.width=img_size[0]
+            size[0] = q*viewRect.width
+        else:# keep x @ canvas size
+            q = factors[0]
+            s = q * img_size[1] # size in screen that should be used along y
+            if s>canvasSize[1]: # if y size would be too big 
+                h =canvasSize[1]/q # part of the image corresponding to canvas size along y
+                viewRect.y=viewRect.y+viewRect.height/2-h/2
+                viewRect.height=h
             else:
                 viewRect.y=0
-                viewRect.height=self.img.GetHeight()
-                size[1]= self.img.GetHeight()*s / origSize[1]
-        theImage = self.img.GetSubBitmap(viewRect)
-        theImage = theImage.ConvertToImage()
+                viewRect.height=img_size[1]
+            size[1] = q*viewRect.height
+        theImage = self.img.GetSubImage(viewRect)
         if size[0]>0 and size[1]>0:
             # do stretching and drawing if sizes are ok
             displ = [ disp_ini[0] + (size_ini[0] - size[0])/2 , disp_ini[1] + (size_ini[1] - size[1])/2 ]
             self.canvas.SetPosition(displ)
             self.canvas.SetSize( [size[0],size[1] ])
-            self.canvas.SetBitmap(theImage.Scale(size[0],size[1],quality).ConvertToBitmap())
+            self.canvas.SetBitmap(theImage.Rescale(size[0],size[1],quality).ConvertToBitmap())
     #===========================================================================
     # on prev button click
     #===========================================================================
