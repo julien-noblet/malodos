@@ -13,6 +13,7 @@ for navigating between the  images managed by the data singleton
 import data
 import Resources
 import wx.lib.buttons
+from PIL import Image
 class docWindow(wx.Window) :
     center=[0.5,0.5]
     window=[1.0,1.0]
@@ -102,32 +103,33 @@ class docWindow(wx.Window) :
         pixelSize = self.canvas.GetSize()
         self.center[0] = self.dragFirstCenter[0] - self.window[0] / pixelSize[0] * delta[0]
         self.center[1] = self.dragFirstCenter[1] - self.window[1] / pixelSize[1] * delta[1]
-        self.showCurrentImage(wx.IMAGE_QUALITY_NORMAL)
+        self.showCurrentImage(Image.NEAREST)
         #print self.dragFirstCenter
     def getViewRect(self):
+        s=self.img.size
         # build and test the viewing rect
-        viewRect = wx.Rect((self.center[0]-self.window[0]/2)*self.img.GetWidth() \
-                          ,(self.center[1]-self.window[1]/2)*self.img.GetHeight() \
-                          ,self.window[0]*self.img.GetWidth() ,self.window[1]*self.img.GetHeight())
+        viewRect = wx.Rect((self.center[0]-self.window[0]/2)*s[0] \
+                          ,(self.center[1]-self.window[1]/2)*s[1] \
+                          ,self.window[0]*s[0] ,self.window[1]*s[1])
         if viewRect.x<0 : viewRect.x=0;
         if viewRect.y<0 : viewRect.y=0;
-        if viewRect.x>= self.img.GetWidth() : viewRect.x = self.img.GetWidth() -1
-        if viewRect.y>= self.img.GetHeight() : viewRect.y = self.img.GetWidth() -1
+        if viewRect.x>= s[0] : viewRect.x = s[0] -1
+        if viewRect.y>= s[1] : viewRect.y = s[0] -1
         if viewRect.width<1 : viewRect.width = 1
         if viewRect.height<1 : viewRect.height = 1
-        if viewRect.width > self.img.GetWidth() : viewRect.width = self.img.GetWidth()
-        if viewRect.height > self.img.GetHeight() : viewRect.height = self.img.GetHeight()
-        if viewRect.x + viewRect.width > self.img.GetWidth() : viewRect.x = self.img.GetWidth() - viewRect.width
-        if viewRect.y + viewRect.height > self.img.GetHeight() : viewRect.y = self.img.GetHeight() - viewRect.height
-        self.center[0] = float(viewRect.x + viewRect.width/2)/self.img.GetWidth()  
-        self.center[1] = float(viewRect.y + viewRect.height/2)/self.img.GetHeight()
-        self.window[0] = float(viewRect.width) / self.img.GetWidth()  
-        self.window[1] = float(viewRect.height) / self.img.GetHeight()  
+        if viewRect.width > s[0] : viewRect.width = s[0]
+        if viewRect.height > s[1] : viewRect.height = s[1]
+        if viewRect.x + viewRect.width > s[0] : viewRect.x = s[0] - viewRect.width
+        if viewRect.y + viewRect.height > s[1] : viewRect.y = s[1] - viewRect.height
+        self.center[0] = float(viewRect.x + viewRect.width/2)/s[0]  
+        self.center[1] = float(viewRect.y + viewRect.height/2)/s[1]
+        self.window[0] = float(viewRect.width) / s[0]  
+        self.window[1] = float(viewRect.height) / s[1]  
         return viewRect
     #===========================================================================
     # show the current image in the canvas
     #===========================================================================
-    def showCurrentImage(self,quality=wx.IMAGE_QUALITY_HIGH):
+    def showCurrentImage(self,quality=Image.BILINEAR):
         MAX_RESOLUTION = 1024.0
         self.panel.SetSize(self.GetSizeTuple())
         self.totalWin.Layout()
@@ -135,25 +137,25 @@ class docWindow(wx.Window) :
             self.lbImage.SetLabel(_('no page'))
         else:
             self.lbImage.SetLabel('page ' + str(data.theData.current_image+1) + '/' + str(len(data.theData.pil_images)))
-        if data.theData.image_changed or not self.img:
-            pil_image = data.theData.get_image()
-            self.img = wx.EmptyImage(pil_image.size[0],pil_image.size[1])
-            self.img.SetData(pil_image.convert("RGB").tostring())
-            if self.img.GetWidth() > MAX_RESOLUTION or self.img.GetHeight()>MAX_RESOLUTION :
-                q = [ MAX_RESOLUTION/float(self.img.GetWidth()) ,MAX_RESOLUTION/float(self.img.GetHeight()) ] 
+        if data.theData.image_changed or self.img is None:
+            self.img = data.theData.get_image().convert('RGB')
+            #self.img = wx.EmptyImage(pil_image.size[0],pil_image.size[1])
+            #self.img.SetData(pil_image.convert("RGB").tostring())
+            s =self.img.size
+            if s[0] > MAX_RESOLUTION or s[1]>MAX_RESOLUTION :
+                q = [ MAX_RESOLUTION/float(s[0]) ,MAX_RESOLUTION/float(s[1]) ]
                 qmin = min(q)
                 if qmin <1 :
-                    res_final = [ int(self.img.GetWidth() * qmin) , int(self.img.GetHeight() * qmin) ]
-                    self.img.Rescale(res_final[0],res_final[1],wx.IMAGE_QUALITY_HIGH)
-        if not self.img : return
+                    res_final = [ int(s[0] * qmin) , int(s[1] * qmin) ]
+                    self.img.resize(res_final,Image.ANTIALIAS)
+        #if self.img is None: return
         viewRect = self.getViewRect()
 
         # calculating stretching factors
-        img_size=self.img.GetSize()
-        size_ini = self.canvas.GetSize()
-        disp_ini = self.canvas.GetPosition()
-
+        img_size=self.img.size
         canvasSize= self.canvas.GetSize()
+        canvasPos = self.canvas.GetPosition()
+
         size = self.canvas.GetSize()
         origSize = viewRect.GetSize()
         # factor to apply in each direction
@@ -185,13 +187,15 @@ class docWindow(wx.Window) :
                 viewRect.y=0
                 viewRect.height=img_size[1]
             size[1] = q*viewRect.height
-        theImage = self.img.GetSubImage(viewRect)
+        theImage = self.img.crop((viewRect.x,viewRect.y,viewRect.x+viewRect.width-1,viewRect.y+viewRect.height-1))
         if size[0]>0 and size[1]>0:
             # do stretching and drawing if sizes are ok
-            displ = [ disp_ini[0] + (size_ini[0] - size[0])/2 , disp_ini[1] + (size_ini[1] - size[1])/2 ]
+            displ = [ canvasPos[0] + (canvasSize[0] - size[0])/2 , canvasPos[1] + (canvasSize[1] - size[1])/2 ]
             self.canvas.SetPosition(displ)
-            self.canvas.SetSize( [size[0],size[1] ])
-            self.canvas.SetBitmap(theImage.Rescale(size[0],size[1],quality).ConvertToBitmap())
+            self.canvas.SetSize(size)
+            wxbm = wx.EmptyBitmap(size[0],size[1])
+            wxbm.CopyFromBuffer(theImage.resize(size,quality).tostring())
+            self.canvas.SetBitmap(wxbm)
     #===========================================================================
     # on prev button click
     #===========================================================================
