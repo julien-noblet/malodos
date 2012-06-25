@@ -14,7 +14,19 @@ import data
 import Resources
 import wx.lib.buttons
 from PIL import Image
+#from BufferedCanvas import BufferedCanvas
 class docWindow(wx.Window) :
+#    class MyCanvas(BufferedCanvas):
+#        theBitmap=None
+#        def __init__(self,parent,ID=-1):
+#            BufferedCanvas.__init__(self,parent,ID)
+#        def SetBitmap(self,bitmap):
+#            self.theBitmap=bitmap
+#        def draw(self, dc):
+##            dc.SetBackground(wx.Brush("White"))
+##            dc.Clear()
+#            if self.theBitmap is not None : dc.DrawBitmap(self.theBitmap,0,0)
+    
     center=[0.5,0.5]
     window=[1.0,1.0]
     dragFirstCenter = None
@@ -51,9 +63,9 @@ class docWindow(wx.Window) :
         #self.btAllDocs.Show(False)
         
         self.lbImage = wx.StaticText(self.panel,-1,_('No page'))
-
+        #self.canvas = self.MyCanvas(self.panel,-1)
         self.canvas = wx.StaticBitmap(self.panel, -1)
-        self.canvas.SetDoubleBuffered(True)
+        #self.canvas.SetDoubleBuffered(False)
         self.totalWin.Add(self.buttonPart,0,wx.ALIGN_TOP|wx.EXPAND)
         self.totalWin.Add(self.canvas,1,wx.GROW|wx.EXPAND|wx.ALIGN_CENTER)
         self.buttonPart.Add(self.btLeft ,0)
@@ -91,6 +103,7 @@ class docWindow(wx.Window) :
     def onMouseLeftUp(self,event):
         self.dragFirstPos = None
         self.showCurrentImage(wx.IMAGE_QUALITY_HIGH)
+#        self.canvas.Refresh(False)
     def onMouseWheelEvent(self,event):
         delta = float(event.GetWheelRotation()) / event.GetWheelDelta() * 0.05
         self.do_zoom(delta)
@@ -193,8 +206,7 @@ class docWindow(wx.Window) :
             displ = [ canvasPos[0] + (canvasSize[0] - size[0])/2 , canvasPos[1] + (canvasSize[1] - size[1])/2 ]
             self.canvas.SetPosition(displ)
             self.canvas.SetSize(size)
-            wxbm = wx.EmptyBitmap(size[0],size[1])
-            wxbm.CopyFromBuffer(theImage.resize(size,quality).tostring())
+            wxbm = wx.BitmapFromBuffer(size[0],size[1],theImage.resize(size,quality).tostring())
             self.canvas.SetBitmap(wxbm)
     #===========================================================================
     # on prev button click
