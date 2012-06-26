@@ -72,8 +72,8 @@ class docWindow(wx.Window) :
         self.buttonPart.Add(self.btRight,0)
         self.buttonPart.Add(self.btZoomPlus ,0)
         self.buttonPart.Add(self.btZoomMinus,0)
-        self.buttonPart.Add(self.btRotate90 ,0)
-        self.buttonPart.Add(self.btRotate270,0)
+        self.buttonPart.Add(self.btRotate270 ,0)
+        self.buttonPart.Add(self.btRotate90,0)
         self.buttonPart.Add(self.btFlipX,0)
         self.buttonPart.Add(self.btFlipY,0)
         self.buttonPart.Add(self.btAllDocs,0,wx.ALIGN_CENTER_VERTICAL|wx.ALL)
@@ -142,6 +142,7 @@ class docWindow(wx.Window) :
     # show the current image in the canvas
     #===========================================================================
     def showCurrentImage(self,quality=Image.BILINEAR,do_layout=True):
+        self.canvas.SetEvtHandlerEnabled(False)
         MAX_RESOLUTION = 1024
         if do_layout:
             self.panel.SetSize(self.GetSizeTuple())
@@ -209,6 +210,7 @@ class docWindow(wx.Window) :
             self.canvas.SetSize(size)
             wxbm = wx.BitmapFromBuffer(size[0],size[1],theImage.resize(size,quality).tostring())
             self.canvas.SetBitmap(wxbm)
+        self.canvas.SetEvtHandlerEnabled(True)
     #===========================================================================
     # on prev button click
     #===========================================================================
@@ -252,7 +254,7 @@ class docWindow(wx.Window) :
         if self.btAllDocs.GetValue():
             data.theData.rotate(image_num = None, nbRot = 3)
         else:
-            data.theData.rotate(image_num = data.theData.current_image, nbRot = 1)
+            data.theData.rotate(image_num = data.theData.current_image, nbRot = 3)
         self.showCurrentImage(Image.BILINEAR,False)
     #===========================================================================
     # Rotate -90 degrees
@@ -262,7 +264,7 @@ class docWindow(wx.Window) :
         if self.btAllDocs.GetValue():
             data.theData.rotate(image_num = None, nbRot = 1)
         else:
-            data.theData.rotate(image_num = data.theData.current_image, nbRot = 3)
+            data.theData.rotate(image_num = data.theData.current_image, nbRot = 1)
         self.showCurrentImage(Image.BILINEAR,False)
     #===========================================================================
     # Flip along X axis
