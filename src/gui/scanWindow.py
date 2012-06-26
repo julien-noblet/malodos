@@ -28,7 +28,7 @@ import database
 from database import theConfig
 from algorithms.general import str_to_bool
 import logging
-import Resources
+from database import Resources
 
 class OptionsWindow(wx.Dialog):
 	def __init__(self, parent, optList,defaultValues=None):

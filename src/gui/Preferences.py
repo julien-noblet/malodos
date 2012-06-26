@@ -12,9 +12,7 @@ GUI dialog to define general user preferences
 import wx
 import database
 import os
-# import utilities
 import scanWindow
-#import Resources
 if os.name == 'posix' :
     from scannerAccess import saneAccess
 else:

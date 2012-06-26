@@ -23,7 +23,7 @@ import survey
 from gui import utilities
 import hashlib
 from gui import Preferences
-import Resources
+from database import Resources
 import algorithms.stringFunctions as SF
 import data
 import documentToGo

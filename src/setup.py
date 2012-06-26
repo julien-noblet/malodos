@@ -13,11 +13,11 @@ setup(
     install_requires=['PIL','wxpython','pyenchant'],
     name='MALODOS',
     description='Personal EDM (Scan, describe and manage your personal documents)',
-    version='1.2.2',
+    version='1.3.1',
     author='David GUEZ',
     author_email='guezdav@gmail.com',
     packages=['algorithms','database','data','gui','scannerAccess'],
-    scripts = ['homeDocs.py','Resources.py'],
+    scripts = ['homeDocs.py'],
     classifiers=['Topic :: Office/Business','Operating System :: Microsoft :: Windows','Operating System :: POSIX','Programming Language :: Python','Development Status :: 5 - Production/Stable','Intended Audience :: End Users/Desktop','License :: OSI Approved :: GNU Affero General Public License v3'],
     data_files = [ ('',txt_files) , ('resources/icons',findall('../resources/icons')), ('resources',[i for i in findall('../resources') if isfile(i)]),('locale',findall('locale')) ]
 )
