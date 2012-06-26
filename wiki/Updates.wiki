@@ -47,11 +47,11 @@ Another confirmation dialog is also appearing if, after a new scan, the user tri
 == Notes on version 1.3  ==
 
 Many new features are added in this release.
-# Allows to save file in pdf/jpg/bmp/png/tiff format. If the document is multi-page only pdf and tiff files are possibles.
-# Allows to join multiple documents together (if you scanned them in two pass by accident)
-# Allows to add scan/file content to the end of any document
-# Allows to search part of word (ie. searching for "visi" will also give documents containing television) or whole word.
-# Add a seach dialog to help you building complex document request
-# Basket view  allowing to regroup different documents in a set and apply any action on all of them (delete them, make a zip file, join them together)
+  # Allows to save file in pdf/jpg/bmp/png/tiff format. If the document is multi-page only pdf and tiff files are possibles.
+  # Allows to join multiple documents together (if you scanned them in two pass by accident)
+  # Allows to add scan/file content to the end of any document
+  # Allows to search part of word (ie. searching for "visi" will also give documents containing television) or whole word.
+  # Add a seach dialog to help you building complex document request
+  # Basket view  allowing to regroup different documents in a set and apply any action on all of them (delete them, make a zip file, join them together)
 
 any some minor bug fixes
