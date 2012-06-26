@@ -19,7 +19,7 @@ import gui.utilities
 import os.path
 import ConfigParser
 import algorithms.words
-import Resources
+from database import Resources
 import shutil
 import zipfile
 import logging

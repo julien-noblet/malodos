@@ -28,7 +28,7 @@ import os.path
 import algorithms.words
 import gui.utilities
 import logging
-import Resources
+from database import Resources
 
 class imageData(object):
     val = None

@@ -11,7 +11,7 @@ for navigating between the  images managed by the data singleton
 
 '''
 import data
-import Resources
+from database import Resources
 import wx.lib.buttons
 from PIL import Image
 #from BufferedCanvas import BufferedCanvas
@@ -95,14 +95,13 @@ class docWindow(wx.Window) :
         
         self.canvas.SetSize(wx.Size(200,300))
         self.panel.SetSizerAndFit(self.totalWin)
-        self.maximumSize = self.canvas.GetSize()
-        self.cornerPosition = self.canvas.GetPosition()
+        self.showCurrentImage()
     def resetView(self):
         self.center = [0.5,0.5]
         self.window = [1.0,1.0]
     def onMouseLeftUp(self,event):
         self.dragFirstPos = None
-        self.showCurrentImage(wx.IMAGE_QUALITY_HIGH)
+        self.showCurrentImage(Image.BILINEAR)
 #        self.canvas.Refresh(False)
     def onMouseWheelEvent(self,event):
         delta = float(event.GetWheelRotation()) / event.GetWheelDelta() * 0.05
@@ -116,7 +115,7 @@ class docWindow(wx.Window) :
         pixelSize = self.canvas.GetSize()
         self.center[0] = self.dragFirstCenter[0] - self.window[0] / pixelSize[0] * delta[0]
         self.center[1] = self.dragFirstCenter[1] - self.window[1] / pixelSize[1] * delta[1]
-        self.showCurrentImage(Image.NEAREST)
+        self.showCurrentImage(Image.NEAREST,False)
         #print self.dragFirstCenter
     def getViewRect(self):
         s=self.img.size
@@ -142,10 +141,11 @@ class docWindow(wx.Window) :
     #===========================================================================
     # show the current image in the canvas
     #===========================================================================
-    def showCurrentImage(self,quality=Image.BILINEAR):
-        MAX_RESOLUTION = 1024.0
-        self.panel.SetSize(self.GetSizeTuple())
-        self.totalWin.Layout()
+    def showCurrentImage(self,quality=Image.BILINEAR,do_layout=True):
+        MAX_RESOLUTION = 1024
+        if do_layout:
+            self.panel.SetSize(self.GetSizeTuple())
+            self.totalWin.Layout()
         if len(data.theData.pil_images)==0:
             self.lbImage.SetLabel(_('no page'))
         else:
@@ -160,26 +160,27 @@ class docWindow(wx.Window) :
                 qmin = min(q)
                 if qmin <1 :
                     res_final = [ int(s[0] * qmin) , int(s[1] * qmin) ]
-                    self.img.resize(res_final,Image.ANTIALIAS)
+                    self.img=self.img.resize(res_final,Image.ANTIALIAS)
         #if self.img is None: return
         viewRect = self.getViewRect()
 
         # calculating stretching factors
         img_size=self.img.size
-        canvasSize= self.canvas.GetSize()
-        canvasPos = self.canvas.GetPosition()
+        if do_layout:
+            self.canvasSize= self.canvas.GetSize()
+            self.canvasPos = self.canvas.GetPosition()
 
         size = self.canvas.GetSize()
         origSize = viewRect.GetSize()
         # factor to apply in each direction
-        factors = [ float(canvasSize[0])/origSize[0] , float(canvasSize[1])/origSize[1] ] # factor to pass from image to screen
+        factors = [ float(self.canvasSize[0])/origSize[0] , float(self.canvasSize[1])/origSize[1] ] # factor to pass from image to screen
         # take only the lowest factor and apply to both x and y direction
         # (thus keeping the initial aspect ratio)
         if factors[0]>factors[1] : # keep y @ canvas size
             q = factors[1]
             s = q * img_size[0] # size in screen that should be used along x
-            if s>canvasSize[0]: # if x size would be too big 
-                w =canvasSize[0]/q # part of the image corresponding to canvas size along x
+            if s>self.canvasSize[0]: # if x size would be too big 
+                w =self.canvasSize[0]/q # part of the image corresponding to canvas size along x
                 viewRect.x=viewRect.x+viewRect.width/2-w/2
                 if viewRect.x<0:
                     w+=viewRect.x
@@ -192,8 +193,8 @@ class docWindow(wx.Window) :
         else:# keep x @ canvas size
             q = factors[0]
             s = q * img_size[1] # size in screen that should be used along y
-            if s>canvasSize[1]: # if y size would be too big 
-                h =canvasSize[1]/q # part of the image corresponding to canvas size along y
+            if s>self.canvasSize[1]: # if y size would be too big 
+                h =self.canvasSize[1]/q # part of the image corresponding to canvas size along y
                 viewRect.y=viewRect.y+viewRect.height/2-h/2
                 viewRect.height=h
             else:
@@ -203,7 +204,7 @@ class docWindow(wx.Window) :
         theImage = self.img.crop((viewRect.x,viewRect.y,viewRect.x+viewRect.width-1,viewRect.y+viewRect.height-1))
         if size[0]>0 and size[1]>0:
             # do stretching and drawing if sizes are ok
-            displ = [ canvasPos[0] + (canvasSize[0] - size[0])/2 , canvasPos[1] + (canvasSize[1] - size[1])/2 ]
+            displ = [ self.canvasPos[0] + (self.canvasSize[0] - size[0])/2 , self.canvasPos[1] + (self.canvasSize[1] - size[1])/2 ]
             self.canvas.SetPosition(displ)
             self.canvas.SetSize(size)
             wxbm = wx.BitmapFromBuffer(size[0],size[1],theImage.resize(size,quality).tostring())
@@ -214,14 +215,14 @@ class docWindow(wx.Window) :
     def actionPreviousImage(self,event):
         if data.theData.current_image>0 :
             data.theData.change_image(-1)
-            self.showCurrentImage()
+            self.showCurrentImage(do_layout=False)
     #===========================================================================
     # on next button click
     #===========================================================================
     def actionNextImage(self,event):
         if data.theData.pil_images and data.theData.current_image+1<len(data.theData.pil_images) :
             data.theData.change_image(1)
-            self.showCurrentImage()
+            self.showCurrentImage(do_layout=False)
     #===========================================================================
     # zoom
     #===========================================================================
@@ -232,7 +233,7 @@ class docWindow(wx.Window) :
         if self.window[1]<0 : self.window[1]=0;
         if self.window[0]>1 : self.window[0]=1;
         if self.window[1]>1 : self.window[1]=1;
-        self.showCurrentImage(wx.IMAGE_QUALITY_HIGH)
+        self.showCurrentImage(Image.BILINEAR,do_layout=False)
     #===========================================================================
     # zoom+
     #===========================================================================
@@ -252,7 +253,7 @@ class docWindow(wx.Window) :
             data.theData.rotate(image_num = None, nbRot = 3)
         else:
             data.theData.rotate(image_num = data.theData.current_image, nbRot = 1)
-        self.showCurrentImage(wx.IMAGE_QUALITY_HIGH)
+        self.showCurrentImage(Image.BILINEAR,False)
     #===========================================================================
     # Rotate -90 degrees
     #===========================================================================
@@ -262,7 +263,7 @@ class docWindow(wx.Window) :
             data.theData.rotate(image_num = None, nbRot = 1)
         else:
             data.theData.rotate(image_num = data.theData.current_image, nbRot = 3)
-        self.showCurrentImage(wx.IMAGE_QUALITY_HIGH)
+        self.showCurrentImage(Image.BILINEAR,False)
     #===========================================================================
     # Flip along X axis
     #===========================================================================
@@ -272,7 +273,7 @@ class docWindow(wx.Window) :
             data.theData.swap_x(image_num = None)
         else:
             data.theData.swap_x(image_num = data.theData.current_image)
-        self.showCurrentImage(wx.IMAGE_QUALITY_HIGH)
+        self.showCurrentImage(Image.BILINEAR,False)
     #===========================================================================
     # Flip along Y axis
     #===========================================================================
@@ -282,12 +283,10 @@ class docWindow(wx.Window) :
             data.theData.swap_y(image_num = None)
         else:
             data.theData.swap_y(image_num = data.theData.current_image)
-        self.showCurrentImage(wx.IMAGE_QUALITY_HIGH)
+        self.showCurrentImage(Image.BILINEAR,False)
     #===========================================================================
     # called when resizing window/pane
     #===========================================================================
     def onResize(self,event):
         self.totalWin.Layout()
-        self.maximumSize = self.canvas.GetSize()
-        self.cornerPosition = self.canvas.GetPosition()
-        self.showCurrentImage()
+        self.showCurrentImage(Image.BILINEAR,True)
