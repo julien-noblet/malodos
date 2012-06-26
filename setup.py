@@ -11,7 +11,7 @@ setup(
     install_requires=['PIL','wxpython','pyenchant'],
     name='MALODOS',
     description='Personal EDM (Scan, describe and manage your personal documents)',
-    version='1.2.2',
+    version='1.3.1',
     author='David GUEZ',
     author_email='guezdav@gmail.com',
     packages=['src/algorithms','src/database','src/data','src/gui','src/scannerAccess'],
