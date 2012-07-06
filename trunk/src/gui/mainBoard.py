@@ -30,8 +30,9 @@ import documentToGo
 import webbrowser
 import logging
 import requestBuilder
+import homeDocs
 
-MALODOS_VERSION='1.3'
+MALODOS_VERSION=homeDocs.__version__
 
 class bugReportWindow(wx.Dialog):
     def __init__(self,parent):
@@ -780,6 +781,8 @@ class MainFrame(wx.Frame):
         if not self.recordPart.update_record(docID) :
             utilities.show_message(_('Unable to apply the record changes.'))
             return False
+        else:
+            self.modified=False
         if theData.is_modified :
             if utilities.ask(_('The image itself has changed, do you want to save the modified image ?')):
                 filename = row[database.theBase.IDX_FILENAME]
@@ -789,6 +792,7 @@ class MainFrame(wx.Frame):
                 theData.save_file(filename, title, description, keywords)
                 new_md5 = hashlib.md5(open(filename, "rb").read()).hexdigest()
                 database.theBase.update_doc_signature(docID, new_md5)
+                
         self.actionSearch(event)
         return True
     #===========================================================================

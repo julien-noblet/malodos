@@ -58,7 +58,7 @@ class docWindow(wx.Window) :
         self.btFlipX.SetToolTipString(_('Flip horizontally'))
         self.btFlipY = wx.BitmapButton(self.panel,-1,wx.Bitmap(Resources.get_icon_filename('FLIP_Y')))
         self.btFlipY.SetToolTipString(_('Flip vertically'))
-        self.btAllDocs = wx.lib.buttons.GenBitmapToggleButton(self.panel,-1,wx.Bitmap(Resources.get_icon_filename('ALL_DOCS')))        
+        self.btAllDocs = wx.lib.buttons.GenBitmapToggleButton(self.panel,-1,wx.Bitmap(Resources.get_icon_filename('ALL_DOCS')))
         self.btAllDocs.SetToolTipString(_('Apply to all pages'))
         #self.btAllDocs.Show(False)
         
@@ -76,7 +76,7 @@ class docWindow(wx.Window) :
         self.buttonPart.Add(self.btRotate90,0)
         self.buttonPart.Add(self.btFlipX,0)
         self.buttonPart.Add(self.btFlipY,0)
-        self.buttonPart.Add(self.btAllDocs,0,wx.ALIGN_CENTER_VERTICAL|wx.ALL)
+        self.buttonPart.Add(self.btAllDocs,0)
         self.buttonPart.Add(self.lbImage,1,wx.ALIGN_CENTER_VERTICAL|wx.ALL)
 
         self.Bind(wx.EVT_BUTTON, self.actionPreviousImage, self.btLeft)
