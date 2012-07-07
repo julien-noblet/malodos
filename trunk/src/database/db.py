@@ -1026,7 +1026,7 @@ class Base(object):
             logging.debug('SQL ERROR ' + str(E))
             return False
     #===========================================================================
-    # folders_change_doc_parent(ID,ID,parentID) : change the parentship of a folder 
+    # folders_change_folder_parent(ID,ID,parentID) : change the parentship of a folder 
     #===========================================================================
     def folders_change_folder_parent(self,oldParentID,newParentID):
         try:

@@ -30,9 +30,7 @@ import documentToGo
 import webbrowser
 import logging
 import requestBuilder
-import homeDocs
-
-MALODOS_VERSION=homeDocs.__version__
+from homeDocs import __version__
 
 class bugReportWindow(wx.Dialog):
     def __init__(self,parent):
@@ -73,7 +71,7 @@ class bugReportWindow(wx.Dialog):
     def actionCancel(self,event):
         self.Close()
     def actionSend(self,event):
-        subject = 'BUG report for MALODOS version ' + MALODOS_VERSION
+        subject = 'BUG report for MALODOS version ' + __version__
         body ='Hello, my name is ' + self.lbName.Value +'\n'
         body += 'I found a bug described here :\n'
         body += self.lbDescription.Value
@@ -885,7 +883,7 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
 
         info.SetIcon(wx.Icon(Resources.get_icon_filename('APPLICATION'), wx.BITMAP_TYPE_PNG))
         info.SetName('MALODOS')
-        info.SetVersion(MALODOS_VERSION)
+        info.SetVersion(__version__)
         info.SetDescription(description)
         info.SetCopyright('(C) 2010 David GUEZ')
         info.SetWebSite('http://sites.google.com/site/malodospage')
