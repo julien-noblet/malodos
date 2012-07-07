@@ -79,16 +79,33 @@ def print_query_result(sFilter,frmt='%t',date_format='%d-%m-%Y'):
         strFolders=','.join(folderStringList)
         try:
             s = s.replace('%t',row[database.theBase.IDX_TITLE])
+        except Exception as E:
+            logging.exception('Problem in query format : ' + str(E))
+        try:
             s = s.replace('%d',row[database.theBase.IDX_DESCRIPTION])
+        except Exception as E:
+            logging.exception('Problem in query format : ' + str(E))
+        try:
             s = s.replace('%D',row[database.theBase.IDX_DOCUMENT_DATE].strftime(date_format))
+        except Exception as E:
+            logging.exception('Problem in query format : ' + str(E))
+        try:
             s = s.replace('%R',row[database.theBase.IDX_REGISTER_DATE].strftime(date_format))
+        except Exception as E:
+            logging.exception('Problem in query format : ' + str(E))
+        try:
             s = s.replace('%m',row[database.theBase.IDX_CHECKSUM])
+        except Exception as E:
+            logging.exception('Problem in query format : ' + str(E))
+        try:
             s = s.replace('%F',strFolders)
             #s = frmt.replace_all('%u',str(row[database.theBase.IDX_REGISTER_PERSON_ID]))
+        except Exception as E:
+            logging.exception('Problem in query format : ' + str(E))
+        try:
             s = s.replace('%f',row[database.theBase.IDX_FILENAME])
         except Exception as E:
             logging.exception('Problem in query format : ' + str(E))
-            print 'Problem in query format : ' + str(E)
         print s.encode('utf8','replace')
 
 def start_gui():
