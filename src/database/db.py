@@ -940,6 +940,24 @@ class Base(object):
             logging.debug('SQL ERROR ' + str(E))
             return None
     #===========================================================================
+    # folders_find(name_list) : find the folder ID with the specified name hierarchy
+    #===========================================================================
+    def folders_find(self,name_list):
+        current_id=0
+        for folder_name in name_list:
+            lst = self.folders_childs_of(current_id)
+            has_found=False
+            for row in lst:
+                if row[1] == folder_name :
+                    current_id = row[0]
+                    has_found=True
+                    break
+            if not has_found :
+                return None
+        return current_id
+            
+        
+    #===========================================================================
     # folders_doc_childs_of(ID) : retrieve all docs whose parent is ID
     #===========================================================================
     def folders_doc_childs_of(self,ID):

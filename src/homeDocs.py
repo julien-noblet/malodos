@@ -140,10 +140,11 @@ if __name__ == "__main__":
     date_format='%d-%m-%Y'
     title='Untitled'
     description=''
-    folderList=[]
+    folderList=''
     docDate=datetime.date.today()
     tagList=''
-    
+    queryStr=None
+    addFile=None
     for o, a in opts:
         if o in ("-h", "--help"):
             print __doc__
@@ -160,11 +161,19 @@ if __name__ == "__main__":
         if o in ('--folders'): folderList=a
         if o in ('--tags'): tagList=a
         if o in ('-q','--query'):
-            print_query_result(a,query_format,date_format)
-            sys.exit(0)
+            queryStr=a
         if o in ('-a','--add'):
-            keywordsGroups = database.theBase.get_keywordsGroups_from(title, description, a , tagList)
-            database.theBase.add_document(a, title, description, None, docDate, keywordsGroups,tagList,folderList)
-            sys.exit(0)
-    start_gui()
+            addFile=a
+    if queryStr is not None:
+        print_query_result(queryStr,query_format,date_format)
+    if addFile is not None:
+        foldIdList=[]
+        lstFolds = folderList.split(',')
+        for i in lstFolds:
+            name_list = i.split('/')
+            doc_id = database.theBase.folders_find(name_list)
+            if doc_id is not None and doc_id != 0: foldIdList.append(doc_id)
+        keywordsGroups = database.theBase.get_keywordsGroups_from(title, description, addFile , tagList)
+        database.theBase.add_document(addFile, title, description, None, docDate, keywordsGroups,tagList,foldIdList)
+    if queryStr is None and addFile is None : start_gui()
     logging.info('Exiting MALODOS')
