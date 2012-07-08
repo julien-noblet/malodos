@@ -718,6 +718,7 @@ class MainFrame(wx.Frame):
     # actionDocSelect : show the selected item on the doc part
     #===========================================================================
     def actionDocSelect(self,row):
+        if self.recordPart.getRow() == row : return
         if (self.modified or theData.is_modified) and utilities.ask(_('The current record has modifications are not yet saved. Do you want to save it before selecting another record?')):
             if self.actionUpdateRecord(None):
                 self.modified=False
