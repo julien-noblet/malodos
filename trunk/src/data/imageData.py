@@ -255,9 +255,10 @@ class imageData(object):
                 cipher = AES.new(currentPassword,IV=iv)
                 sss = cipher.decrypt(txt)
                 fle = tempfile.mkstemp(ext)
-                os.close(fle[0])
                 with open(fle[1], "wb") as ff: ff.write(sss)
+                os.close(fle[0])
                 self.load_file(fle[1], page, do_clear)
+                os.remove(fle[1])
                 self.current_file=filename
                 return
                 
