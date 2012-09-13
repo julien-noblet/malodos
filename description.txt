@@ -1,0 +1,9 @@
+MALODOS est un outil de gestion électronique (personnelle) de document (GED).
+Le logiciel MALODOS est conçu pour permettre de transférer l'ensemble de vos documents papier (factures, fiches de paye, etc...) sous forme électronique, à partir d'un scanner.
+Une fois un document scanné, il est possible d'y attacher un ensemble de mots clefs, un titre, une description et une date d'effet.
+Il est alors par la suite très simple de rechercher n'importe lequel de vos documents par mot clef/date.
+Il permet d'interfacer différents logiciels de reconnaissance de caractères (OCR) afin de permettre une recherche dans le corps des documents eux mêmes.
+
+La version 1.2 ajoute la possibilité de classer les documents dans des dossiers virtuels, de créer une vue hiérarchique par mots clef, de faire une sauvegarde do votre base de données ainsi que de créer une archive transportable contenant tout ou parti de vos documents.
+
+Ce logiciel a été concu en particulier afin de fournir une solution de gestion de documents personnel dans lequel le format des images et des bases de données soit libre et ouvert. Le code source étant librement distribuable et modifiable, il n'y a pas a craindre de perdre ses données.

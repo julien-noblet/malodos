@@ -29,7 +29,14 @@ import algorithms.words
 import gui.utilities
 import logging
 from database import Resources
+from database import theConfig
+from algorithms.general import str_to_bool
+import Crypto.Cipher.AES as AES
+import data.currentPassword as currentPassword
+import mmap
 
+ENCRYPT_TEXT='MALODOS encrypted'
+ENCRYPT_IV_LENGTH=32
 class imageData(object):
     val = None
     pil_images = []
@@ -119,11 +126,26 @@ class imageData(object):
         "add an image to the cache"
         if img: self.pil_images.append(img)
     def save_file(self,filename,title=None,description=None,keywords=None):
-        "save the image data to a PDF file"
+        "save the image data to a file"
         if len(self.pil_images)<1 : return False
+        (fname,ext) = os.path.splitext(filename)
+        
+        if str_to_bool(theConfig.get_param('encryption', 'encryptData','False',True)) and len(currentPassword)>0:
+            fle = tempfile.mkstemp(ext)
+            if not self.save_file(fle[1], title, description, keywords) : return False
+            iv = os.urandom(ENCRYPT_IV_LENGTH)
+            mapFile = mmap.mmap(fle[0].fileno(), 0)
+            cipher = AES.new(currentPassword,IV=iv)
+            sss = cipher.encrypt(mapFile)
+            with open(filename, "wb") as ff:
+                ff.write(ENCRYPT_TEXT)
+                ff.write(iv)
+                ff.write(sss)
+            os.close(fle[0])
+            os.remove(fle[1])
+            return True
         self.is_modified=False
         
-        (fname,ext) = os.path.splitext(filename)
         ext=ext.lower()
         if ext in ['.jpg'  , '.jpeg'  ,  '.png',  '.bmp' , '.gif']:
             if len(self.pil_images)>1 :
@@ -224,6 +246,21 @@ class imageData(object):
     def load_file(self,filename,page=None,do_clear=True):
         "Load a given file into memory (only the asked page if given, all the pages otherwise)"
         
+        (fname,ext) = os.path.splitext(filename)
+        with open(filename, "rb") as ff:
+            tst = ff.read(len(ENCRYPT_TEXT))
+            if tst == ENCRYPT_TEXT:
+                iv = ff.read(ENCRYPT_IV_LENGTH)
+                txt = ff.read()
+                cipher = AES.new(currentPassword,IV=iv)
+                sss = cipher.decrypt(txt)
+                fle = tempfile.mkstemp(ext)
+                os.close(fle[0])
+                with open(fle[1], "wb") as ff: ff.write(sss)
+                self.load_file(fle[1], page, do_clear)
+                self.current_file=filename
+                return
+                
         self.current_file=filename
         if do_clear : self.clear_all()
         self.is_modified=False
