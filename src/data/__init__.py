@@ -9,3 +9,4 @@ attached to this project (LICENSE.txt file)
 '''
 import imageData
 theData = imageData.imageData()
+currentPassword=''

@@ -24,6 +24,25 @@ from algorithms.general import str_to_bool
 from algorithms.words import get_available_languages
 import virtualFolder
 
+class PrefEncrypt(wx.NotebookPage):
+    def __init__(self,parent,page_id,name):
+        wx.NotebookPage.__init__(self,parent,page_id,name=name)
+        self.panel = wx.Panel(self, -1)
+        self.sizer = wx.BoxSizer(wx.VERTICAL)
+        self.cbEncryptData=wx.CheckBox(self.panel,-1,_("Encrypt image files"))
+        self.cbEncryptDatabase=wx.CheckBox(self.panel,-1,_("Encrypt database file"))
+#        self.tbPasswd=wx.TextCtrl(self.panel,-1)
+        self.sizer.Add(self.cbEncryptData,0,flag=wx.ALL|wx.EXPAND)
+        self.sizer.Add(self.cbEncryptDatabase,0,flag=wx.ALL|wx.EXPAND)
+#        self.sizer.Add(self.tbPasswd,1,flag=wx.ALL|wx.EXPAND)
+        self.actionLoad()
+        self.panel.SetSizerAndFit(self.sizer)
+    def actionSave(self):
+        database.theConfig.set_param('encryption', 'encryptData', str(self.cbEncryptData.Value), True)
+        database.theConfig.set_param('encryption', 'encryptDatabase', str(self.cbEncryptDatabase.Value), True)
+    def actionLoad(self):
+        self.cbEncryptData.Value = str_to_bool(database.theConfig.get_param('encryption', 'encryptData','False',True))
+        self.cbEncryptDatabase.Value = str_to_bool(database.theConfig.get_param('encryption', 'encryptDatabase','False',True))
 class PrefFolders(wx.NotebookPage):
     def __init__(self,parent,page_id,name):
         wx.NotebookPage.__init__(self,parent,page_id,name=name)
@@ -263,11 +282,13 @@ class PrefGui(wx.Dialog):
         self.scannerFrame = PrefScanner(self.tabFrame,-1,name=_("Scanner"))
         self.contentFrame = PrefContent(self.tabFrame,-1,name=_("Content"))
         self.folderFrame = PrefFolders(self.tabFrame,-1,name=_("Folders"))
+        self.encryptFrame = PrefEncrypt(self.tabFrame,-1,name=_("Encryption"))
         
         self.tabFrame.AddPage(self.dirSurveyFrame,self.dirSurveyFrame.GetName())
         self.tabFrame.AddPage(self.scannerFrame,self.scannerFrame.GetName())
         self.tabFrame.AddPage(self.contentFrame,self.contentFrame.GetName())
         self.tabFrame.AddPage(self.folderFrame,self.folderFrame.GetName())
+        self.tabFrame.AddPage(self.encryptFrame,self.encryptFrame.GetName())
         
         self.prefSizer.Add(self.tabFrame,(1,0),span=(1,3),flag=wx.EXPAND|wx.ALL)
         self.prefSizer.Add(self.btOk,(2,0),flag=wx.EXPAND|wx.ALL)
@@ -308,6 +329,7 @@ class PrefGui(wx.Dialog):
         self.dirSurveyFrame.actionSave()
         self.scannerFrame.actionSave()
         self.contentFrame.actionSave()
+        self.encryptFrame.actionSave()
         if not database.theConfig.commit_config() :
             wx.MessageBox(_('Problem : Unable to write the configuration file.'))
         else:
