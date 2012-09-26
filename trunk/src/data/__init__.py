@@ -8,5 +8,10 @@ attached to this project (LICENSE.txt file)
 
 '''
 import imageData
+import gui.utilities
 theData = imageData.imageData()
 currentPassword=''
+def get_current_password():
+    if currentPassword=='':
+        currentPassword = gui.utilities.ask_string(_('No password defined, please give one'), "", "")
+    return currentPassword

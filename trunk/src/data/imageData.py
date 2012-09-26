@@ -32,8 +32,8 @@ from database import Resources
 from database import theConfig
 from algorithms.general import str_to_bool
 import Crypto.Cipher.AES as AES
-import data.currentPassword as currentPassword
-import mmap
+import md5
+import data
 
 ENCRYPT_TEXT='MALODOS encrypted'
 ENCRYPT_IV_LENGTH=32
@@ -134,12 +134,16 @@ class imageData(object):
             fle = tempfile.mkstemp(ext)
             if not self.save_file(fle[1], title, description, keywords) : return False
             iv = os.urandom(ENCRYPT_IV_LENGTH)
-            mapFile = mmap.mmap(fle[0].fileno(), 0)
-            cipher = AES.new(currentPassword,IV=iv)
-            sss = cipher.encrypt(mapFile)
+            with open(fle[0],'rb') as ff: txt = ff.read()
+            cipher = AES.new(data.get_current_password(),IV=iv)
+            sss = cipher.encrypt(txt)
+            digest = md5.new()
+            digest.update(txt)
+            
             with open(filename, "wb") as ff:
                 ff.write(ENCRYPT_TEXT)
                 ff.write(iv)
+                ff.write(digest.digest())
                 ff.write(sss)
             os.close(fle[0])
             os.remove(fle[1])
@@ -250,10 +254,22 @@ class imageData(object):
         with open(filename, "rb") as ff:
             tst = ff.read(len(ENCRYPT_TEXT))
             if tst == ENCRYPT_TEXT:
+                thePassword = data.get_current_password()
+                again=True
                 iv = ff.read(ENCRYPT_IV_LENGTH)
+                dgst = ff.read(16)
                 txt = ff.read()
-                cipher = AES.new(currentPassword,IV=iv)
-                sss = cipher.decrypt(txt)
+                while again:
+                    cipher = AES.new(thePassword,IV=iv)
+                    sss = cipher.decrypt(txt)
+                    digest = md5.new()
+                    digest.update(sss)
+                    if digest.digest() != dgst:
+                        thePassword = gui.utilities.ask_string(_('Wrong password, please give the correct one (or leave it empty to cancel operation)'), '', '')
+                        if thePassword == '' : return
+                    else:
+                        again=False
+                    
                 fle = tempfile.mkstemp(ext)
                 with open(fle[1], "wb") as ff: ff.write(sss)
                 os.close(fle[0])
