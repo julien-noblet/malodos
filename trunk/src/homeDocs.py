@@ -45,19 +45,30 @@ if not exe_name :
         pass
 if not exe_name: exe_name = '.'
 ld = os.path.join(exe_name ,'locale')
-# code bellow copied from http://www.journaldunet.com/developpeur/tutoriel/pyt/070607-python-traduction/2.shtml 
-if os.name == 'nt':
-    lang = locale.getdefaultlocale()[0][:2]
-    try:
-        cur_lang = gettext.translation('malodos', localedir=ld, languages=[lang])
-        cur_lang.install(unicode=True)
-    except IOError:
-        gettext.install('malodos', localedir = ld, unicode=True)
-else :
-    gettext.install('malodos', localedir = ld, unicode=True)
+# code bellow copied from http://www.journaldunet.com/developpeur/tutoriel/pyt/070607-python-traduction/2.shtml
+
+gettext.install('malodos', localedir = ld, unicode=True)
+import database
+choosed_lang = database.theConfig.get_current_language()
+try:
+    if os.name == 'nt':
+        if choosed_lang=='sys':
+            lang = locale.getdefaultlocale()[0][:2]
+        else:
+            lang=choosed_lang
+            cur_lang = gettext.translation('malodos', localedir=ld, languages=[lang])
+            cur_lang.install(unicode=True)
+    else :
+        if choosed_lang=='sys':
+            gettext.install('malodos', localedir = ld, unicode=True)
+        else:
+            tr = gettext.translation('malodos', localedir = ld, languages=[choosed_lang])
+            tr.install()
+except IOError,E:
+    print str(E)
+
 # end of copy part
 
-import database
 def print_query_result(sFilter,frmt='%t',date_format='%d-%m-%Y'):
     import algorithms.stringFunctions as SF
 #    print "Querying with " + sFilter

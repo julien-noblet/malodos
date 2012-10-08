@@ -11,7 +11,7 @@ import imageData
 import gui.utilities
 theData = imageData.imageData()
 currentPassword=''
-def get_current_password():
+def get_current_password(msg=_('No password defined, please give one')):
     if currentPassword=='':
-        currentPassword = gui.utilities.ask_string(_('No password defined, please give one'), "", "")
+        currentPassword = gui.utilities.ask_password(msg, "", "")
     return currentPassword
