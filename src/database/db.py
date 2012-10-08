@@ -186,11 +186,14 @@ class Configuration(ConfigReader):
             self.config.add_section('survey')
             self.set_survey_directory_list( (os.path.join(self.conf_dir,'documents'),) , (0,))
             self.set_survey_extension_list( 'png tif tiff pdf jpg jpeg gif bmp' )
+
             self.config.add_section('scanner')
             self.set_current_scanner('None')
+
             self.config.add_section('language')
-            self.set_installed_languages('english')
-            self.set_current_language('english')
+            self.set_installed_languages('system/sys,english/en,french/fr')
+            self.set_current_language('system')
+
             self.config.add_section('database')
             self.set_database_name( os.path.join(self.conf_dir,'malodos.db'))
             self.commit_config()

@@ -12,4 +12,4 @@ theConfig = db.Configuration()
 try:
     theBase = db.Base(theConfig.get_database_name())
 except Exception as E:
-    logging.exception( _("Unable to connect to database->"+str(E)))
+    logging.exception( "Unable to connect to database->"+str(E))

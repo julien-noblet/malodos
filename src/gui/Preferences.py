@@ -264,8 +264,8 @@ class PrefGui(wx.Dialog):
         self.panel = wx.Panel(self, -1)
         self.txtDatabaseName = wx.StaticText(self.panel,-1,database.theBase.base_name);
         self.btChangeBase = wx.Button(self.panel,-1,_("Change"))
-        #self.cbLanguage = wx.Choice(self.panel,-1)
-        #self.cbLanguage.SetSelection(0)
+        self.cbLanguage = wx.Choice(self.panel,-1)
+        self.cbLanguage.SetSelection(0)
         self.btOk = wx.Button(self.panel,-1,_("Ok"))
         self.btCancel = wx.Button(self.panel,-1,_("Cancel"))
 
@@ -274,8 +274,8 @@ class PrefGui(wx.Dialog):
         self.prefSizer.Add(wx.StaticText(self.panel,-1,_("Database name :") ),(0,0),flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL)
         self.prefSizer.Add(self.btChangeBase,(0,1),flag=wx.ALIGN_CENTER_VERTICAL|wx.ALL)
         self.prefSizer.Add(self.txtDatabaseName,(0,2),flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL)
-        #self.prefSizer.Add(wx.StaticText(self.panel,-1,_("Language")),(1,0),flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL)
-        #self.prefSizer.Add(self.cbLanguage,(1,1),flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL)
+        self.prefSizer.Add(wx.StaticText(self.panel,-1,_("Language")),(1,0),flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL)
+        self.prefSizer.Add(self.cbLanguage,(1,1),flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL)
 
         self.tabFrame = wx.Notebook(self.panel,-1)
         self.dirSurveyFrame = PrefSurveyDir(self.tabFrame,-1,name=_("Dir. survey"))
@@ -290,22 +290,23 @@ class PrefGui(wx.Dialog):
         self.tabFrame.AddPage(self.folderFrame,self.folderFrame.GetName())
         self.tabFrame.AddPage(self.encryptFrame,self.encryptFrame.GetName())
         
-        self.prefSizer.Add(self.tabFrame,(1,0),span=(1,3),flag=wx.EXPAND|wx.ALL)
-        self.prefSizer.Add(self.btOk,(2,0),flag=wx.EXPAND|wx.ALL)
-        self.prefSizer.Add(self.btCancel,(2,1),flag=wx.EXPAND|wx.ALL)
+        self.prefSizer.Add(self.tabFrame,(2,0),span=(1,3),flag=wx.EXPAND|wx.ALL)
+        self.prefSizer.Add(self.btOk,(3,0),flag=wx.EXPAND|wx.ALL)
+        self.prefSizer.Add(self.btCancel,(3,1),flag=wx.EXPAND|wx.ALL)
         
         self.prefSizer.AddGrowableCol(2)
-        self.prefSizer.AddGrowableRow(1)
+        self.prefSizer.AddGrowableRow(2)
 
         database.theConfig.read_config()
         
-#        lng = database.theConfig.get_installed_languages()
-#        self.cbLanguage.SetItems(lng)
-#        current = database.theConfig.get_current_language()
-#        if current in lng :
-#            self.cbLanguage.SetStringSelection(current)
-#        else:
-#            self.cbLanguage.SetSelection(0)
+        lng = database.theConfig.get_installed_languages()
+        
+        self.cbLanguage.SetItems([L.split('/')[0] for L in lng])
+        current = database.theConfig.get_current_language()
+        self.cbLanguage.SetSelection(0)
+        for i in range(len(lng)):
+            L = lng[i].split('/')
+            if current == L[1] : self.cbLanguage.SetSelection(i)
         
         self.panel.SetSizerAndFit(self.prefSizer)
         self.SetClientSize((600,400))
@@ -325,7 +326,8 @@ class PrefGui(wx.Dialog):
         database.theBase.use_base(filename)
         
     def actionSavePrefs(self,event):
-        #database.theConfig.set_current_language(self.cbLanguage.GetStringSelection())
+        lng = database.theConfig.get_installed_languages()
+        database.theConfig.set_current_language(lng[self.cbLanguage.GetSelection()].split('/')[1])
         self.dirSurveyFrame.actionSave()
         self.scannerFrame.actionSave()
         self.contentFrame.actionSave()
