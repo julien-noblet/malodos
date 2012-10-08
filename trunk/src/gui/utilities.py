@@ -18,6 +18,8 @@ def ask(message):
     return dlg.ShowModal()==wx.ID_YES
 def ask_string(message,caption=_('String expected'),defaultValue=''):
     return wx.GetTextFromUser(message,caption,defaultValue)
+def ask_password(message,caption=_('Enter password'),defaultValue=''):
+    return wx.GetPasswordFromUser(message,caption,defaultValue)
 def ask_folder(msg='Choose a folder'):
     dlg = wx.DirDialog(parent=wx.GetActiveWindow(),message=msg)
     dlg.ShowModal()
