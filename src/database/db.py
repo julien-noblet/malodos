@@ -180,23 +180,32 @@ class Configuration(ConfigReader):
             ConfigReader.__init__(self)
             return
         conf_file = os.path.join(self.conf_dir,'malodos.ini')
-        fillConf = not os.path.exists(conf_file)
+#        fillConf = not os.path.exists(conf_file)
         ConfigReader.__init__(self,conf_file)
-        if  fillConf and os.path.exists(self.conf_file) and self.config is not None:
+        if not self.config.has_section('survey'):
             self.config.add_section('survey')
+        if not self.config.has_option('survey', 'directory_list'):
             self.set_survey_directory_list( (os.path.join(self.conf_dir,'documents'),) , (0,))
+        if not self.config.has_option('survey', 'extension_list'):
             self.set_survey_extension_list( 'png tif tiff pdf jpg jpeg gif bmp' )
 
+        if not self.config.has_section('scanner'):
             self.config.add_section('scanner')
+        if not self.config.has_option('scanner', 'source'):
             self.set_current_scanner('None')
 
+        if not self.config.has_section('language'):
             self.config.add_section('language')
-            self.set_installed_languages('system/sys,english/en,french/fr')
-            self.set_current_language('system')
+        if not self.config.has_option('language', 'installed'):
+            self.set_installed_languages('system/sys,english/en,french/fr_FR')
+        if not self.config.has_option('language', 'current'):
+            self.set_current_language('sys')
 
+        if not self.config.has_section('database'):
             self.config.add_section('database')
+        if not self.config.has_option('database', 'filename'):
             self.set_database_name( os.path.join(self.conf_dir,'malodos.db'))
-            self.commit_config()
+        self.commit_config()
         self.read_config()
 
     def get_survey_extension_list(self):
@@ -215,7 +224,10 @@ class Configuration(ConfigReader):
         if hasattr(S, '__iter__') : S = ','.join(S)
         return self.set_param('language', 'installed',S)
     def get_current_language(self):
-        return self.get_param('language', 'current')
+        try:
+            return self.get_param('language', 'current')
+        except:
+            return 'en'
     def set_current_language(self,S):
         return self.set_param('language', 'current',S)
     def get_current_scanner(self):

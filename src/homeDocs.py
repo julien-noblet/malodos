@@ -50,6 +50,9 @@ ld = os.path.join(exe_name ,'locale')
 gettext.install('malodos', localedir = ld, unicode=True)
 import database
 choosed_lang = database.theConfig.get_current_language()
+#x=gettext.find("malodos", localedir = ld,languages=['en'])
+#print ld
+#print x
 try:
     if os.name == 'nt':
         if choosed_lang=='sys':
