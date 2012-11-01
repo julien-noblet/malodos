@@ -31,12 +31,9 @@ import logging
 from database import Resources
 from database import theConfig
 from algorithms.general import str_to_bool
-import Crypto.Cipher.AES as AES
-import md5
+#import bcrypt
 import data
 
-ENCRYPT_TEXT='MALODOS encrypted'
-ENCRYPT_IV_LENGTH=32
 class imageData(object):
     val = None
     pil_images = []
@@ -125,29 +122,25 @@ class imageData(object):
     def add_image(self,img):
         "add an image to the cache"
         if img: self.pil_images.append(img)
-    def save_file(self,filename,title=None,description=None,keywords=None):
+    def save_file(self,filename,title=None,description=None,keywords=None,allowEncryption=True):
         "save the image data to a file"
         if len(self.pil_images)<1 : return False
         (fname,ext) = os.path.splitext(filename)
         
-        if str_to_bool(theConfig.get_param('encryption', 'encryptData','False',True)) and len(currentPassword)>0:
-            fle = tempfile.mkstemp(ext)
-            if not self.save_file(fle[1], title, description, keywords) : return False
-            iv = os.urandom(ENCRYPT_IV_LENGTH)
-            with open(fle[0],'rb') as ff: txt = ff.read()
-            cipher = AES.new(data.get_current_password(),IV=iv)
-            sss = cipher.encrypt(txt)
-            digest = md5.new()
-            digest.update(txt)
-            
-            with open(filename, "wb") as ff:
-                ff.write(ENCRYPT_TEXT)
-                ff.write(iv)
-                ff.write(digest.digest())
-                ff.write(sss)
-            os.close(fle[0])
-            os.remove(fle[1])
-            return True
+        if allowEncryption and str_to_bool(theConfig.get_param('encryption', 'encryptData','False',True)):
+            try:
+                fle = tempfile.mkstemp(ext)
+                if not self.save_file(fle[1], title, description, keywords,allowEncryption=False) : return False
+                #salt = bcrypt.gensalt()
+                #salted_key = bcrypt.hashpw(data.get_current_password(),salt)
+                with open(fle[1],'rb') as ff: txt = ff.read()
+                algorithms.stringFunctions.save_encrypted_data(txt, filename)
+                return True
+            except Exception as E:
+                logging.exception('Encryping file ' + filename + ':' + str(E))
+            finally:
+                os.close(fle[0])
+                os.remove(fle[1])
         self.is_modified=False
         
         ext=ext.lower()
@@ -250,37 +243,22 @@ class imageData(object):
     def load_file(self,filename,page=None,do_clear=True):
         "Load a given file into memory (only the asked page if given, all the pages otherwise)"
         
-        (fname,ext) = os.path.splitext(filename)
-        with open(filename, "rb") as ff:
-            tst = ff.read(len(ENCRYPT_TEXT))
-            if tst == ENCRYPT_TEXT:
-                thePassword = data.get_current_password()
-                again=True
-                iv = ff.read(ENCRYPT_IV_LENGTH)
-                dgst = ff.read(16)
-                txt = ff.read()
-                while again:
-                    cipher = AES.new(thePassword,IV=iv)
-                    sss = cipher.decrypt(txt)
-                    digest = md5.new()
-                    digest.update(sss)
-                    if digest.digest() != dgst:
-                        thePassword = gui.utilities.ask_string(_('Wrong password, please give the correct one (or leave it empty to cancel operation)'), '', '')
-                        if thePassword == '' : return
-                    else:
-                        again=False
-                    
-                fle = tempfile.mkstemp(ext)
-                with open(fle[1], "wb") as ff: ff.write(sss)
-                os.close(fle[0])
-                self.load_file(fle[1], page, do_clear)
-                os.remove(fle[1])
-                self.current_file=filename
-                return
+
+        sss = algorithms.stringFunctions.load_encrypted_data(filename)
+        if sss is not None:
+            if sss=='' : return False
+            (fname,ext) = os.path.splitext(filename)
+            fle = tempfile.mkstemp(ext)
+            with open(fle[1], "wb") as ff: ff.write(sss)
+            os.close(fle[0])
+            self.load_file(fle[1], page, do_clear)
+            os.remove(fle[1])
+            self.current_file=filename
+            return True
                 
-        self.current_file=filename
         if do_clear : self.clear_all()
         self.is_modified=False
+        self.current_file=filename
         
         try_pdf = filename.lower().endswith('.pdf')
         old_log_level = wx.Log.GetLogLevel()

@@ -11,6 +11,14 @@ attached to this project (LICENSE.txt file)
 import database.db
 import algorithms.words
 import datetime
+import Crypto.Cipher.AES as AES
+import Crypto.Hash.MD5 as md5
+import data
+from os import urandom
+import gui.utilities
+
+ENCRYPT_TEXT='MALODOS encrypted'
+ENCRYPT_IV_LENGTH=16
 
 def char_type(c):
     if c.isspace() : return 0
@@ -290,3 +298,48 @@ def no_accent(S):
     S=S.replace(u'ù','u')
     
     return S
+
+def save_encrypted_data(txt,filename):
+    iv = urandom(ENCRYPT_IV_LENGTH)
+    cipher = AES.new(data.get_current_password(),IV=iv)
+    
+    npad = len(txt) % cipher.block_size
+    txt=txt+urandom(npad)
+    
+    
+    sss = cipher.encrypt(txt)
+    digest = md5.new()
+    digest.update(txt)
+    
+    with open(filename, "wb") as ff:
+        ff.write(ENCRYPT_TEXT)
+        ff.write(iv)
+        ff.write(digest.digest())
+        x= '%.2d' % npad
+        ff.write(x)
+        ff.write(sss)
+    
+def load_encrypted_data(filename):
+    with open(filename, "rb") as ff:
+        tst = ff.read(len(ENCRYPT_TEXT))
+        if tst == ENCRYPT_TEXT:
+            thePassword = data.get_current_password()
+            again=True
+            iv = ff.read(ENCRYPT_IV_LENGTH)
+            dgst = ff.read(16)
+            x=ff.read(2)
+            npad=int(x)
+            txt = ff.read()
+            while again:
+                cipher = AES.new(thePassword,IV=iv)
+                sss = cipher.decrypt(txt)
+                digest = md5.new()
+                digest.update(sss)
+                if digest.digest() != dgst:
+                    thePassword = gui.utilities.ask_string(_('Wrong password, please give the correct one (or leave it empty to cancel operation)'), '', '')
+                    if thePassword == '' : return ''
+                else:
+                    again=False
+            return sss[:-npad]
+        else:
+            return None
