@@ -305,8 +305,6 @@ def save_encrypted_data(txt,filename):
     
     npad = len(txt) % cipher.block_size
     txt=txt+urandom(npad)
-    
-    
     sss = cipher.encrypt(txt)
     digest = md5.new()
     digest.update(txt)
@@ -340,6 +338,9 @@ def load_encrypted_data(filename):
                     if thePassword == '' : return ''
                 else:
                     again=False
-            return sss[:-npad]
+            if npad>0 :
+                return sss[:-npad]
+            else:
+                return sss  
         else:
             return None
