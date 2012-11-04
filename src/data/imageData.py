@@ -240,21 +240,22 @@ class imageData(object):
         gui.utilities.closeGlobalProgressDialog()
         #for w in content: print w
         return content
-    def load_file(self,filename,page=None,do_clear=True):
+    def load_file(self,filename,page=None,do_clear=True,allowEncrypted=True):
         "Load a given file into memory (only the asked page if given, all the pages otherwise)"
         
 
-        sss = algorithms.stringFunctions.load_encrypted_data(filename)
-        if sss is not None:
-            if sss=='' : return False
-            (fname,ext) = os.path.splitext(filename)
-            fle = tempfile.mkstemp(ext)
-            with open(fle[1], "wb") as ff: ff.write(sss)
-            os.close(fle[0])
-            self.load_file(fle[1], page, do_clear)
-            os.remove(fle[1])
-            self.current_file=filename
-            return True
+        if allowEncrypted:
+            sss = algorithms.stringFunctions.load_encrypted_data(filename)
+            if sss is not None:
+                if sss=='' : return False
+                (fname,ext) = os.path.splitext(filename)
+                fle = tempfile.mkstemp(ext)
+                with open(fle[1], "wb") as ff: ff.write(sss)
+                os.close(fle[0])
+                self.load_file(fle[1], page, do_clear,False)
+                os.remove(fle[1])
+                self.current_file=filename
+                return True
                 
         if do_clear : self.clear_all()
         self.is_modified=False

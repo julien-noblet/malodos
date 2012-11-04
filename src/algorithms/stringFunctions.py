@@ -334,7 +334,7 @@ def load_encrypted_data(filename):
                 digest = md5.new()
                 digest.update(sss)
                 if digest.digest() != dgst:
-                    thePassword = gui.utilities.ask_string(_('Wrong password, please give the correct one (or leave it empty to cancel operation)'), '', '')
+                    thePassword = data.get_current_password(_('Wrong password, please give the correct one (or leave it empty to cancel operation)'),True,False)
                     if thePassword == '' : return ''
                 else:
                     again=False
