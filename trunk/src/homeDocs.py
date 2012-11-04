@@ -22,6 +22,7 @@ import locale
 import sys
 import logging
 import algorithms
+from algorithms.general import str_to_bool
 import getopt
 import datetime
 __version__ = '1.3.1'
@@ -49,6 +50,7 @@ ld = os.path.join(exe_name ,'locale')
 
 gettext.install('malodos', localedir = ld, unicode=True)
 import database
+from data import get_current_password
 choosed_lang = database.theConfig.get_current_language()
 #x=gettext.find("malodos", localedir = ld,languages=['en'])
 #print ld
@@ -135,6 +137,7 @@ def start_gui():
             frame = mainWindow.MainFrame(None, 'MALODOS')
             frame.Show(True)
             self.SetTopWindow(frame)
+            if str_to_bool(database.theConfig.get_param('encryption', 'encryptData','False',True)): get_current_password()
             return True
     app = MyApp(False)
     app.MainLoop()
