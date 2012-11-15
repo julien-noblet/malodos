@@ -283,6 +283,7 @@ class Base(object):
     folderDoc_tableName='folderDocs'
     
     param_DB_VERSION='DB_VERSION'
+    param_ENCRYPTED='ENCRYPTED'
     DB_VERSION=1.21
     
     IDX_TITLE=0
@@ -308,11 +309,16 @@ class Base(object):
     #===========================================================================
     # constructor
     #===========================================================================
-    def __init__(self,base_name):
+    def __init__(self,base_name,encrypted=False):
         '''
         Constructor
         '''
+        self.encrypted=encrypted
         self.use_base(base_name)
+    def encrypt(self,s,pss=None):
+        return s
+    def decrypt(self,s,pss=None):
+        return s
     def use_base(self,base_name):
         #print str(type(base_name)) + '+' + base_name 
         self.connexion = sqlite3.connect(base_name, detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
@@ -324,6 +330,8 @@ class Base(object):
         self.connexion.create_function("EXTENSION", 1, lambda fname : os.path.splitext(fname)[1])
         self.connexion.create_function("PHONEX", 1, lambda word : algorithms.words.phonex(word))
         self.connexion.create_function("MAKE_FULL_PATH", 2, self.make_full_name)
+        self.connexion.create_function("DECRYPT", 1, self.decrypt)
+        self.connexion.create_function("ENCRYPT", 1, self.encrypt)
 
     #===========================================================================
     # test if a table exists
@@ -443,6 +451,7 @@ class Base(object):
                 return False
             
         self.set_parameter(self.param_DB_VERSION, self.DB_VERSION)
+        self.set_parameter(self.param_ENCRYPTED, str(self.encrypted))
         return True
     
     #===========================================================================
@@ -512,7 +521,7 @@ class Base(object):
             # add the document entry in the database
             #sql_statement = 'INSERT INTO ' + self.documents_tableName + " VALUES ('" + title + "','" + description + "','" + fileName + "','" + str(registeringDate) + "'," + str(personID) + ",'" + str(documentDate) + "','" + str(file_md5) + "')"
             sql_statement = 'INSERT INTO ' + self.documents_tableName + " (title,description,filename,registerDate,registeringPersonID,documentDate,tags,checksum) VALUES (?,?,?,?,?,?,?,?)"
-            cur = self.connexion.execute(sql_statement,(title,description,fileName,registeringDate,personID,documentDate,tags,str(file_md5)))
+            cur = self.connexion.execute(sql_statement,(self.encrypt(title),self.encrypt(description),fileName,registeringDate,personID,documentDate,self.encrypt(tags),str(file_md5)))
             docID = cur.lastrowid
         except Exception,E:
             logging.debug('SQL ERROR ' + str(E))
@@ -588,9 +597,9 @@ class Base(object):
         keywords =  map(lambda s:algorithms.words.phonex(s) , keywords)
         # first : find the keyword in the keywords table
         if isinstance(keywords,list):
-            Q = "SELECT ROWID FROM " + self.keywords_tableName + " WHERE soundex_word IN " + self.make_placeholder_list(len(keywords))
+            Q = "SELECT ROWID FROM " + self.keywords_tableName + " WHERE decrypt(soundex_word) IN " + self.make_placeholder_list(len(keywords))
         else:
-            Q = "SELECT ROWID FROM " + self.keywords_tableName + " WHERE soundex_word = ?"
+            Q = "SELECT ROWID FROM " + self.keywords_tableName + " WHERE decrypt(soundex_word) = ?"
         try:
             #print "finding keys via " + Q
             cur = self.connexion.execute(Q , keywords)
@@ -613,7 +622,7 @@ class Base(object):
 #            print sql_command,pars
             cur = self.connexion.execute(sql_command,pars)
             rowIDList = self.rows_to_str(cur,0,'')
-            sql_command = "SELECT title,description,filename,registerDate,registeringPersonID,documentDate,tags,checksum,ROWID FROM "+ self.documents_tableName + ' WHERE ROWID IN ' + str(rowIDList)
+            sql_command = "SELECT decrypt(title),decrypt(description),filename,registerDate,registeringPersonID,documentDate,decrypt(tags),checksum,ROWID FROM "+ self.documents_tableName + ' WHERE ROWID IN ' + str(rowIDList)
             cur = self.connexion.execute(sql_command)
             return cur
         except Exception as E:
@@ -627,7 +636,7 @@ class Base(object):
     def get_by_doc_id(self,docIDlist):
         if len(docIDlist)<1 : return None
         try:
-            sql_command = "SELECT title,description,filename,registerDate,registeringPersonID,documentDate,tags,checksum,ROWID FROM %s WHERE rowID IN %s" %(self.documents_tableName,self.make_placeholder_list(len(docIDlist))) 
+            sql_command = "SELECT decrypt(title),decrypt(description),filename,registerDate,registeringPersonID,documentDate,decrypt(tags),checksum,ROWID FROM %s WHERE rowID IN %s" %(self.documents_tableName,self.make_placeholder_list(len(docIDlist))) 
 #            print sql_command,pars
             cur = self.connexion.execute(sql_command,docIDlist)
             return cur
@@ -641,7 +650,7 @@ class Base(object):
     #===============================================================================
     def find_keywords_by_prefix(self,prefix='',field_num=None):
         try:
-            sql_command = "SELECT rowID,keyword FROM " + self.keywords_tableName + " WHERE keyword LIKE ?" 
+            sql_command = "SELECT rowID,decrypt(keyword) FROM " + self.keywords_tableName + " WHERE decrypt(keyword) LIKE ?" 
             cur = self.connexion.execute(sql_command,(prefix + '%' ,))
             if field_num is None:
                 return [ row[1] for row in cur]
@@ -649,7 +658,7 @@ class Base(object):
                 keyXX = self.rows_to_str(cur,0,'')
                 sql_command = "SELECT DISTINCT keyID from " + self.docWords_tableName + " WHERE keyID IN " + keyXX + " AND field = ?"
                 cur = self.connexion.execute(sql_command,(field_num,))
-                sql_command = "SELECT keyword FROM " + self.keywords_tableName + " WHERE rowID IN " + self.rows_to_str(cur,0,'')
+                sql_command = "SELECT decrypt(keyword) FROM " + self.keywords_tableName + " WHERE rowID IN " + self.rows_to_str(cur,0,'')
                 cur = self.connexion.execute(sql_command)
                 return [ row[0].encode('utf-8') for row in cur]
         except Exception as E:
@@ -682,7 +691,7 @@ class Base(object):
         )'''
        
         cur = None
-        sql_statement = 'SELECT title,description,filename,registerDate,registeringPersonID,documentDate,tags,checksum,ROWID FROM ' + self.documents_tableName
+        sql_statement = 'SELECT decrypt(title),decrypt(description),filename,registerDate,registeringPersonID,documentDate,decrypt(tags),checksum,ROWID FROM ' + self.documents_tableName
         if keywords:
             # first : find the keyword in the keyword table
             cur = self.find_keywords(keywords)
@@ -744,7 +753,7 @@ class Base(object):
 #        keywords_str = [ '"' + i + '"' for i in keywords]
 #        keywords_str = '(' + ','.join(keywords_str) + ')'
         
-        Q = 'SELECT keyword FROM ' + self.keywords_tableName + ' WHERE keyword IN ' + self.make_placeholder_list(len(keywords))
+        Q = 'SELECT decrypt(keyword) FROM ' + self.keywords_tableName + ' WHERE decrypt(keyword) IN ' + self.make_placeholder_list(len(keywords))
         try:
             cur = self.connexion.execute(Q,keywords)
             already_present = [ i[0] for i in cur]
@@ -815,7 +824,7 @@ class Base(object):
             elif type(keyGroup[1]) is dict:
                 all_keywords = dict([ (item.lower(),weight) for item,weight in keyGroup[1].items() ])
             absents = self.find_absent_keywords(all_keywords.keys())
-            absents = map(lambda x:(x,algorithms.words.phonex(x)) , absents)
+            absents = map(lambda x:(self.encrypt(x),self.encrypt(algorithms.words.phonex(x))) , absents)
             Q = 'INSERT INTO ' + self.keywords_tableName + ' (keyword,soundex_word) VALUES (?,?)'
             try:
                 self.connexion.executemany(Q,absents)
@@ -824,7 +833,7 @@ class Base(object):
                 gui.utilities.show_message(_('Unable to insert new keywords : ') + str(E))
                 return False
             # get back all the keyword IDs for the current field
-            Q = 'SELECT ROWID,KEYWORD FROM ' + self.keywords_tableName + ' WHERE keyword IN ' + self.make_placeholder_list(len(all_keywords))
+            Q = 'SELECT ROWID,decrypt(KEYWORD) FROM ' + self.keywords_tableName + ' WHERE decrypt(keyword) IN ' + self.make_placeholder_list(len(all_keywords))
             addedKeys = []
             try:
                 cur = self.connexion.execute(Q,all_keywords.keys())
@@ -857,7 +866,7 @@ class Base(object):
     def update_doc(self,docID,title,description,documentDate,filename,tags,fullText=None,folderID_list=None):
         Q = 'UPDATE ' + self.documents_tableName + ' SET title=? , description=?, documentDate=? ,tags=? , filename=? WHERE ROWID=?'
         try:
-            self.connexion.execute(Q,(title,description,documentDate,tags,filename,docID))
+            self.connexion.execute(Q,(self.encrypt(title),self.encrypt(description),documentDate,self.encrypt(tags),filename,docID))
             self.connexion.commit()
         except Exception as E:
             logging.debug('SQL ERROR ' + str(E))
@@ -922,7 +931,7 @@ class Base(object):
     # get_all_keywords : retrieve all the recorded keywords
     #===========================================================================
     def get_all_keywords(self):
-        Q = "SELECT keyword FROM " + self.keywords_tableName
+        Q = "SELECT decrypt(keyword) FROM " + self.keywords_tableName
         try:
             cur = self.connexion.execute(Q)
             return tuple([row[0].encode('utf-8').lower() for row in cur])
@@ -937,7 +946,7 @@ class Base(object):
         try:
             cur = self.connexion.execute(Q)
             rowIDList = self.rows_to_str(cur,0,'')
-            sql_command = "SELECT title,description,filename,registerDate,registeringPersonID,documentDate,tags,checksum,ROWID FROM "+ self.documents_tableName + ' WHERE ROWID IN ' + str(rowIDList)
+            sql_command = "SELECT decrypt(title),decrypt(description),filename,registerDate,registeringPersonID,documentDate,decrypt(tags),checksum,ROWID FROM "+ self.documents_tableName + ' WHERE ROWID IN ' + str(rowIDList)
             cur = self.connexion.execute(sql_command)
             return cur
         except Exception as E:
@@ -1180,7 +1189,7 @@ class Base(object):
                 added_cond=' AND keyID NOT IN %s' %self.make_placeholder_list(len(refusedKeys))
                 params.extend(refusedKeys)
             if onlyTags : added_cond += ' AND DK.field={0}'.format(self.ID_TAG)
-            Q = 'SELECT K.keyword,sum(count) as total,DK.keyID FROM %s as K,%s as DK WHERE DK.keyID==K.rowID AND DK.docID in %s %s GROUP BY keyID ORDER BY total DESC' % (self.keywords_tableName,self.docWords_tableName,self.make_placeholder_list(len(docID)),added_cond)
+            Q = 'SELECT decrypt(K.keyword),sum(count) as total,DK.keyID FROM %s as K,%s as DK WHERE DK.keyID==K.rowID AND DK.docID in %s %s GROUP BY keyID ORDER BY total DESC' % (self.keywords_tableName,self.docWords_tableName,self.make_placeholder_list(len(docID)),added_cond)
             #print Q
             cur = self.connexion.execute(Q, params)
             return cur
@@ -1206,7 +1215,7 @@ class Base(object):
     #===========================================================================
     # replicate_in(new_base_name,docList) 
     #===========================================================================
-    def replicate_in(self,new_base_name,docList=None,file_replacer=None):
+    def replicate_in(self,new_base_name,docList=None,file_replacer=None,new_password=None):
         try:
             # creation of the new database
             newDB = Base(new_base_name)
@@ -1229,6 +1238,7 @@ class Base(object):
             cont=True
             keyIDlist=set()
             pos=0
+            # keyIDlist is built by slice of 900 docID since sqlite cannot treat more than 900 params in request
             while cont:
                 if docList is not None:
                     pos2=min(pos+900,len(docList))
@@ -1244,7 +1254,7 @@ class Base(object):
                 if docList is None or pos>=len(docList) : cont=False
             keyIDlist=list(keyIDlist)
             #    then copy these keywords
-            Q0='SELECT keyword,soundex_word,rowid FROM %s' % self.keywords_tableName
+            Q0='SELECT decrypt(keyword),decrypt(soundex_word),rowid FROM %s' % self.keywords_tableName
             cont=True
             pos=0
             while cont:
@@ -1264,7 +1274,7 @@ class Base(object):
             newDB.connexion.executemany(Q,cur)
             
             # replicate the documents structure (only with docID if specified, all otherwise)
-            Q0='SELECT %s FROM %s' % (self.__doc_fields__ + ',rowID',self.documents_tableName)
+            Q0='SELECT decrypt(title),decrypt(description),filename,registerDate,registeringPersonID,documentDate,decrypt(tags),checksum,rowID FROM %s' % (self.documents_tableName)
             cont=True
             pos=0
             while cont:
@@ -1277,7 +1287,12 @@ class Base(object):
                     Q=Q0
                     P=[]
                 cur = self.connexion.execute(Q,P)
-                Q='INSERT INTO %s (%s) VALUES %s'% (self.documents_tableName,self.__doc_fields__ + ',rowID',self.make_placeholder_list(self.__doc_nbfields__+1))
+                cur = [row for row in cur]
+                for row in cur :
+                    row[self.IDX_TITLE] = self.encrypt(row[self.IDX_TITLE],new_password)
+                    row[self.IDX_DESCRIPTION] = self.encrypt(row[self.IDX_DESCRIPTION],new_password)
+                    row[self.IDX_TAGS] = self.encrypt(row[self.IDX_TAGS],new_password)
+                Q='INSERT INTO %s (title,description,filename,registerDate,registeringPersonID,documentDate,tags,checksum,rowID) VALUES %s'% (self.documents_tableName,self.make_placeholder_list(self.__doc_nbfields__+1))
                 if file_replacer is None:
                     newDB.connexion.executemany(Q,cur)
                 else:
