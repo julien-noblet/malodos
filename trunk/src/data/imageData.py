@@ -32,7 +32,6 @@ from database import Resources
 from database import theConfig
 from algorithms.general import str_to_bool
 #import bcrypt
-import data
 
 class imageData(object):
     val = None

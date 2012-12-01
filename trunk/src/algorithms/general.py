@@ -10,4 +10,4 @@ attached to this project (LICENSE.txt file)
 
 def str_to_bool(s):
     s=s.lower()
-    return s=='1' or s=='on' or s=='true' or s=='yes'
+    return s=='1' or s=='on' or s=='true' or s=='yes' or s=='+'

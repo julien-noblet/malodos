@@ -8,14 +8,13 @@ attached to this project (LICENSE.txt file)
 =====================================================================
     algorithms operating on strings
 '''
-import database.db
+import database
 import algorithms.words
 import datetime
 import Crypto.Cipher.AES as AES
 import Crypto.Hash.MD5 as md5
-import data
 from os import urandom
-import gui.utilities
+#import gui.utilities
 
 ENCRYPT_TEXT='MALODOS encrypted'
 ENCRYPT_IV_LENGTH=16
@@ -301,7 +300,7 @@ def no_accent(S):
 
 def save_encrypted_data(txt,filename):
     iv = urandom(ENCRYPT_IV_LENGTH)
-    cipher = AES.new(data.get_current_password(),IV=iv)
+    cipher = AES.new(database.get_current_password(),IV=iv)
     
     npad = len(txt) % cipher.block_size
     txt=txt+urandom(npad)
@@ -321,7 +320,7 @@ def load_encrypted_data(filename):
     with open(filename, "rb") as ff:
         tst = ff.read(len(ENCRYPT_TEXT))
         if tst == ENCRYPT_TEXT:
-            thePassword = data.get_current_password()
+            thePassword = database.get_current_password()
             again=True
             iv = ff.read(ENCRYPT_IV_LENGTH)
             dgst = ff.read(16)
@@ -334,7 +333,7 @@ def load_encrypted_data(filename):
                 digest = md5.new()
                 digest.update(sss)
                 if digest.digest() != dgst:
-                    thePassword = data.get_current_password(_('Wrong password, please give the correct one (or leave it empty to cancel operation)'),True,False)
+                    thePassword = database.get_current_password(_('Wrong password, please give the correct one (or leave it empty to cancel operation)'),True,False)
                     if thePassword == '' : return ''
                 else:
                     again=False

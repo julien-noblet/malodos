@@ -110,6 +110,7 @@ class FolderView (wx.Panel):
         def fillUnder(itemID):
             addedItems = []
             folderID = self.treeView.GetPyData(itemID)
+            if theBase is None : return
             descendants = theBase.folders_childs_of(folderID)
             for row in descendants:
                 idt = row[0]
