@@ -22,7 +22,6 @@ import locale
 import sys
 import logging
 import algorithms
-from algorithms.general import str_to_bool
 import getopt
 import datetime
 __version__ = '1.3.1'
@@ -50,7 +49,6 @@ ld = os.path.join(exe_name ,'locale')
 
 gettext.install('malodos', localedir = ld, unicode=True)
 import database
-from data import get_current_password
 choosed_lang = database.theConfig.get_current_language()
 #x=gettext.find("malodos", localedir = ld,languages=['en'])
 #print ld
@@ -131,15 +129,19 @@ def start_gui():
     class MyApp(wx.App):
         def OnInit(self):
             self.SetAppName('MALODOS')
-            if not database.theBase.buildDB():
-                return False
             #if len(sys.argv)>1 and os.path.exists(sys.argv[1]): database.theBase.use_base(sys.argv[1])
-            frame = mainWindow.MainFrame(None, 'MALODOS')
-            frame.Show(True)
-            self.SetTopWindow(frame)
-            if str_to_bool(database.theConfig.get_param('encryption', 'encryptData','False',True)): get_current_password()
+            self.frame = mainWindow.MainFrame(None, 'MALODOS')
+            self.frame.Show(True)
+            self.SetTopWindow(self.frame)
+            #if str_to_bool(database.theConfig.get_param('encryption', 'encryptData','False',True)): get_current_password()
+            #if not database.theBase.buildDB():
+            #    return False
             return True
     app = MyApp(False)
+    
+    database.initialize()
+    app.frame.initialize()
+    if not database.theBase.buildDB(): raise 'Unable to load the database'
     app.MainLoop()
 
 if __name__ == "__main__":

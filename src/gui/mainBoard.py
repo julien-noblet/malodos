@@ -463,6 +463,7 @@ class MainFrame(wx.Frame):
     #===========================================================================
     def __init__(self, parent, title):
         wx.Frame.__init__(self, parent, -1, _('MALODOS Main panel'), wx.DefaultPosition, (576, 721), style=wx.CLOSE_BOX | wx.SYSTEM_MENU | wx.CAPTION | wx.RESIZE_BORDER | 0 | 0 | wx.MAXIMIZE_BOX | wx.MINIMIZE_BOX)
+    def initialize(self):
         fname = Resources.get_icon_filename('APPLICATION')
         appIcon = wx.Icon(fname,wx.BITMAP_TYPE_ANY)
         #appIcon.LoadFile(Resources.get_icon_filename('APPLICATION'),wx.BITMAP_TYPE_ANY)
@@ -699,6 +700,7 @@ class MainFrame(wx.Frame):
     def actionSearch(self,event):
         # clear the listbox
         #self.flatViewFrame.lbDocuments.Clear()
+        if database.theBase is None: return
         sFilter = self.tbFilter.Value
         if len(sFilter)==0:
             docList = database.theBase.find_documents(None)
