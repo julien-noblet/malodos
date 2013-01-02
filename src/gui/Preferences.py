@@ -23,6 +23,7 @@ import os.path
 from algorithms.general import str_to_bool
 from algorithms.words import get_available_languages
 import virtualFolder
+import dbGui
 
 class PrefEncrypt(wx.NotebookPage):
     def __init__(self,parent,page_id,name):
@@ -264,6 +265,7 @@ class PrefGui(wx.Dialog):
         self.panel = wx.Panel(self, -1)
         self.txtDatabaseName = wx.StaticText(self.panel,-1,database.theBase.base_name);
         self.btChangeBase = wx.Button(self.panel,-1,_("Change"))
+        self.btNewBase = wx.Button(self.panel,-1,_("New"))
         self.cbLanguage = wx.Choice(self.panel,-1)
         self.cbLanguage.SetSelection(0)
         self.btOk = wx.Button(self.panel,-1,_("Ok"))
@@ -273,7 +275,8 @@ class PrefGui(wx.Dialog):
 
         self.prefSizer.Add(wx.StaticText(self.panel,-1,_("Database name :") ),(0,0),flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL)
         self.prefSizer.Add(self.btChangeBase,(0,1),flag=wx.ALIGN_CENTER_VERTICAL|wx.ALL)
-        self.prefSizer.Add(self.txtDatabaseName,(0,2),flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL)
+        self.prefSizer.Add(self.btNewBase,(0,2),flag=wx.ALIGN_CENTER_VERTICAL|wx.ALL)
+        self.prefSizer.Add(self.txtDatabaseName,(0,3),flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL)
         self.prefSizer.Add(wx.StaticText(self.panel,-1,_("Language")),(1,0),flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL)
         self.prefSizer.Add(self.cbLanguage,(1,1),flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL)
 
@@ -290,11 +293,11 @@ class PrefGui(wx.Dialog):
         self.tabFrame.AddPage(self.folderFrame,self.folderFrame.GetName())
         self.tabFrame.AddPage(self.encryptFrame,self.encryptFrame.GetName())
         
-        self.prefSizer.Add(self.tabFrame,(2,0),span=(1,3),flag=wx.EXPAND|wx.ALL)
+        self.prefSizer.Add(self.tabFrame,(2,0),span=(1,4),flag=wx.EXPAND|wx.ALL)
         self.prefSizer.Add(self.btOk,(3,0),flag=wx.EXPAND|wx.ALL)
         self.prefSizer.Add(self.btCancel,(3,1),flag=wx.EXPAND|wx.ALL)
         
-        self.prefSizer.AddGrowableCol(2)
+        self.prefSizer.AddGrowableCol(3)
         self.prefSizer.AddGrowableRow(2)
 
         database.theConfig.read_config()
@@ -313,14 +316,21 @@ class PrefGui(wx.Dialog):
         
         # binding
         self.Bind(wx.EVT_BUTTON, self.actionChangeDataBase, self.btChangeBase)
+        self.Bind(wx.EVT_BUTTON, self.actionNewDataBase, self.btNewBase)
         self.Bind(wx.EVT_BUTTON, self.actionSavePrefs, self.btOk)
         self.Bind(wx.EVT_BUTTON, lambda x : self.Close(), self.btCancel)
-    def actionChangeDataBase(self,event):        
+    def actionNewDataBase(self,event):
+        w = dbGui.CreatorDialog(self)
+        w.ShowModal()
+        if w.filename is not None:
+            database.theBase(w.filename,w.password)
+    def actionChangeDataBase(self,event):
         filename=None
         dlg = wx.FileDialog(self,style=wx.FD_OPEN|wx.FD_FILE_MUST_EXIST,message=_('choose the database file'),wildcard='*.db')
         if dlg.ShowModal():
             filename = os.path.join(dlg.Directory,dlg.Filename)
-        if not filename : return
+        if not filename or filename=='': return
+        if not os.path.exists(filename) or not os.path.isfile(filename) : return
         self.txtDatabaseName.SetLabel(filename)
         database.theConfig.set_database_name(filename)
         database.theBase.use_base(filename)
