@@ -54,12 +54,6 @@ def get_current_password(msg=_('Please gives your password for data encryption/d
     if not forceAsk and len(currentPassword)>=10 : return currentPassword
     salt = theConfig.get_param('encryption','salt','')
     hashed = theConfig.get_param('encryption','hash','')
-    #def checker(pss):
-    #    if checkOld and (salt!='' and hashed!='' and bcrypt.hashpw(pss, salt) != hashed):
-    #        cont = gui.utilities.ask(_('The password does not corresponds to the registered one, do you want to give it back ?..'))
-    #    else:
-    #        cont=False
-    #    return cont
     psw = get_password(msg, (salt,hashed))
     if psw != '':
         salt = bcrypt.gensalt()

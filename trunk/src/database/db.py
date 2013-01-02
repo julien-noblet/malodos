@@ -27,6 +27,8 @@ import re
 from os import urandom
 import database
 import Crypto.Cipher.AES as AES
+import Crypto.Hash.MD5 as MD5
+import bcrypt
 
 class ConfigReader(object):
     def __init__(self,conf_file=None):
@@ -286,7 +288,9 @@ class Base(object):
     
     param_DB_VERSION='DB_VERSION'
     param_ENCRYPTED='ENCRYPTED'
-    param_INI_VECTOR='INI_CECTOR'
+    param_INI_VECTOR='INI_VECTOR'
+    param_SALT='SALT'
+    param_HASHED='HASHED'
     DB_VERSION=1.21
     
     IDX_TITLE=0
@@ -309,6 +313,8 @@ class Base(object):
     ID_DEL_NOT=1
     ID_DEL_DB=2
     ID_DEL_DB_AND_FS=3
+    
+    ENCRYPT_IV_LENGTH=16
     #===========================================================================
     # constructor
     #===========================================================================
@@ -317,17 +323,30 @@ class Base(object):
         Constructor
         '''
         if base_name is not None : self.use_base(base_name)
-    def use_base(self,base_name):
-        #print str(type(base_name)) + '+' + base_name 
+    def create_and_use(self,base_name,psw=None):
         self.connexion = sqlite3.connect(base_name, detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
         self.base_name = base_name
-        self.encrypted = algorithms.general.str_to_bool(self.get_parameter('ENCRYPTED'))
+        self.encrypted = not (psw is None)
         if self.encrypted:
-            self.iv=self.get_parameter('IV')
-            salt=self.get_parameter('SALT')
-            hashed=self.get_parameter('HASHED')
+            self.iv=urandom(self.ENCRYPT_IV_LENGTH)
+            self.salt= bcrypt.gensalt()
+            self.hashed=bcrypt.hashpw(psw, self.salt)
+            self.cypher = AES.new(psw,IV=self.iv)
+        else:
+            self.cypher = None
+        self.create_function()
+    def use_base(self,base_name):
+        self.connexion = sqlite3.connect(base_name, detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
+        self.base_name = base_name
+        self.encrypted = algorithms.general.str_to_bool(self.get_parameter(self.param_ENCRYPTED))
+        if self.encrypted:
+            self.iv=self.get_parameterec(self.param_INI_VECTOR)
+            salt=self.get_parameter(self.param_SALT)
+            hashed=self.get_parameter(self.param_HASHED)
             psw = database.get_password(checker=(salt,hashed))
             self.cypher = AES.new(psw,IV=self.iv)
+        self.create_function()
+    def create_function(self):
         if os.name == 'nt' or os.name == 'win32' :
             self.connexion.create_function("IS_IN_DIR", 2, lambda fname,dirname : self.win32_samefile(os.path.dirname(fname), dirname))
         else:
@@ -341,7 +360,7 @@ class Base(object):
             self.encrypt = self.cypher.encrypt
         else:
             self.connexion.create_function("decrypt", 1, lambda s:s)
-            self.encrypt = lambda s :s 
+            self.encrypt = lambda s :s
 
     #===========================================================================
     # test if a table exists
@@ -375,7 +394,7 @@ class Base(object):
     #===========================================================================
     # build the database
     #===========================================================================
-    def buildDB(self,encrypted=False):
+    def buildDB(self):
         '''( 
         create the database (all the tables)
         database structures:
@@ -461,17 +480,11 @@ class Base(object):
                 return False
             
         self.set_parameter(self.param_DB_VERSION, self.DB_VERSION)
-        en = self.get_parameter(self.param_ENCRYPTED)
-        if not en :
-            en = encrypted
-            self.set_parameter(self.param_ENCRYPTED, str(en))
-            if en:
-                self.iv = urandom(16)
-                self.set_parameter(self.param_INI_VECTOR, self.iv)
-        self.encrypted=en
-        self.iv = self.get_parameter(self.param_INI_VECTOR)
-        #if self.encrypted:
-        #    self.cipher = AES.new(data.get_current_password(_('Please give the database password')),IV=self.iv)
+        self.set_parameter(self.param_ENCRYPTED, str(self.encrypted))
+        if self.encrypted:
+            self.set_parameter(self.param_INI_VECTOR, self.iv)
+            self.set_parameter(self.param_SALT, self.salt)
+            self.set_parameter(self.param_HASHED, self.hashed)
         return True
     
     #===========================================================================
