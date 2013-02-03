@@ -16,6 +16,16 @@ currentPassword=''
 def set_current_password(pss):
     global currentPassword
     currentPassword=pss
+def transform_password(password):
+    M =md5.new()
+    M.update(password)
+    S1 = M.digest()
+    x=''
+    for i in range(len(password)-1,-1,-1) : x = x+password[i]
+    M.update(x)
+    S2 = M.digest()
+    password = S1+S2
+    return password
 def get_password(msg=_('Please gives your password for data encryption/decryption.'),checker=lambda pss:False):
     if hasattr(checker, '__contains__') and len(checker)==2 and checker[0] is not None and checker[1] is not None:
         salt=checker[0]
@@ -36,14 +46,7 @@ def get_password(msg=_('Please gives your password for data encryption/decryptio
         elif len(password)<4:
             gui.utilities.show_message(_('The password length must be at least 4  char long (at least 8 is recommended). Please gives another one..'))
         else:
-            M =md5.new()
-            M.update(password)
-            S1 = M.digest()
-            x=''
-            for i in range(len(password)-1,-1,-1) : x = x+password[i]
-            M.update(x)
-            S2 = M.digest()
-            password = S1+S2
+            password=transform_password(password)
             if callable(checker) :
                 cont=checker(password)
             else : 

@@ -13,6 +13,7 @@ import wx
 import database
 import os
 import scanWindow
+import startupWizard
 if os.name == 'posix' :
     from scannerAccess import saneAccess
 else:
@@ -270,6 +271,7 @@ class PrefGui(wx.Dialog):
         self.cbLanguage.SetSelection(0)
         self.btOk = wx.Button(self.panel,-1,_("Ok"))
         self.btCancel = wx.Button(self.panel,-1,_("Cancel"))
+        self.btWizard = wx.Button(self.panel,-1,_("Wizard"))
 
         self.prefSizer = wx.GridBagSizer(1,1)
 
@@ -296,6 +298,7 @@ class PrefGui(wx.Dialog):
         self.prefSizer.Add(self.tabFrame,(2,0),span=(1,4),flag=wx.EXPAND|wx.ALL)
         self.prefSizer.Add(self.btOk,(3,0),flag=wx.EXPAND|wx.ALL)
         self.prefSizer.Add(self.btCancel,(3,1),flag=wx.EXPAND|wx.ALL)
+        self.prefSizer.Add(self.btWizard,(3,2),flag=wx.EXPAND|wx.ALL)
         
         self.prefSizer.AddGrowableCol(3)
         self.prefSizer.AddGrowableRow(2)
@@ -319,11 +322,15 @@ class PrefGui(wx.Dialog):
         self.Bind(wx.EVT_BUTTON, self.actionNewDataBase, self.btNewBase)
         self.Bind(wx.EVT_BUTTON, self.actionSavePrefs, self.btOk)
         self.Bind(wx.EVT_BUTTON, lambda x : self.Close(), self.btCancel)
+        self.Bind(wx.EVT_BUTTON, self.actionWizard, self.btWizard)
+    def actionWizard(self,event):
+        wizard = startupWizard.StartupWizard(self)
+        wizard.RunWizard(wizard.pageDatabase)
     def actionNewDataBase(self,event):
         w = dbGui.CreatorDialog(self)
         w.ShowModal()
         if w.filename is not None:
-            database.theBase(w.filename,w.password)
+            database.theBase.create_and_use(w.filename,w.password)
     def actionChangeDataBase(self,event):
         filename=None
         dlg = wx.FileDialog(self,style=wx.FD_OPEN|wx.FD_FILE_MUST_EXIST,message=_('choose the database file'),wildcard='*.db')
@@ -331,7 +338,7 @@ class PrefGui(wx.Dialog):
             filename = os.path.join(dlg.Directory,dlg.Filename)
         if not filename or filename=='': return
         if not os.path.exists(filename) or not os.path.isfile(filename) : return
-        self.txtDatabaseName.SetLabel(filename)
+        self.txtDatabaseName.SetjLabel(filename)
         database.theConfig.set_database_name(filename)
         database.theBase.use_base(filename)
         

@@ -54,9 +54,9 @@ class CreatorFrame(wx.Panel):
         if not s.endswith('.db'):
             s=s+'.db'
             self.fcFile.SetPath(s)
-    def validate(self):
+    def Validate(self):
         if self.cbEncrypted.Value and self.lbPasswd.Value != self.lbPasswdConfirm.Value:
-            gui.utilities.show_message(_('The two password fields have different values, please check it.'))
+            gui.utilities.show_message(_('The two password confirmation is invalid, please check it.'))
             return False
         if self.fcFile.GetPath()=='':
             gui.utilities.show_message(_('The filename cannot be empty.'))
@@ -83,10 +83,10 @@ class CreatorDialog(wx.Dialog):
         self.sizer.AddGrowableCol(2)
         self.panel.SetSizerAndFit(self.sizer)
         self.SetSize(self.sizer.GetMinSize())
-        self.Bind(wx.EVT_BUTTON,self.validate,self.btOk)
+        self.Bind(wx.EVT_BUTTON,self.Validate,self.btOk)
         self.Bind(wx.EVT_BUTTON,lambda x:self.Close(),self.btCancel)
-    def validate(self,event):
-        if not self.creatorFrame.validate(): return
+    def Validate(self,event):
+        if not self.creatorFrame.Validate(): return
         self.filename = self.creatorFrame.filename
         self.password = self.creatorFrame.password
         self.Close()

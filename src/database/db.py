@@ -27,7 +27,6 @@ import re
 from os import urandom
 import database
 import Crypto.Cipher.AES as AES
-import Crypto.Hash.MD5 as MD5
 import bcrypt
 
 class ConfigReader(object):
@@ -328,6 +327,7 @@ class Base(object):
         self.base_name = base_name
         self.encrypted = not (psw is None)
         if self.encrypted:
+            psw=database.transform_password(psw)
             self.iv=urandom(self.ENCRYPT_IV_LENGTH)
             self.salt= bcrypt.gensalt()
             self.hashed=bcrypt.hashpw(psw, self.salt)
@@ -344,6 +344,7 @@ class Base(object):
             salt=self.get_parameter(self.param_SALT)
             hashed=self.get_parameter(self.param_HASHED)
             psw = database.get_password(checker=(salt,hashed))
+            psw=database.transform_password(psw)
             self.cypher = AES.new(psw,IV=self.iv)
         self.create_function()
     def create_function(self):
