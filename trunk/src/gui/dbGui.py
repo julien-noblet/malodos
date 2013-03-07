@@ -48,7 +48,7 @@ class CreatorFrame(wx.Panel):
         
         self.changeShow(None)
     def changeShow(self,event):
-        self.pssSizer.ShowItems(self.cbEncrypted.Value)
+        for i in self.pssSizer.GetChildren(): i.GetWindow().Enable(self.cbEncrypted.Value)
     def checkFileName(self,event):
         s = self.fcFile.GetPath()
         if not s.endswith('.db'):

@@ -25,7 +25,6 @@ def ask_folder(msg='Choose a folder'):
     dlg.ShowModal()
     return dlg.GetPath()
 
-
 class MultipleButtonDialog(wx.Dialog):
     choice=None
     def __init__(self,parent,idt=-1,title=_("choice window"),caption=_("Choose an option"),actionList=[_('ok'),_('cancel')]):
