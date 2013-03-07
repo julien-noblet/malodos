@@ -32,6 +32,10 @@ class StartupWizard(wx.wizard.Wizard):
         Constructor
         '''
         wx.wizard.Wizard.__init__(self,parent,-1,_('Startup wizard'))
+        
+        dlg=utilities.ProgressDialog(_('Getting scanner list'),_('The list of acquisition device is being retrieved. Please wait a moment.'))
+        dlg.set_current_step_to(0.5)
+        wx.GetApp().ProcessPendingEvents()
         self.pageDatabase = PageDatabaseChoice(self)
         self.pageScanner  = PageScannerChoice(self)
         self.pageOCR      = PageOCRChoice(self)
@@ -41,6 +45,7 @@ class StartupWizard(wx.wizard.Wizard):
         self.Bind(wx.wizard.EVT_WIZARD_CANCEL, self.on_cancel)
         self.GetPageAreaSizer().Add(self.pageDatabase)
         self.params=params
+        dlg.destroy()
     def on_cancel(self,event):
         if not utilities.ask(_('Are you sure you want to cancel the startup wizard ?')) : event.Veto()
     def on_finished(self,event):
@@ -184,6 +189,7 @@ class PageFoldersChoice (wx.wizard.PyWizardPage):
         self.sizer = wx.BoxSizer(wx.VERTICAL)
         self.vFold = virtualFolder.FolderView(self,False,True)
         self.sizer.Add(self.vFold,1,flag=wx.ALL|wx.EXPAND)
+        
 
         self.SetSizer(self.sizer)
         

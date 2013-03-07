@@ -183,7 +183,7 @@ class Configuration(ConfigReader):
             ConfigReader.__init__(self)
             return
         conf_file = os.path.join(self.conf_dir,'malodos.ini')
-#        fillConf = not os.path.exists(conf_file)
+        self.existedConfigFile = os.path.exists(conf_file)
         ConfigReader.__init__(self,conf_file)
         if not self.config.has_section('survey'):
             self.config.add_section('survey')

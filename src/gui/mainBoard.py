@@ -30,6 +30,7 @@ import documentToGo
 import webbrowser
 import logging
 import requestBuilder
+import startupWizard
 from homeDocs import __version__
 
 class bugReportWindow(wx.Dialog):
@@ -572,6 +573,10 @@ class MainFrame(wx.Frame):
         self.totalWin.Fit(self)
         self.Maximize()
         self.actionSearch(None)
+        if not database.theConfig.existedConfigFile:
+            wizard = startupWizard.StartupWizard(self)
+            wizard.RunWizard(wizard.pageDatabase)
+        
 
     def create_menu(self,row):
         rows = self.recordPart.getRow()
