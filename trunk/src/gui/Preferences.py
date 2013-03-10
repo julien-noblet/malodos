@@ -338,7 +338,7 @@ class PrefGui(wx.Dialog):
             filename = os.path.join(dlg.Directory,dlg.Filename)
         if not filename or filename=='': return
         if not os.path.exists(filename) or not os.path.isfile(filename) : return
-        self.txtDatabaseName.SetjLabel(filename)
+        self.txtDatabaseName.SetLabel(filename)
         database.theConfig.set_database_name(filename)
         database.theBase.use_base(filename)
         

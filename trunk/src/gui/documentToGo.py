@@ -11,6 +11,7 @@ class related to the document to go wizard
 import wx.wizard
 import database
 import utilities
+import os.path
 class DocToGoWizard (wx.wizard.Wizard):
     selectBasket=False
     def __init__(self,parent,doc_list,row_list,selectBasket=False):
@@ -46,16 +47,32 @@ class DocToGoWizard (wx.wizard.Wizard):
             rowL = self.GetParent().basket
         if sel == self.page_chooser.EXPORT_DATABASE:
             filename = self.page_database_export.fcFileChooser.GetPath()
+            if os.path.splitext(filename)[1]=='':
+                filename=filename+'.zip'
             if filename=='' : 
                 utilities.show_message(_("The filename can't be empty"))
                 event.Veto()
+            elif os.path.exists(filename):
+                if utilities.ask(_('The filename already exists. Overwrite it ?')):
+                    os.remove(filename)
+                    database.theBase.export_database(filename, rowL)
+                else:
+                    event.Veto()
             else:
                 database.theBase.export_database(filename, rowL)
         elif sel==self.page_chooser.EXPORT_ARCHIVE:
             filename = self.page_archive_export.fcFileChooser.GetPath()
+            if os.path.splitext(filename)[1]=='':
+                filename=filename+'.zip'
             if filename=='' : 
                 utilities.show_message(_("The filename can't be empty"))
                 event.Veto()
+            elif os.path.exists(filename):
+                if utilities.ask(_('The filename already exists. Overwrite it ?')):
+                    os.remove(filename)
+                    database.theBase.export_archive(filename, rowL)
+                else:
+                    event.Veto()
             else:
                 database.theBase.export_archive(filename, rowL)
         elif sel==self.page_chooser.IMPORT_ARCHIVE :
@@ -66,6 +83,10 @@ class DocToGoWizard (wx.wizard.Wizard):
                 event.Veto()
             else:
                 database.theBase.import_archive(filename, dirname)
+                dbname=os.path.join(dirname,'database.db')
+                database.theConfig.set_database_name(dbname)
+                database.theBase.use_base(dbname)
+                database.theConfig.commit_config()
 
 class PageActionChooser (wx.wizard.PyWizardPage):
     EXPORT_DATABASE=1

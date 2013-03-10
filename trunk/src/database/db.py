@@ -1321,11 +1321,14 @@ class Base(object):
                     Q=Q0
                     P=[]
                 cur = self.connexion.execute(Q,P)
-                cur = [row for row in cur]
+                new_cur=[]              
                 for row in cur :
-                    row[self.IDX_TITLE] = self.encrypt(row[self.IDX_TITLE],new_password)
-                    row[self.IDX_DESCRIPTION] = self.encrypt(row[self.IDX_DESCRIPTION],new_password)
-                    row[self.IDX_TAGS] = self.encrypt(row[self.IDX_TAGS],new_password)
+                    r=list(row)
+                    r[self.IDX_TITLE] = self.encrypt(row[self.IDX_TITLE])
+                    r[self.IDX_DESCRIPTION] = self.encrypt(row[self.IDX_DESCRIPTION])
+                    r[self.IDX_TAGS] = self.encrypt(row[self.IDX_TAGS])
+                    new_cur.append(r)
+                cur=new_cur
                 Q='INSERT INTO %s (title,description,filename,registerDate,registeringPersonID,documentDate,tags,checksum,rowID) VALUES %s'% (self.documents_tableName,self.make_placeholder_list(self.__doc_nbfields__+1))
                 if file_replacer is None:
                     newDB.connexion.executemany(Q,cur)
