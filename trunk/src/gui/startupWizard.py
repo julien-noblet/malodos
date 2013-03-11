@@ -49,7 +49,11 @@ class StartupWizard(wx.wizard.Wizard):
     def on_cancel(self,event):
         if not utilities.ask(_('Are you sure you want to cancel the startup wizard ?')) : event.Veto()
     def on_finished(self,event):
-        pass
+        self.pageDatabase.actionSave()
+        self.pageScanner.actionSave()
+        self.pageOCR.actionSave()
+        self.pageSurvey.actionSave()
+        self.pageFolders.actionSave()
  
 class PageDatabaseChoice (wx.wizard.PyWizardPage):
     def __init__(self,parent):
@@ -66,6 +70,8 @@ class PageDatabaseChoice (wx.wizard.PyWizardPage):
         return self.Parent.pageScanner
     def GetPrev(self):
         return None
+    def actionSave(self):
+        database.theBase.create_and_use(self.dbFrame.filename,self.dbFrame.password)
 
 class PageScannerChoice (wx.wizard.PyWizardPage):
     def __init__(self,parent):
@@ -89,7 +95,9 @@ class PageScannerChoice (wx.wizard.PyWizardPage):
         return self.Parent.pageOCR
     def GetPrev(self):
         return self.Parent.pageDatabase
-
+    def actionSave(self):
+        s=self.lstScanner.GetStringSelection()
+        if s!='' : database.theConfig.set_current_scanner()
 
 class PageOCRChoice (wx.wizard.PyWizardPage):
     def __init__(self,parent):
@@ -137,6 +145,14 @@ class PageOCRChoice (wx.wizard.PyWizardPage):
         return self.Parent.pageSurvey
     def GetPrev(self):
         return self.Parent.pageScanner
+    def actionSave(self):
+        for i in range(self.clOcrProgs.Count) :
+            opt = 'use' + self.clOcrProgs.GetItems()[i]
+            chk = self.clOcrProgs.IsChecked(i)
+            database.theConfig.set_param('OCR', opt, str(chk),True)
+        database.theConfig.set_param('OCR', 'languages', ','.join(self.clSpellProgs.GetCheckedStrings()),True)
+        database.theConfig.set_param('OCR', 'autoStart', str(self.cbAutoOCR.Value),True)
+        
 
 class PageSurveyChoice (wx.wizard.PyWizardPage):
     def __init__(self,parent):
@@ -177,6 +193,11 @@ class PageSurveyChoice (wx.wizard.PyWizardPage):
         elems = list(self.lstSurveyDirs.GetSelections())
         elems.sort(reverse=True)
         for e in elems : self.lstSurveyDirs.Delete(e)
+    def actionSave(self):
+        dir_list = self.lstSurveyDirs.GetItems()
+        recursiveIndex = self.lstSurveyDirs.GetChecked()
+        database.theConfig.set_survey_directory_list(dir_list, recursiveIndex)
+        database.theConfig.set_survey_extension_list(self.txtSurveyExt.GetValue())
         
     def GetNext(self):
         return self.Parent.pageFolders
