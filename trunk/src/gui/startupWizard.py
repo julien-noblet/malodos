@@ -40,7 +40,7 @@ class StartupWizard(wx.wizard.Wizard):
         self.pageScanner  = PageScannerChoice(self)
         self.pageOCR      = PageOCRChoice(self)
         self.pageSurvey   = PageSurveyChoice(self)
-        self.pageFolders  = PageFoldersChoice(self)
+        #self.pageFolders  = PageFoldersChoice(self)
         self.Bind(wx.wizard.EVT_WIZARD_FINISHED, self.on_finished)
         self.Bind(wx.wizard.EVT_WIZARD_CANCEL, self.on_cancel)
         self.GetPageAreaSizer().Add(self.pageDatabase)
@@ -53,7 +53,8 @@ class StartupWizard(wx.wizard.Wizard):
         self.pageScanner.actionSave()
         self.pageOCR.actionSave()
         self.pageSurvey.actionSave()
-        self.pageFolders.actionSave()
+        #self.pageFolders.actionSave()
+        database.theConfig.commit_config()
  
 class PageDatabaseChoice (wx.wizard.PyWizardPage):
     def __init__(self,parent):
@@ -67,11 +68,18 @@ class PageDatabaseChoice (wx.wizard.PyWizardPage):
         self.sizer.Add(self.cbEncryptData,0,flag=wx.EXPAND)
         self.SetSizer(self.sizer)
     def GetNext(self):
+        #if not self.dbFrame.Validate() :
+        #    return self
         return self.Parent.pageScanner
     def GetPrev(self):
         return None
     def actionSave(self):
+        self.dbFrame.Validate()
         database.theBase.create_and_use(self.dbFrame.filename,self.dbFrame.password)
+        database.theConfig.set_param('encryption', 'encryptData', str(self.cbEncryptData.Value), True)
+        database.theConfig.set_param('encryption', 'encryptDatabase', str(self.dbFrame.cbEncrypted), True)
+        if self.cbEncryptData.Value:
+            database.set_current_password(database.transform_password(self.dbFrame.password))
 
 class PageScannerChoice (wx.wizard.PyWizardPage):
     def __init__(self,parent):
@@ -96,8 +104,8 @@ class PageScannerChoice (wx.wizard.PyWizardPage):
     def GetPrev(self):
         return self.Parent.pageDatabase
     def actionSave(self):
-        s=self.lstScanner.GetStringSelection()
-        if s!='' : database.theConfig.set_current_scanner()
+        s=self.lstScanners.GetStringSelection()
+        if s!='' : database.theConfig.set_current_scanner(s)
 
 class PageOCRChoice (wx.wizard.PyWizardPage):
     def __init__(self,parent):
@@ -200,7 +208,7 @@ class PageSurveyChoice (wx.wizard.PyWizardPage):
         database.theConfig.set_survey_extension_list(self.txtSurveyExt.GetValue())
         
     def GetNext(self):
-        return self.Parent.pageFolders
+        return None# self.Parent.pageFolders
     def GetPrev(self):
         return self.Parent.pageOCR
 
