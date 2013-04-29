@@ -572,10 +572,10 @@ class MainFrame(wx.Frame):
         self.panel.SetSizerAndFit(self.totalWin)
         self.totalWin.Fit(self)
         self.Maximize()
-        self.actionSearch(None)
         if not database.theConfig.existedConfigFile:
             wizard = startupWizard.StartupWizard(self)
             wizard.RunWizard(wizard.pageDatabase)
+        self.actionSearch(None)
         
 
     def create_menu(self,row):

@@ -241,8 +241,6 @@ class imageData(object):
         return content
     def load_file(self,filename,page=None,do_clear=True,allowEncrypted=True):
         "Load a given file into memory (only the asked page if given, all the pages otherwise)"
-        
-
         if allowEncrypted:
             sss = algorithms.stringFunctions.load_encrypted_data(filename)
             if sss is not None:

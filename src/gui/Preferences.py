@@ -49,10 +49,10 @@ class PrefFolders(wx.NotebookPage):
     def __init__(self,parent,page_id,name):
         wx.NotebookPage.__init__(self,parent,page_id,name=name)
         self.panel = wx.Panel(self, -1)
-        self.sizer = wx.BoxSizer(wx.HORIZONTAL)
+        self.sizer = wx.BoxSizer(wx.VERTICAL)
         self.vFold = virtualFolder.FolderView(self.panel,False,True)
-        self.sizer.Add(self.vFold,1,flag=wx.ALL|wx.EXPAND)
-        self.panel.SetSizerAndFit(self.sizer)
+        self.sizer.Add(self.vFold,1,flag=wx.EXPAND)
+        self.panel.SetSizer(self.sizer)
 class PrefContent(wx.NotebookPage):
     def __init__(self,parent,page_id,name):
         wx.NotebookPage.__init__(self,parent,page_id,name=name)
@@ -275,12 +275,12 @@ class PrefGui(wx.Dialog):
 
         self.prefSizer = wx.GridBagSizer(1,1)
 
-        self.prefSizer.Add(wx.StaticText(self.panel,-1,_("Database name :") ),(0,0),flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL)
-        self.prefSizer.Add(self.btChangeBase,(0,1),flag=wx.ALIGN_CENTER_VERTICAL|wx.ALL)
-        self.prefSizer.Add(self.btNewBase,(0,2),flag=wx.ALIGN_CENTER_VERTICAL|wx.ALL)
-        self.prefSizer.Add(self.txtDatabaseName,(0,3),flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL)
-        self.prefSizer.Add(wx.StaticText(self.panel,-1,_("Language")),(1,0),flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL)
-        self.prefSizer.Add(self.cbLanguage,(1,1),flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL)
+        self.prefSizer.Add(wx.StaticText(self.panel,-1,_("Database name :") ),(0,0),flag=wx.ALIGN_CENTER_VERTICAL)
+        self.prefSizer.Add(self.btChangeBase,(0,1),flag=wx.ALIGN_CENTER_VERTICAL)
+        self.prefSizer.Add(self.btNewBase,(0,2),flag=wx.ALIGN_CENTER_VERTICAL)
+        self.prefSizer.Add(self.txtDatabaseName,(0,3),flag=wx.ALIGN_CENTER_VERTICAL)
+        self.prefSizer.Add(wx.StaticText(self.panel,-1,_("Language")),(1,0),flag=wx.ALIGN_CENTER_VERTICAL)
+        self.prefSizer.Add(self.cbLanguage,(1,1),flag=wx.ALIGN_CENTER_VERTICAL)
 
         self.tabFrame = wx.Notebook(self.panel,-1)
         self.dirSurveyFrame = PrefSurveyDir(self.tabFrame,-1,name=_("Dir. survey"))
@@ -295,10 +295,10 @@ class PrefGui(wx.Dialog):
         self.tabFrame.AddPage(self.folderFrame,self.folderFrame.GetName())
         self.tabFrame.AddPage(self.encryptFrame,self.encryptFrame.GetName())
         
-        self.prefSizer.Add(self.tabFrame,(2,0),span=(1,4),flag=wx.EXPAND|wx.ALL)
-        self.prefSizer.Add(self.btOk,(3,0),flag=wx.EXPAND|wx.ALL)
-        self.prefSizer.Add(self.btCancel,(3,1),flag=wx.EXPAND|wx.ALL)
-        self.prefSizer.Add(self.btWizard,(3,2),flag=wx.EXPAND|wx.ALL)
+        self.prefSizer.Add(self.tabFrame,(2,0),span=(1,4),flag=wx.EXPAND)
+        self.prefSizer.Add(self.btOk,(3,0),flag=wx.EXPAND)
+        self.prefSizer.Add(self.btCancel,(3,1),flag=wx.EXPAND)
+        self.prefSizer.Add(self.btWizard,(3,2),flag=wx.EXPAND)
         
         self.prefSizer.AddGrowableCol(3)
         self.prefSizer.AddGrowableRow(2)
@@ -315,7 +315,7 @@ class PrefGui(wx.Dialog):
             if current == L[1] : self.cbLanguage.SetSelection(i)
         
         self.panel.SetSizerAndFit(self.prefSizer)
-        self.SetClientSize((600,400))
+        self.SetClientSize((800,400))
         
         # binding
         self.Bind(wx.EVT_BUTTON, self.actionChangeDataBase, self.btChangeBase)
