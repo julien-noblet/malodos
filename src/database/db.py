@@ -335,6 +335,12 @@ class Base(object):
         else:
             self.cypher = None
         self.create_function()
+        if self.encrypted:
+            database.theConfig.set_param('encryption','salt',self.salt)
+            database.theConfig.set_param('encryption','hash',self.hashed)
+            database.theConfig.commit_config()
+           
+        
     def use_base(self,base_name):
         self.connexion = sqlite3.connect(base_name, detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
         self.base_name = base_name

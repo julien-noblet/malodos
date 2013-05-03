@@ -77,9 +77,8 @@ class PageDatabaseChoice (wx.wizard.PyWizardPage):
         self.dbFrame.Validate()
         database.theBase.create_and_use(self.dbFrame.filename,self.dbFrame.password)
         database.theConfig.set_param('encryption', 'encryptData', str(self.cbEncryptData.Value), True)
-        database.theConfig.set_param('encryption', 'encryptDatabase', str(self.dbFrame.cbEncrypted), True)
-        if self.cbEncryptData.Value:
-            database.set_current_password(database.transform_password(self.dbFrame.password))
+        database.theConfig.set_param('encryption', 'encryptDatabase', str(self.dbFrame.cbEncrypted.Value), True)
+        if self.cbEncryptData.Value: database.set_current_password(database.transform_password(self.dbFrame.password))
 
 class PageScannerChoice (wx.wizard.PyWizardPage):
     def __init__(self,parent):

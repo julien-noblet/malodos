@@ -302,7 +302,7 @@ def save_encrypted_data(txt,filename):
     iv = urandom(ENCRYPT_IV_LENGTH)
     cipher = AES.new(database.get_current_password(),IV=iv)
     
-    npad = len(txt) % cipher.block_size
+    npad = (cipher.block_size - (len(txt) % cipher.block_size) % cipher.block_size)
     txt=txt+urandom(npad)
     sss = cipher.encrypt(txt)
     digest = md5.new()
