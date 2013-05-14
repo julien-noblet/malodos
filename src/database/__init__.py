@@ -26,12 +26,22 @@ def transform_password(password):
     S2 = M.digest()
     password = S1+S2
     return password
+def record_current_password(pss):
+    pss = transform_password(pss)
+    salt = bcrypt.gensalt()
+    hashed = bcrypt.hashpw(pss, salt)
+    theConfig.set_param('encryption','salt',salt)
+    theConfig.set_param('encryption','hash',hashed)
+    theConfig.commit_config()
+    set_current_password(pss)
+
 def get_password(msg=_('Please gives your password for data encryption/decryption.'),checker=lambda pss:False):
     if hasattr(checker, '__contains__') and len(checker)==2 and checker[0] is not None and checker[1] is not None:
         salt=checker[0]
         hashed=checker[1]
         def the_checker(pss):
-            if bcrypt.hashpw(pss, salt) != hashed:
+            b = bcrypt.hashpw(pss, salt)
+            if b != hashed:
                 cont = gui.utilities.ask(_('The password does not corresponds to the registered one, do you want to give it back ?..'))
             else:
                 cont=False
