@@ -28,7 +28,7 @@ from os import urandom
 import database
 import Crypto.Cipher.AES as AES
 import bcrypt
-
+from algorithms import stringFunctions
 class ConfigReader(object):
     def __init__(self,conf_file=None):
         self.config = None
@@ -363,8 +363,8 @@ class Base(object):
         self.connexion.create_function("MAKE_FULL_PATH", 2, self.make_full_name)
         
         if self.encrypted and self.cypher is not None:
-            self.connexion.create_function("decrypt", 1, lambda s:self.cypher.decrypt(s))
-            self.encrypt = self.cypher.encrypt
+            self.connexion.create_function("decrypt", 1, lambda s:stringFunctions.decrypt(s,self.cypher))
+            self.encrypt = lambda s : algorithms.stringFunctions.encrypt(s, self.cypher)
         else:
             self.connexion.create_function("decrypt", 1, lambda s:s)
             self.encrypt = lambda s :s
