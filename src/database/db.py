@@ -327,6 +327,7 @@ class Base(object):
         self.base_name = base_name
         self.encrypted = not (psw is None)
         if self.encrypted:
+            self.connexion.text_factory = str
             psw=database.transform_password(psw)
             self.iv=urandom(self.ENCRYPT_IV_LENGTH)
             self.salt= bcrypt.gensalt()
@@ -363,8 +364,8 @@ class Base(object):
         self.connexion.create_function("MAKE_FULL_PATH", 2, self.make_full_name)
         
         if self.encrypted and self.cypher is not None:
-            self.connexion.create_function("decrypt", 1, lambda s:stringFunctions.decrypt(s,self.cypher))
-            self.encrypt = lambda s : algorithms.stringFunctions.encrypt(s, self.cypher)
+            self.connexion.create_function("decrypt", 1, lambda s:stringFunctions.decrypt(s,self.cypher,False))
+            self.encrypt = lambda s : algorithms.stringFunctions.encrypt(s, self.cypher,False)
         else:
             self.connexion.create_function("decrypt", 1, lambda s:s)
             self.encrypt = lambda s :s
@@ -415,8 +416,12 @@ class Base(object):
         )'''
         self.__doc_fields__ = 'title,description,filename,registerDate,registeringPersonID,documentDate,tags,checksum'
         self.__doc_nbfields__ = 8
-        self.create_table(self.documents_tableName, 'documentID INTEGER PRIMARY KEY AUTOINCREMENT ,title TEXT(64), description TEXT(256), filename TEXT(256), registerDate DATE, registeringPersonID INTEGER, documentDate DATE,tags TEXT,checksum TEXT')
-        self.create_table(self.keywords_tableName, 'keywordID INTEGER PRIMARY KEY AUTOINCREMENT ,keyword TEXT , soundex_word TEXT ')
+        if 0 and self.encrypted:
+            self.create_table(self.documents_tableName, 'documentID INTEGER PRIMARY KEY AUTOINCREMENT ,title BLOB(64), description BLOB(256), filename TEXT(256), registerDate DATE, registeringPersonID INTEGER, documentDate DATE,tags BLOB,checksum TEXT')
+            self.create_table(self.keywords_tableName, 'keywordID INTEGER PRIMARY KEY AUTOINCREMENT ,keyword BLOB , soundex_word BLOB ')
+        else:
+            self.create_table(self.documents_tableName, 'documentID INTEGER PRIMARY KEY AUTOINCREMENT ,title TEXT(64), description TEXT(256), filename TEXT(256), registerDate DATE, registeringPersonID INTEGER, documentDate DATE,tags TEXT,checksum TEXT')
+            self.create_table(self.keywords_tableName, 'keywordID INTEGER PRIMARY KEY AUTOINCREMENT ,keyword TEXT , soundex_word TEXT ')
         sql_statement = "CREATE INDEX IF NOT EXISTS SOUNDEX ON " + self.keywords_tableName + "(soundex_word)"
         try:
             self.connexion.execute(sql_statement)
