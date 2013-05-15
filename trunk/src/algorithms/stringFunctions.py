@@ -299,29 +299,35 @@ def no_accent(S):
     return S
 
 
-def encrypt(s,cipher):
+def encrypt(s,cipher,prefixed=True):
     npad = (cipher.block_size - (len(s) % cipher.block_size)) % cipher.block_size
-    if npad>0: s=s+urandom(npad)
+    if npad>0:
+        if prefixed:
+            s=s+urandom(npad)
+        else:
+            s=s+' '*npad
     sss = cipher.encrypt(s)
-    x= '%.2d' % npad
-    sss=x+sss
+    if prefixed:
+        x= '%.2d' % npad
+        sss=x+sss
     return sss
-def decrypt(s,cipher):
-    npad = int(s[0:2])
-    s = s[2:]
+def decrypt(s,cipher,prefixed=True):
+    if prefixed:
+        npad = int(s[0:2])
+        s = s[2:]
     s = cipher.decrypt(s)
-    if npad>0 :
-        return s[:-npad]
+    if prefixed:
+        if npad>0 :
+            return s[:-npad]
+        else:
+            return s
     else:
-        return s  
+        return s.rstrip()
    
 def save_encrypted_data(txt,filename):
     iv = urandom(ENCRYPT_IV_LENGTH)
     cipher = AES.new(database.get_current_password(),IV=iv)
     
-#     npad = (cipher.block_size - (len(txt) % cipher.block_size)) % cipher.block_size
-#     txt=txt+urandom(npad)
-#     sss = cipher.encrypt(txt)
     sss = encrypt(txt,cipher)
     digest = md5.new()
     digest.update(txt)
@@ -331,8 +337,6 @@ def save_encrypted_data(txt,filename):
         ff.write(iv)
         x=digest.digest()
         ff.write(x)
-        #x= '%.2d' % npad
-        #ff.write(x)
         ff.write(sss)
     
 def load_encrypted_data(filename):
@@ -343,25 +347,17 @@ def load_encrypted_data(filename):
             again=True
             iv = ff.read(ENCRYPT_IV_LENGTH)
             dgst = ff.read(16)
-            #x=ff.read(2)
-            #npad=int(x)
             txt = ff.read()
             while again:
                 cipher = AES.new(thePassword,IV=iv)
-                #sss = cipher.decrypt(txt)
                 sss=decrypt(txt,cipher)
                 digest = md5.new()
                 digest.update(sss)
-                x = digest.digest()
                 if digest.digest() != dgst:
                     thePassword = database.get_current_password(_('Wrong password, please give the correct one (or leave it empty to cancel operation)'),True,False)
                     if thePassword == '' : return ''
                 else:
                     again=False
             return sss
-#             if npad>0 :
-#                 return sss[:-npad]
-#             else:
-#                 return sss  
         else:
             return None
