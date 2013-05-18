@@ -76,6 +76,7 @@ class PageDatabaseChoice (wx.wizard.PyWizardPage):
     def actionSave(self):
         self.dbFrame.Validate()
         database.theBase.create_and_use(self.dbFrame.filename,self.dbFrame.password)
+        database.theConfig.set_database_name(self.dbFrame.filename)
         database.theConfig.set_param('encryption', 'encryptData', str(self.cbEncryptData.Value), True)
         database.theConfig.set_param('encryption', 'encryptDatabase', str(self.dbFrame.cbEncrypted.Value), True)
         if self.cbEncryptData.Value: database.record_current_password(self.dbFrame.password)

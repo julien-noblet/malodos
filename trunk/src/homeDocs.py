@@ -141,7 +141,7 @@ def start_gui():
     
     database.initialize()
     app.frame.initialize()
-    if not database.theBase.buildDB(): raise 'Unable to load the database'
+    #if not database.theBase.buildDB(): raise 'Unable to load the database'
     app.MainLoop()
 
 if __name__ == "__main__":

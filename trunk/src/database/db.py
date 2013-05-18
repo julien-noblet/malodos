@@ -317,13 +317,20 @@ class Base(object):
     #===========================================================================
     # constructor
     #===========================================================================
-    def __init__(self,base_name):
+    def __init__(self,base_name=None):
         '''
         Constructor
         '''
         if base_name is not None : self.use_base(base_name)
+    def utf_or_str(self,s):
+        try:
+            d=unicode(s)
+        except:
+            d=str(s)
+        return d
     def create_and_use(self,base_name,psw=None):
         self.connexion = sqlite3.connect(base_name, detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
+        self.connexion.text_factory = self.utf_or_str
         self.base_name = base_name
         self.encrypted = not (psw is None)
         if self.encrypted:
@@ -344,10 +351,11 @@ class Base(object):
         
     def use_base(self,base_name):
         self.connexion = sqlite3.connect(base_name, detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
+        self.connexion.text_factory = self.utf_or_str
         self.base_name = base_name
         self.encrypted = algorithms.general.str_to_bool(self.get_parameter(self.param_ENCRYPTED))
         if self.encrypted:
-            self.iv=self.get_parameterec(self.param_INI_VECTOR)
+            self.iv=self.get_parameter(self.param_INI_VECTOR)
             salt=self.get_parameter(self.param_SALT)
             hashed=self.get_parameter(self.param_HASHED)
             psw = database.get_password(checker=(salt,hashed))
@@ -870,13 +878,14 @@ class Base(object):
                 all_keywords = dict([ (item.lower(),weight) for item,weight in keyGroup[1].items() ])
             absents = self.find_absent_keywords(all_keywords.keys())
             absents = map(lambda x:(self.encrypt(x),self.encrypt(algorithms.words.phonex(x))) , absents)
-            Q = 'INSERT INTO ' + self.keywords_tableName + ' (keyword,soundex_word) VALUES (?,?)'
-            try:
-                self.connexion.executemany(Q,absents)
-            except  Exception,E:
-                logging.debug('SQL ERROR ' + str(E))
-                gui.utilities.show_message(_('Unable to insert new keywords : ') + str(E))
-                return False
+            if len(absents)>0 :
+                Q = 'INSERT INTO ' + self.keywords_tableName + ' (keyword,soundex_word) VALUES (?,?)'
+                try:
+                    self.connexion.executemany(Q,absents)
+                except  Exception,E:
+                    logging.debug('SQL ERROR ' + str(E))
+                    gui.utilities.show_message(_('Unable to insert new keywords : ') + str(E))
+                    return False
             # get back all the keyword IDs for the current field
             Q = 'SELECT ROWID,decrypt(KEYWORD) FROM ' + self.keywords_tableName + ' WHERE decrypt(keyword) IN ' + self.make_placeholder_list(len(all_keywords))
             addedKeys = []

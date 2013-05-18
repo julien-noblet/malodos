@@ -15,7 +15,7 @@ import Crypto.Cipher.AES as AES
 import Crypto.Hash.MD5 as md5
 from os import urandom
 #import gui.utilities
-
+import logging
 ENCRYPT_TEXT='MALODOS encrypted'
 ENCRYPT_IV_LENGTH=16
 
@@ -312,18 +312,24 @@ def encrypt(s,cipher,prefixed=True):
         sss=x+sss
     return sss
 def decrypt(s,cipher,prefixed=True):
-    if prefixed:
-        npad = int(s[0:2])
-        s = s[2:]
-    s = cipher.decrypt(s)
-    if prefixed:
-        if npad>0 :
-            return s[:-npad]
+    try:
+        if s is None : return 'error'
+        if prefixed:
+            npad = int(s[0:2])
+            s = s[2:]
+        s = cipher.decrypt(s)
+        if prefixed:
+            if npad>0 :
+                return s[:-npad]
+            else:
+                return s
         else:
-            return s
-    else:
-        return s.rstrip()
-   
+            return s.rstrip()
+    except Exception as E:
+        logging.debug('SQL ERROR ' + str(E))
+        logging.debug('s was ' + str(s) + ' of type ' + str(type(s)))
+        return s
+  
 def save_encrypted_data(txt,filename):
     iv = urandom(ENCRYPT_IV_LENGTH)
     cipher = AES.new(database.get_current_password(),IV=iv)
