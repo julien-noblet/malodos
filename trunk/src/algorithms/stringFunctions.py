@@ -16,6 +16,8 @@ import Crypto.Hash.MD5 as md5
 from os import urandom
 #import gui.utilities
 import logging
+import unicodedata
+
 ENCRYPT_TEXT='MALODOS encrypted'
 ENCRYPT_IV_LENGTH=16
 
@@ -277,26 +279,7 @@ def req_to_sql(req):
     #print L
     return (SS,LL)
 def no_accent(S):
-    S=S.replace(u'à','a')
-    S=S.replace(u'ä','a')
-    S=S.replace(u'â','a')
-
-    S=S.replace(u'é','e')
-    S=S.replace(u'è','e')
-    S=S.replace(u'ê','e')
-    S=S.replace(u'ë','e')
-    
-    S=S.replace(u'ï','i')
-    S=S.replace(u'î','i')
-    
-    S=S.replace(u'ö','o')
-    S=S.replace(u'ô','o')
-
-    S=S.replace(u'û','u')
-    S=S.replace(u'ü','u')
-    S=S.replace(u'ù','u')
-    
-    return S
+    return unicodedata.normalize('NFKD', S).encode('ASCII', 'ignore')
 
 
 def encrypt(s,cipher,prefixed=True):
@@ -313,17 +296,17 @@ def encrypt(s,cipher,prefixed=True):
     return sss
 def decrypt(s,cipher,prefixed=True):
     try:
-        if s is None : return 'error'
+        if s is None : return 'internal error'
         if prefixed:
             npad = int(s[0:2])
             s = s[2:]
-        s = cipher.decrypt(s)
-        if prefixed:
+            s = cipher.decrypt(s)
             if npad>0 :
                 return s[:-npad]
             else:
                 return s
         else:
+            s = cipher.decrypt(s)
             return s.rstrip()
     except Exception as E:
         logging.debug('SQL ERROR ' + str(E))

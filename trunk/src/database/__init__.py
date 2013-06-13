@@ -64,7 +64,7 @@ def get_password(msg=_('Please gives your password for data encryption/decryptio
     return password
     
 def get_current_password(msg=_('Please gives your password for data encryption/decryption.'),forceAsk=False,checkOld=True):
-    if not forceAsk and len(currentPassword)>=10 : return currentPassword
+    if not forceAsk and len(currentPassword)>=8 : return currentPassword
     salt = theConfig.get_param('encryption','salt','')
     hashed = theConfig.get_param('encryption','hash','')      
     psw = get_password(msg, (salt,hashed))
