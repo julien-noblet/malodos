@@ -124,7 +124,7 @@ class imageData(object):
     def save_file(self,filename,title=None,description=None,keywords=None,allowEncryption=True):
         "save the image data to a file"
         if len(self.pil_images)<1 : return False
-        (fname,ext) = os.path.splitext(filename)
+        (__,ext) = os.path.splitext(filename)
         
         if allowEncryption and str_to_bool(theConfig.get_param('encryption', 'encryptData','False',True)):
             try:
@@ -245,7 +245,7 @@ class imageData(object):
             sss = algorithms.stringFunctions.load_encrypted_data(filename)
             if sss is not None:
                 if sss=='' : return False
-                (fname,ext) = os.path.splitext(filename)
+                (__,ext) = os.path.splitext(filename)
                 fle = tempfile.mkstemp(ext)
                 with open(fle[1], "wb") as ff: ff.write(sss)
                 os.close(fle[0])

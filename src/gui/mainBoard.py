@@ -250,6 +250,7 @@ class BasketView(wx.NotebookPage):
         self.Bind(wx.EVT_COMBOBOX,self.show_content,self.cbOrder)
         self.Bind(wx.EVT_CHECKBOX,self.show_content,self.chkInvertOrder)
         self.lbDocuments.Bind(wx.EVT_CONTEXT_MENU,self.contextualMenu)
+        self.lbDocuments.Bind(wx.EVT_MENU,self.action_menu)
         self.docList=None
 #        self.Bind(wx.EVT_TOOL,self.actionRemove,id=self.ID_REMOVE)
 #        self.Bind(wx.EVT_TOOL,self.actionMerge,id=self.ID_MERGE)
@@ -261,6 +262,8 @@ class BasketView(wx.NotebookPage):
         
     def actionRemove(self,event):
         self.board.actionRemoveRecord(self.board.basket)
+    def action_menu(self,event):
+        self.board.action_menu(self.get_selection(),event.GetId())
     def actionMerge(self,event):
         self.board.merge_documents(self.board.basket)
     def actionToGo(self,event):

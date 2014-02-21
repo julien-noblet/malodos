@@ -36,6 +36,8 @@ def record_current_password(pss):
     set_current_password(pss)
 
 def get_password(msg=_('Please gives your password for data encryption/decryption.'),checker=lambda pss:False):
+    global currentPassword
+    
     if hasattr(checker, '__contains__') and len(checker)==2 and checker[0] is not None and checker[1] is not None:
         salt=checker[0]
         hashed=checker[1]
@@ -61,6 +63,7 @@ def get_password(msg=_('Please gives your password for data encryption/decryptio
                 cont=checker(password)
             else : 
                 cont=False       
+    currentPassword=password
     return password
     
 def get_current_password(msg=_('Please gives your password for data encryption/decryption.'),forceAsk=False,checkOld=True):

@@ -15,6 +15,7 @@ import database
 import os.path
 import data
 from algorithms.general import str_to_bool
+import algorithms.stringFunctions
 import hashlib
 from database import theConfig
 import gui.utilities
@@ -34,14 +35,14 @@ class SurveyWindow(wx.Dialog):
             self.panel = wx.Panel(self, -1)
         def populate(self):
             raise "populate method must be implemented"
-
+        #self.prefSizer.Add(self.tabFrame,(1,0),span=(1,3),flag=wx.EXPAND|wx.ALL)
 # ******************************************
 # ****    tab for files not in DB       ****
 # ****    -----------------------       ****
 # ******************************************
     class SurveyContent(Content):
         def __init__(self,parent,baseWin):
-            SurveyWindow.Content.__init__(self,parent,baseWin,"Survey")
+            SurveyWindow.Content.__init__(self,parent,baseWin,_("Directory survey"))
             self.sizer = wx.BoxSizer(wx.VERTICAL)
             self.docList = wx.TreeCtrl(self.panel,-1,style=wx.TR_DEFAULT_STYLE|wx.TR_HIDE_ROOT|wx.TR_FULL_ROW_HIGHLIGHT)
             self.sizer.Add(self.docList,1,flag=wx.ALL|wx.EXPAND|wx.GROW)
@@ -64,12 +65,12 @@ class SurveyWindow(wx.Dialog):
                 else:
                     dir_comp = relPath.split(os.path.sep)
                     currentItem = rootItem
-                    (currentItem,cookie) = self.docList.GetFirstChild(currentItem)
+                    (currentItem,__) = self.docList.GetFirstChild(currentItem)
                     while currentItem and (self.docList.GetPyData(currentItem) != rootDir) :
                             currentItem = self.docList.GetNextSibling(currentItem)
                     for depth in range(len(dir_comp)):
                         searchedItem = dir_comp[depth]
-                        if currentItem : (currentItem,cookie) = self.docList.GetFirstChild(currentItem)
+                        if currentItem : (currentItem,__) = self.docList.GetFirstChild(currentItem)
                         while currentItem and (self.docList.GetPyData(currentItem) != searchedItem) :
                             currentItem = self.docList.GetNextSibling(currentItem)
                         if not currentItem : break
@@ -125,7 +126,7 @@ class SurveyWindow(wx.Dialog):
 # ******************************************
     class MissOCRContent(Content):
         def __init__(self,parent,baseWin):
-            SurveyWindow.Content.__init__(self,parent,baseWin,"OCR")
+            SurveyWindow.Content.__init__(self,parent,baseWin,_("Missing OCR"))
             self.sizer = wx.GridBagSizer(1,1)
             self.docList = wx.ListBox(self.panel,-1,style=wx.LB_SORT|wx.LB_MULTIPLE)
             self.btFixSel = wx.Button(self.panel,-1,_("Fix selected"))
@@ -202,7 +203,7 @@ class SurveyWindow(wx.Dialog):
 # ******************************************
     class FileProblemContent(Content):
         def __init__(self,parent,baseWin):
-            SurveyWindow.Content.__init__(self,parent,baseWin,"Missing")
+            SurveyWindow.Content.__init__(self,parent,baseWin,_("Removes/modified files"))
             self.sizer = wx.GridBagSizer(1,1)
             self.docList = wx.ListBox(self.panel,-1,style=wx.LB_SORT|wx.LB_MULTIPLE)
             self.btFixSel = wx.Button(self.panel,-1,_("Fix selected"))
@@ -318,6 +319,128 @@ class SurveyWindow(wx.Dialog):
                     #problems[i] = 2
                     self.docList.Append(row[database.theBase.IDX_TITLE] , row)
 
+# ******************************************
+# ****    tab for files missing         ****
+# ****    ---------------------         ****
+# ******************************************
+    class PasswordProblemContent(Content):
+        def __init__(self,parent,baseWin):
+            if database.currentPassword=='' :
+                SurveyWindow.Content.__init__(self,parent,baseWin,_("Encrypted files"))
+            else:
+                SurveyWindow.Content.__init__(self,parent,baseWin,_("Not encrypted files"))
+            self.sizer = wx.GridBagSizer(1,1)
+            self.docList = wx.ListBox(self.panel,-1,style=wx.LB_SORT|wx.LB_MULTIPLE)
+            self.btFixSel = wx.Button(self.panel,-1,_("Fix selected"))
+            self.btFixAll = wx.Button(self.panel,-1,_("Fix All"))
+            self.sizer.Add(self.docList,(0,0),span=(1,3),flag=wx.ALL|wx.EXPAND|wx.GROW)
+            self.sizer.Add(self.btFixSel,(1,0),flag=wx.ALL|wx.EXPAND|wx.GROW)
+            self.sizer.Add(self.btFixAll,(1,1),flag=wx.ALL|wx.EXPAND|wx.GROW)
+            self.sizer.AddGrowableRow(0)
+            self.sizer.AddGrowableCol(2)
+            self.panel.SetSizerAndFit(self.sizer)
+            self.Bind(wx.EVT_LISTBOX,self.actionDocSelect,self.docList)
+            self.Bind(wx.EVT_BUTTON,self.actionFixSelection,self.btFixSel)
+            self.Bind(wx.EVT_BUTTON,self.actionFixAll,self.btFixAll) 
+
+        def actionDocSelect(self,event):
+            sel = self.docList.GetSelections()
+            if len(sel)!=1 : return
+            sel=sel[0]
+            if sel is None : return
+            row = self.docList.GetClientData(sel)
+            
+            docID = row[database.theBase.IDX_ROWID]
+            filename = row[database.theBase.IDX_FILENAME]
+            title = row[database.theBase.IDX_TITLE]
+            description = row[database.theBase.IDX_DESCRIPTION]
+            documentDate = row[database.theBase.IDX_DOCUMENT_DATE]
+            tags = row[database.theBase.IDX_TAGS]
+            folderID_list = database.theBase.folders_list_for(docID)
+            md5_cs  = row[database.db.Base.IDX_CHECKSUM]
+            if not os.path.exists(filename):
+                filename = self.tryToFind(os.path.splitext(filename)[1],md5_cs)
+            if filename is None : filename=''
+            doOCR = str_to_bool(theConfig.get_param('OCR', 'autoStart','1'))
+            self.baseWin.recordPart.SetFields(filename, title, description, documentDate,tags,doOCR,folderID_list)
+            try:
+                data.theData.load_file(filename)
+                self.baseWin.docWin.resetView()
+                self.baseWin.docWin.showCurrentImage()
+                self.baseWin.SetModeUpdate(docID)
+            except:
+                data.theData.clear_all()
+        def actionFixSelection(self,event):
+            self.doFixFor(self.docList.GetSelections())
+        def actionFixAll(self,event):
+            self.doFixFor(range(self.docList.GetCount()))
+        def tryToFind(self,filename,md5_cs):
+            #return None
+            (dir_list,recursiveIdx) = database.theConfig.get_survey_directory_list()
+            for i in range(len(dir_list)):
+                dname = dir_list[i].decode('utf8')
+                if i in recursiveIdx:
+                    L=[]
+                    LL = os.walk(dname)
+                    if filename[0]=='.':
+                        L.extend([os.path.join(x[0],y) for x in LL for y in x[2] if os.path.splitext(y)[1] == filename])
+                    else:
+                        L.extend([os.path.join(x[0],y) for x in LL for y in x[2] if y == filename])
+                else:
+                    LL = os.listdir(dname)
+                    if filename[0]=='.':
+                        L= [x for x in LL if os.path.splitext(x)[1]==filename]
+                    else:
+                        L= [x for x in LL if os.path.split(x)[1]==filename]
+                candidates = []
+                for iL in L:
+                    #print iL
+                    md = hashlib.md5(open(iL, "rb").read()).hexdigest()
+                    if md == md5_cs : candidates.append(iL)
+                if len(candidates)==1:
+                    return candidates[0]
+                else:
+                    return None
+        def doFixRow(self,row):
+            docID = row[database.theBase.IDX_ROWID]
+            filename = row[database.theBase.IDX_FILENAME]
+            title = row[database.theBase.IDX_TITLE]
+            description = row[database.theBase.IDX_DESCRIPTION]
+            documentDate = row[database.theBase.IDX_DOCUMENT_DATE]
+            tags = row[database.theBase.IDX_TAGS]
+            md5_cs  = row[database.db.Base.IDX_CHECKSUM]
+            folderIDList = database.theBase.folders_list_for(docID)
+            if not os.path.exists(filename):
+                filename = self.tryToFind(os.path.splitext(filename)[1],md5_cs)
+                #filename = self.tryToFind(os.path.split(filename)[1],md5_cs)
+                #print filename
+                #return
+                if filename is None :
+                    database.theBase.remove_documents((docID,))
+                else:
+                    #print "updating with" + filename 
+                    database.theBase.update_doc(docID, title, description, documentDate, filename, tags,folderID_list=folderIDList)
+                return
+            new_md5_cs = hashlib.md5(open(filename, "rb").read()).hexdigest()
+            database.theBase.update_doc_signature(docID, new_md5_cs)
+        def doFixFor(self,selection):
+            for sel in selection :
+                row = self.docList.GetClientData(sel)
+                self.doFixRow(row)
+            self.populate()
+        def populate(self):
+            pss = database.currentPassword
+            
+            self.docList.Clear()
+            docLst = database.theBase.find_documents(None)
+            #problems = [0]*len(docLst)
+            for row in docLst:
+                filename    = row[database.db.Base.IDX_FILENAME]
+                problem=False
+                if pss=="" and algorithms.stringFunctions.is_encrypted(filename)  : problem=True
+                if pss!="" and not algorithms.stringFunctions.is_encrypted(filename) : problem=True
+                if pss!="" and not algorithms.stringFunctions.is_good_password(filename,pss) : problem=True
+                if problem : self.docList.Append(row[database.theBase.IDX_TITLE] , row)
 
 
     def __init__(self, parent):
@@ -335,10 +458,12 @@ class SurveyWindow(wx.Dialog):
         self.tabFrame = wx.Notebook(self.panel,-1)
         self.dirSurveyFrame = self.SurveyContent(self.tabFrame,self)
         self.missOCRFrame = self.MissOCRContent(self.tabFrame,self)
+        self.passwordProblemFrame = self.PasswordProblemContent(self.tabFrame,self)
         self.fileProblemsFrame = self.FileProblemContent(self.tabFrame,self)
-        self.tabFrame.AddPage(self.dirSurveyFrame,_("Directory survey"))
-        self.tabFrame.AddPage(self.missOCRFrame,_("Missing OCR"))
-        self.tabFrame.AddPage(self.fileProblemsFrame,_("Removes/modified files"))
+        self.tabFrame.AddPage(self.dirSurveyFrame,self.dirSurveyFrame.GetName())
+        self.tabFrame.AddPage(self.missOCRFrame,self.missOCRFrame.GetName())
+        self.tabFrame.AddPage(self.fileProblemsFrame,self.fileProblemsFrame.GetName())
+        self.tabFrame.AddPage(self.passwordProblemFrame,self.passwordProblemFrame.GetName())
         #self.prefSizer.Add(self.tabFrame,(1,0),span=(1,3),flag=wx.EXPAND|wx.ALL)
         self.upPart.Add(self.tabFrame,1,wx.EXPAND)
         

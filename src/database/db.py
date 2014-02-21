@@ -28,7 +28,6 @@ from os import urandom
 import database
 import Crypto.Cipher.AES as AES
 import bcrypt
-from algorithms import stringFunctions
 class ConfigReader(object):
     def __init__(self,conf_file=None):
         self.config = None
@@ -269,7 +268,6 @@ class Configuration(ConfigReader):
             dir_list.append(item.decode('utf8'))
         return (dir_list , checked)
 
-
 class Base(object):
     '''(
     this class is the interface between the application and the database engine
@@ -329,12 +327,11 @@ class Base(object):
             d=str(s)
         return d
     def create_and_use(self,base_name,psw=None):
-        self.connexion = sqlite3.connect(base_name, detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
+        self.connexion = sqlite3.connect(base_name, detect_types=sqlite3.PARSE_DECLTYPES)
         self.connexion.text_factory = self.utf_or_str
         self.base_name = base_name
         self.encrypted = not (psw is None)
         if self.encrypted:
-            self.connexion.text_factory = str
             psw=database.transform_password(psw)
             self.iv=urandom(self.ENCRYPT_IV_LENGTH)
             self.salt= bcrypt.gensalt()
@@ -350,7 +347,7 @@ class Base(object):
            
         
     def use_base(self,base_name):
-        self.connexion = sqlite3.connect(base_name, detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
+        self.connexion = sqlite3.connect(base_name, detect_types=sqlite3.PARSE_DECLTYPES)
         self.connexion.text_factory = self.utf_or_str
         self.base_name = base_name
         self.encrypted = algorithms.general.str_to_bool(self.get_parameter(self.param_ENCRYPTED))
@@ -359,7 +356,6 @@ class Base(object):
             salt=self.get_parameter(self.param_SALT)
             hashed=self.get_parameter(self.param_HASHED)
             psw = database.get_password(checker=(salt,hashed))
-            psw=database.transform_password(psw)
             self.cypher = AES.new(psw,IV=self.iv)
         self.create_function()
     def create_function(self):
@@ -372,7 +368,7 @@ class Base(object):
         self.connexion.create_function("MAKE_FULL_PATH", 2, self.make_full_name)
         
         if self.encrypted and self.cypher is not None:
-            self.connexion.create_function("decrypt", 1, lambda s:stringFunctions.decrypt(s,self.cypher,False))
+            self.connexion.create_function("decrypt", 1, lambda s:algorithms.stringFunctions.decrypt(s,self.cypher,False))
             self.encrypt = lambda s : algorithms.stringFunctions.encrypt(s, self.cypher,False)
         else:
             self.connexion.create_function("decrypt", 1, lambda s:s)
@@ -424,7 +420,7 @@ class Base(object):
         )'''
         self.__doc_fields__ = 'title,description,filename,registerDate,registeringPersonID,documentDate,tags,checksum'
         self.__doc_nbfields__ = 8
-        if 0 and self.encrypted:
+        if 0 and self.encryd:
             self.create_table(self.documents_tableName, 'documentID INTEGER PRIMARY KEY AUTOINCREMENT ,title BLOB(64), description BLOB(256), filename TEXT(256), registerDate DATE, registeringPersonID INTEGER, documentDate DATE,tags BLOB,checksum TEXT')
             self.create_table(self.keywords_tableName, 'keywordID INTEGER PRIMARY KEY AUTOINCREMENT ,keyword BLOB , soundex_word BLOB ')
         else:
@@ -713,7 +709,7 @@ class Base(object):
                 cur = self.connexion.execute(sql_command,(field_num,))
                 sql_command = "SELECT decrypt(keyword) FROM " + self.keywords_tableName + " WHERE rowID IN " + self.rows_to_str(cur,0,'')
                 cur = self.connexion.execute(sql_command)
-                return [ row[0].encode('utf-8') for row in cur]
+                return [ row[0] for row in cur]
         except Exception as E:
             logging.debug('SQL ERROR ' + str(E))
             gui.utilities.show_message('SQL search failed ' + str(E) )
@@ -726,7 +722,7 @@ class Base(object):
             sql_command = "SELECT %s FROM %s WHERE %s LIKE ?" % (field_str,self.documents_tableName,field_str)
             p = prefix+'%'
             cur = self.connexion.execute(sql_command,(p,))
-            return [ row[0].encode('utf-8') for row in cur]
+            return [ row[0] for row in cur]
         except Exception as E:
             logging.debug('SQL ERROR ' + str(E))
             gui.utilities.show_message('SQL search failed ' + str(E) )
@@ -1272,7 +1268,8 @@ class Base(object):
     def replicate_in(self,new_base_name,docList=None,file_replacer=None,new_password=None):
         try:
             # creation of the new database
-            newDB = Base(new_base_name)
+            newDB = Base()
+            newDB.create_and_use(new_base_name, new_password)
             if not newDB.buildDB(): return False
             # replicate the whole folder structure
             Q='SELECT name,parentID,rowID FROM %s' %self.folders_tableName
