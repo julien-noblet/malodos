@@ -279,6 +279,8 @@ def req_to_sql(req):
     #print L
     return (SS,LL)
 def no_accent(S):
+    if type(S) is str:
+        S = S.decode('unicode-escape')
     return unicodedata.normalize('NFKD', S).encode('ASCII', 'ignore')
 
 
@@ -293,21 +295,31 @@ def encrypt(s,cipher,prefixed=True):
     if prefixed:
         x= '%.2d' % npad
         sss=x+sss
-    return sss
-def decrypt(s,cipher,prefixed=True):
+    return ''.join( format(ord(i),'02x') for i in sss )
+    #return sss
+def decrypt(s,cipher,prefixed=True,encodeUTF=True):
     try:
         if s is None : return 'internal error'
+        l = [s[i:i+2] for i in range(0,len(s)-1,2)]
+        #l = s.split(',')
+        s=b''.join(chr(int('0x'+i,0)) for i in l)
         if prefixed:
             npad = int(s[0:2])
             s = s[2:]
             s = cipher.decrypt(s)
             if npad>0 :
-                return s[:-npad]
+                ans = s[:-npad]
             else:
-                return s
+                ans = s
         else:
             s = cipher.decrypt(s)
-            return s.rstrip()
+            ans = s.rstrip()
+        if encodeUTF:
+            try:
+                ans=ans.encode('utf8')
+            except:
+                ans=''
+        return ans
     except Exception as E:
         logging.debug('SQL ERROR ' + str(E))
         logging.debug('s was ' + str(s) + ' of type ' + str(type(s)))
@@ -327,6 +339,23 @@ def save_encrypted_data(txt,filename):
         x=digest.digest()
         ff.write(x)
         ff.write(sss)
+def is_encrypted(filename):
+    with open(filename, "rb") as ff:
+        tst = ff.read(len(ENCRYPT_TEXT))
+        return tst == ENCRYPT_TEXT
+def is_good_password(filename,thePassword):
+    with open(filename, "rb") as ff:
+        iv = ff.read(ENCRYPT_IV_LENGTH)
+        dgst = ff.read(16)
+        txt = ff.read()
+        cipher = AES.new(thePassword,IV=iv)
+        sss=decrypt(txt,cipher,True,False)
+        digest = md5.new()
+        digest.update(sss)
+        if digest.digest() != dgst:
+            return False
+        else:
+            return True
     
 def load_encrypted_data(filename):
     with open(filename, "rb") as ff:
@@ -339,7 +368,7 @@ def load_encrypted_data(filename):
             txt = ff.read()
             while again:
                 cipher = AES.new(thePassword,IV=iv)
-                sss=decrypt(txt,cipher)
+                sss=decrypt(txt,cipher,True,False)
                 digest = md5.new()
                 digest.update(sss)
                 if digest.digest() != dgst:

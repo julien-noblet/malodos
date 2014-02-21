@@ -25,7 +25,8 @@ class docPrinter(wx.Printout):
     def HasPage(self, page_num):
         "Does the page exists."
         return page_num<=theData.nb_pages
-
+    def GetPageInfo(self):
+        return (1, 1, 1, 1)
     def OnPrintPage(self, page_num):
         "Print the given page"
         dc = self.GetDC()
@@ -34,8 +35,10 @@ class docPrinter(wx.Printout):
         pil_image = theData.get_image(page_num-1)
         if not pil_image : return False
         img = wx.EmptyImage(pil_image.size[0],pil_image.size[1])
+        print "PIL image size is {0}".format(pil_image.size)
         img.SetData(pil_image.convert("RGB").tostring())
         img.Rescale(dcSize[0],dcSize[1],wx.IMAGE_QUALITY_HIGH)
+        print "print image size is {0}".format(dcSize)
         bm = img.ConvertToBitmap()        
         dc.DrawBitmap(bm,0,0)
         return True

@@ -18,6 +18,7 @@ import os.path
 import gui.utilities
 import gui.virtualFolder
 import logging
+import algorithms.stringFunctions
 #try:
 #    import gfx
 #except:
@@ -77,8 +78,10 @@ class RecordWidget(wx.Window):
               
 #        self.txtOCR = wx.StaticText(self.panel , -1 , _('do OCR'))
         self.cbOCR = wx.CheckBox(self.panel , -1,label=_('rescan for OCR'))
+        self.btEncryptDecrypt = wx.Button(self.panel,-1,_('Add password'))
 #        self.txtFieldSizer.Add(self.txtOCR,0)
         self.txtFieldSizer.Add(self.cbOCR,1)
+        self.txtFieldSizer.Add(self.btEncryptDecrypt,0)
         
         self.totSizer.Add(self.txtFieldSizer,proportion=2,flag=wx.EXPAND)
         
@@ -103,6 +106,7 @@ class RecordWidget(wx.Window):
         #self.Bind(wx.EVT_FILEPICKER_CHANGED,self.checkFileName,self.lbFileName)
         #self.lbFileName.Bind(wx.EVT_FILEPICKER_CHANGED, self.checkFileName)
         self.modificationCallback=None
+    
     def setModificationCallback(self,callback_function=None):
         self.modificationCallback=callback_function
     def notifyModification(self,event=None):
@@ -134,7 +138,7 @@ class RecordWidget(wx.Window):
         pos = self.lbTags.GetInsertionPoint()
         if pos>=len(text) : return ''
         if text[pos]==',' : return ''
-        [pos1,junk] = self.getCurrentPart(pos,text)
+        [pos1,_] = self.getCurrentPart(pos,text)
         if pos1<0 or pos1>=len(text)-1: pos1=0
         if text[pos1]==',' and pos1+1 < text : pos1=pos1+1
         return text[pos1:pos]
@@ -212,7 +216,10 @@ class RecordWidget(wx.Window):
         if not selectedList is None :
             self.vFold.setSelectedList(selectedList)
             self.updateSelection(selectedList)
-            
+        if algorithms.stringFunctions.is_encrypted(filename) :
+            self.btEncryptDecrypt.SetLabel(_('Remove password'))
+        else:
+            self.btEncryptDecrypt.SetLabel(_('Add password'))
     def onResize(self,event):
         self.panel.Size = self.Size
     def do_save_record(self):

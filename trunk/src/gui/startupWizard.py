@@ -20,6 +20,7 @@ else:
     from scannerAccess import twainAccess
 from algorithms.words import get_available_languages
 from algorithms.general import str_to_bool
+import gui.utilities
 
 class StartupWizard(wx.wizard.Wizard):
     '''
@@ -49,7 +50,7 @@ class StartupWizard(wx.wizard.Wizard):
     def on_cancel(self,event):
         if not utilities.ask(_('Are you sure you want to cancel the startup wizard ?')) : event.Veto()
     def on_finished(self,event):
-        self.pageDatabase.actionSave()
+        if not self.pageDatabase.actionSave() : return
         self.pageScanner.actionSave()
         self.pageOCR.actionSave()
         self.pageSurvey.actionSave()
@@ -63,10 +64,28 @@ class PageDatabaseChoice (wx.wizard.PyWizardPage):
         s=_('Please choose a name for your database.\n Check the box if you want to define an encryption password for the database.')
         self.dbFrame = dbGui.CreatorFrame(self)
         self.cbEncryptData=wx.CheckBox(self,-1,_('Encrypt the scanned files'))
+        self.cbSamePasswd = wx.CheckBox(self,-1,_('Use the same password for the scanned files and for the database'))
+        self.lbPasswd = wx.TextCtrl(self,style=wx.TE_PASSWORD)
+        self.lbPasswdConfirm = wx.TextCtrl(self,style=wx.TE_PASSWORD)
         self.sizer.Add(wx.StaticText(self,-1,s),wx.EXPAND)
         self.sizer.Add(self.dbFrame,0,flag=wx.EXPAND)
         self.sizer.Add(self.cbEncryptData,0,flag=wx.EXPAND)
+        self.sizer.Add(self.cbSamePasswd,0,flag=wx.EXPAND)
+        self.sizer.Add(self.lbPasswd,0,flag=wx.EXPAND)
+        self.sizer.Add(self.lbPasswdConfirm,0,flag=wx.EXPAND)
         self.SetSizer(self.sizer)
+        
+        self.Bind(wx.EVT_CHECKBOX,self.adaptEncryptShow,self.cbEncryptData)
+        self.Bind(wx.EVT_CHECKBOX,self.adaptEncryptShow,self.cbSamePasswd)
+        self.dbFrame.Bind(wx.EVT_CHECKBOX,self.adaptEncryptShow,self.dbFrame.cbEncrypted)
+        self.adaptEncryptShow(None)
+    def adaptEncryptShow(self,event):
+        self.cbSamePasswd.Enable(self.cbEncryptData.Value and self.dbFrame.cbEncrypted.Value)
+        showingPassFields = self.cbEncryptData.Value and (not self.dbFrame.cbEncrypted.Value or (self.dbFrame.cbEncrypted.Value and not self.cbSamePasswd.Value))
+        self.lbPasswd.Enable(showingPassFields)
+        self.lbPasswdConfirm.Enable(showingPassFields)
+        self.dbFrame.lbPasswd.Enable(self.dbFrame.cbEncrypted.Value)
+        self.dbFrame.lbPasswdConfirm.Enable(self.dbFrame.cbEncrypted.Value)
     def GetNext(self):
         #if not self.dbFrame.Validate() :
         #    return self
@@ -76,10 +95,23 @@ class PageDatabaseChoice (wx.wizard.PyWizardPage):
     def actionSave(self):
         self.dbFrame.Validate()
         database.theBase.create_and_use(self.dbFrame.filename,self.dbFrame.password)
+        if not database.theBase.buildDB() :
+            utilities.show_message(_('Unable to build the database'))
+            return False
         database.theConfig.set_database_name(self.dbFrame.filename)
         database.theConfig.set_param('encryption', 'encryptData', str(self.cbEncryptData.Value), True)
         database.theConfig.set_param('encryption', 'encryptDatabase', str(self.dbFrame.cbEncrypted.Value), True)
-        if self.cbEncryptData.Value: database.record_current_password(self.dbFrame.password)
+        if self.cbEncryptData.Value:
+            if self.cbSamePasswd.Value :
+                data_psw =self.dbFrame.password
+            else:
+                if self.lbPasswd.Value != self.lbPasswdConfirm.Value:
+                    gui.utilities.show_message(_('The two data password confirmation mismatches, please check them.'))
+                    return False
+                data_psw =self.lbPasswd
+             
+            database.record_current_password(data_psw)
+        return True
 
 class PageScannerChoice (wx.wizard.PyWizardPage):
     def __init__(self,parent):
